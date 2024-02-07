@@ -1,0 +1,7 @@
+{
+    "MACROS-AND-MORE.Dialog.Maintenance.Hint": "Remove all macros or tables in the 'GM Toolkit' Macro directory or RollTable folder, if that folder exists, and import the latest compendium versions.<br><br>Any customisations will be lost. Move these out of the GM Toolkit directory first if you want to preserve any changes you have made.",
+    "MACROS-AND-MORE.Dialog.Maintenance.Macros": "Macros",
+    "MACROS-AND-MORE.Settings.Maintenance.menu.name" : "Module Maintenance",
+    "MACROS-AND-MORE.Settings.Maintenance.menu.hint" : "Replace imported GM Toolkit macros and/or tables with latest compendium versions.",
+    "MACROS-AND-MORE.Settings.Maintenance.menu.label" : "Update GM Toolkit Content"
+}

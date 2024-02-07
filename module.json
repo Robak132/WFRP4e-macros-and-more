@@ -1,0 +1,63 @@
+{
+  "id": "wfrp4e-macros-and-more",
+  "title": "Robak's macros and more (WFRP4)",
+  "authors": [
+    {
+      "name": "Robak132",
+      "discord": "Robak_132"
+    },
+    {
+      "name": "Jagusti",
+      "discord": "Jagusti",
+      "flags": {}
+    }
+  ],
+  "version": "1.0",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11",
+    "maximum": "11"
+  },
+  "esmodules": [
+    "wfrp4e-macros-and-more.mjs"
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "wfrp4e",
+        "type": "system",
+        "compatibility": {}
+      }
+    ]
+  },
+
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    },
+    {
+      "lang": "pl",
+      "name": "Polski",
+      "path": "lang/pl.json",
+      "flags": {}
+    }
+  ],
+  "license": "LICENSE",
+  "socket": true,
+  "packs": [
+    {
+      "name": "macros",
+      "label": "Robak's Macros",
+      "path": "packs/macros",
+      "type": "Macro",
+      "system": "wfrp4e",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ]
+}
