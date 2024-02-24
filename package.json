@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@foundryvtt/foundryvtt-cli": "^1.0.2"
+  }
+}
