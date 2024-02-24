@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 export class Utility {
   static #OWNERSHIP_OWNER = 3;
   static #OWNERSHIP_OBSERVER = 2;

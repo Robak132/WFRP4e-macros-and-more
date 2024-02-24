@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 import {ItemTransfer} from './scripts/item-transfer.mjs';
 import {handleLosingGroupAdvantage} from './scripts/group-advantage-losing.js';
 import {Utility} from './scripts/utility.mjs';

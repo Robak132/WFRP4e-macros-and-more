@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 const NAMES = {
   '-1': 'Enemies',
   '0': 'Neutral',

@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 import {Utility} from './utility.mjs';
 
 Hooks.on('renderActorSheetWfrp4e', (sheet, html, _) => setupItemHandler(sheet, html));

@@ -1,5 +1,3 @@
-// noinspection JSUnresolvedReference
-
 import {Utility} from './utility.mjs';
 
 export default class MaintenanceWrapper extends FormApplication {
