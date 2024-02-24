@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Random Weather Generator (Sea)
-* VERSION: 1.0
+* VERSION: 1.1
 * AUTHOR: Robak132
 * DESCRIPTION: Generate weather by Sea of Claws rules.
 ========== */
@@ -325,6 +325,9 @@ async function submit(html) {
 		<p><b>Strength:</b> ${windStrength.value}</p>
 		<p><b>Direction:</b> ${windDirection.value} (${windName})</p>
 	  <p><b>Effect:</b> ${WIND_EFFECT[windStrength.value][windName]}</p>`;
+  if (windStrength.value === "Strong Gale" || windStrength.value === "Violent Storm") {
+    weatherReport += `Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging (+0) Endurance</b> Test or suffer from sea sickness.`
+  }
   ChatMessage.create({
     content: weatherReport,
     whisper: game.users.filter(u => u.isGM).map(u => u.id),
