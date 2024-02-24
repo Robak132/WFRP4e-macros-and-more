@@ -10,6 +10,10 @@
 Collection of macros that I use for my games. Beware bugs, use on your own risk. Feel free to suggest your ideas or
 report bugs. Use Issues or find me on Discord: @Robak132.
 
+## Installation
+Install the module via this Manifest URL in the Add-on Modules tab of Foundry VTT setup:
+https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest/download/module.json
+
 ## Acknowledgements
 
 Maintenance mode, release script and some codes were based
