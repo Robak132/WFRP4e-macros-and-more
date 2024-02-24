@@ -19,7 +19,7 @@ jobs:
         run: npm install -g @foundryvtt/foundryvtt-cli
 
       - name: Pack macros
-        run: fvtt package --in ./src/packs\macros --out ./packs/ -n macros --type Module pack macros
+        run: fvtt package --in ./src/packs/macros --out ./packs/ -n macros --type Module pack macros
 
       # Get Module ID
       - name: Get Module ID
