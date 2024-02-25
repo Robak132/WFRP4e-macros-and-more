@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Inventory Manager
-* VERSION: 1.0
+* VERSION: 1.1.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easy item movement between containers and actors.
 ========== */
@@ -138,7 +138,7 @@ class InventoryManager {
                         data-item="${item.id}"
                         data-source-actor="${actorId}"
                         data-source-container="${containerId}">
-                <option selected></option>
+                <option selected label=""></option>
                 ${game.robakMacros.transferItem.createSelectTag(actorId, containerId)}
                 </select>
               </div>`;
@@ -178,6 +178,10 @@ class InventoryManager {
           if (input.value === "0") {
             slider.value = slider.max
             input.value = slider.max
+          }
+          if (this.options[this.options.selectedIndex].label === "") {
+            slider.value = slider.min
+            input.value = slider.min
           }
         });
       </script>`;

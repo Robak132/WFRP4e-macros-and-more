@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Consume Alcohol Macro
-* VERSION: 1.0
+* VERSION: 1.0.0
 * AUTHORS: @Robak132
 * DESCRIPTION: Automatically counts failures and adds modifiers when drunk.
 ========== */

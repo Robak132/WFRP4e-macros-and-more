@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Roll Passive Talent
-* VERSION: 1.0
+* VERSION: 1.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easier interaction with passive talents like Sixth Sense and Trapper. Uses features of GM Toolkit by Jagusti.
 ========== */

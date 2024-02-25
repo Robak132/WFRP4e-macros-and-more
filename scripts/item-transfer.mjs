@@ -6,7 +6,9 @@ function setupItemHandler(sheet, html) {
   if (!game.settings.get('wfrp4e-macros-and-more', 'transfer-item-gui')) return;
 
   $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
-      insertAfter(html.find('.inventory .item-control.item-edit'));
+    insertAfter(html.find('.inventory .item-post'));
+  $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
+    insertBefore(html.find('.inventory .item-remove'));
   html.find('.item-control.item-transfer').on('click', ItemTransfer.transferItemHandler.bind(sheet.actor));
 }
 
