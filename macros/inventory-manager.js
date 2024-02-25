@@ -126,7 +126,7 @@ class InventoryManager {
             </p>`;
         for (const item of categoryList) {
           form += `
-              <div class="form-group" id="${item.id}">
+              <div class="form-group">
                 <span style="flex: 1;text-align: center">${this.formatItemEnc(item)}</span>
                 <span style="flex: 5;text-align: center">${item.name}</span>
                 <span style="flex: 1;text-align: center">${item.quantity.value}</span>
@@ -134,6 +134,7 @@ class InventoryManager {
                 <input style="flex: 1;text-align: center" name="${item.id}" min="0" max="${item.system.quantity.value}" value="0" type="number">
                 <span style="flex: 1;text-align: center">&#8594;</span>
                 <select style="flex: 3" 
+                        name="${item.id}"
                         data-item="${item.id}"
                         data-source-actor="${actorId}"
                         data-source-container="${containerId}">
@@ -166,10 +167,18 @@ class InventoryManager {
     form += `</div></form>
       <script>
         $("input[type=range]").on("input", function() {
-          document.querySelector("input[type=number][name=" + this.name + "]").value = this.value
+          document.getElementsByName(this.name)[1].value = this.value
         });
         $("input[type=number]").on("input", function() {
-          document.querySelector("input[type=range][name=" + this.name + "]").value = this.value
+          document.getElementsByName(this.name)[0].value = this.value
+        });
+        $("select").on("input", function() {
+          let slider = document.getElementsByName(this.name)[0]
+          let input = document.getElementsByName(this.name)[1]
+          if (input.value === "0") {
+            slider.value = slider.max
+            input.value = slider.max
+          }
         });
       </script>`;
     return form;
@@ -183,9 +192,10 @@ class InventoryManager {
         targetContainerId: e.options[e.options.selectedIndex].dataset.targetContainer,
         sourceActorId: e.dataset.sourceActor,
         sourceContainerId: e.dataset.sourceContainer,
-        quantity: game.actors.get(e.dataset.sourceActor).items.get(e.dataset.item).system.quantity.value
+        quantity: Number($(html).find(`input[type=number][name=${e.dataset.item}]`).val())
       };
     }).get().filter(s => s.targetContainerId != null && s.targetActorId != null);
+    console.log(itemTransfers)
     await game.robakMacros.transferItem.transferItems(itemTransfers)
   }
 }
