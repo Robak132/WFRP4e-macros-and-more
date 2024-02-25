@@ -1,7 +1,7 @@
 # Robak's Macros and More
 
-[![Version](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/Robak132/WFRP4e-macros-and-more/main/module.json&label=Current+Version&query=version&color=blue)](https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest)
-[![Foundry Compatibility](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2FRobak132%2FWFRP4e-macros-and-more%2Fmain%2Fmodule.json&label=Foundry%20VTT%20Version&query=$.compatibility.minimum&colorB=orange)](https://foundryvtt.com/releases/)
+[![Version](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/Robak132/WFRP4e-macros-and-more/release/module.json&label=Current+Version&query=version&color=blue)](https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest)
+[![Foundry Compatibility](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2FRobak132%2FWFRP4e-macros-and-more%2Frelease%2Fmodule.json&label=Foundry%20VTT%20Version&query=$.compatibility.minimum&colorB=orange)](https://foundryvtt.com/releases/)
 [![GitHub release](https://img.shields.io/github/release-date/Robak132/WFRP4e-macros-and-more?label=Released&color=brightgreen)](https://github.com/Robak132/WFRP4e-macros-and-more/releases)
 [![GitHub commits](https://img.shields.io/github/commits-since/Robak132/WFRP4e-macros-and-more/latest?label=Commits%20Since%20Release&color=yellowgreen)](https://github.com/Robak132/WFRP4e-macros-and-more/commits/)<br>
 ![the latest version zip](https://img.shields.io/github/downloads/Robak132/WFRP4e-macros-and-more/latest/wfrp4e-macros-and-more.zip?label=Downloads%20(Current%20Version)&color=blue)
