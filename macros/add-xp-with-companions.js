@@ -1,9 +1,9 @@
 /* ==========
- * MACRO: Add XP (Characters and Companions)
- * VERSION: 6.1.0
- * UPDATED: 2022-10-23
- * DESCRIPTION: Adds a set amount of XP to all or targeted player character(s). Adds half XP to companion(s). Modified macro from GM Toolkit by Jagusti.
- ========== */
+* MACRO: Add XP (Characters and Companions)
+* VERSION: 1.0.0
+* AUTHOR: Robak132
+* DESCRIPTION: Adds a set amount of XP to all or targeted player character(s). Adds half XP to companion(s). Modified macro from GM Toolkit by Jagusti.
+========== */
 
 addXP();
 

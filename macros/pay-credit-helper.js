@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Pay/Credit Helper
-* VERSION: 1.0
+* VERSION: 1.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easier money transactions
 ========== */
