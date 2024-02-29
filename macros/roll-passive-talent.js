@@ -1,38 +1,107 @@
 /* ==========
 * MACRO: Roll Passive Talent
-* VERSION: 1.0.0
+* VERSION: 2.0.0
 * AUTHOR: Robak132
-* DESCRIPTION: Allows for easier interaction with passive talents like Sixth Sense and Trapper. Uses features of GM Toolkit by Jagusti.
+* DESCRIPTION: Allows for easier interaction with passive talents like Sixth Sense and Trapper.
 ========== */
 
-passive_talent_macro(
-'Szósty Zmysł' /* <-- Write talent name here */,
-'Intuicja'      /* <-- Write skill name here */
-);
+new Dialog({
+  title: 'Random Vampire Weaknesses',
+  content: `
+    <form>
+      <div class="form-group">
+        <label>Do you want to hide all Dialogs?</label>
+    </form>
+    `,
+  buttons: {
+    yes: {
+      icon: '<i class=\'fas fa-check\'></i>',
+      label: 'Yes',
+      callback: async () => await passiveTalentMacro(true),
+    },
+    no: {
+      icon: '<i class=\'fas fa-times\'></i>',
+      label: 'No',
+      callback: async () => await passiveTalentMacro(false),
+    },
+  },
+  default: 'yes',
+}).render(true);
 
-function passive_talent_macro(talent, skill) {
-  const targetGroup = game.actors.filter(a => {
-    return a.hasPlayerOwner && a.type !== 'vehicle' && a.itemCategories.talent.find(i => i.name === talent) !== undefined;
-  }).map(g => g.uuid);
+const PASSIVE_TALENTS = [
+  {
+    talent: game.i18n.localize('NAME.SixthSense'),
+    skill: game.i18n.localize('NAME.Intuition'),
+  }, {
+    talent: game.i18n.localize('NAME.Trapper'),
+    skill: game.i18n.localize('NAME.Perception'),
+  }, {
+    talent: game.i18n.localize('NAME.NoseForTrouble'),
+    skill: game.i18n.localize('NAME.Intuition'),
+  }];
 
-  if (targetGroup.length === 0) {
-    ui.notifications.error(game.i18n.localize('MACROS-AND-MORE.Message.MakeSecretGroupTest.NoGroup'), {console: true});
+async function passiveTalentMacro(hideDialogs) {
+  if (!game.user.isGM) {
+    ui.notifications.error(game.i18n.localize('MACROS-AND-MORE.NoPermission'));
     return;
   }
+  let msg = '';
+  for (const {
+    skill,
+    talent
+  } of PASSIVE_TALENTS) {
+    const targetGroup = game.actors.filter(
+        a => a.hasPlayerOwner && a.type !== 'vehicle' && a.itemCategories.talent.some(i => i.name === talent)).
+        map(g => g.uuid);
+    if (targetGroup.length === 0) continue;
 
-  const testOptions = {
-    bypass: true,
-    rollMode: 'blindroll',
-    fallback: true,
-    difficulty: 'challenging',
+    await game.settings.set('wfrp4e-macros-and-more', 'passiveTests', []);
+    for (const member of targetGroup) {
+      if (member === null) continue;
+      let actor = await fromUuid(member);
+      actor = actor?.actor ? actor.actor : actor;
+      await runActorTest(actor, skill, talent, hideDialogs);
+    }
+    msg += await catchGroupTestResults(skill, talent);
+  }
+
+  await ChatMessage.create({
+    content: msg,
+    whisper: game.users.filter(u => u.isGM).map(u => u.id),
+  });
+}
+
+async function catchGroupTestResults(skill, talent) {
+  let groupTestResultsMessage = `<h3>${talent}: <strong>${skill}</strong></h3>`;
+  for (let testResult of await game.settings.get('wfrp4e-macros-and-more', 'passiveTests')) {
+    groupTestResultsMessage += `${(testResult.outcome !== 'success') ? '' : '<i class=\'fas fa-check\'></i> '}
+      <strong>${testResult.actor.name}:</strong> <strong>${testResult.sl} SL</strong> (${testResult.roll} vs ${testResult.target})</br>`;
+  }
+  return groupTestResultsMessage;
+}
+
+async function runActorTest(actor, skill, talent, hideDialogs) {
+  let actorSkill = actor.items.find(i => i.type === 'skill' && i.name === skill);
+  let actorTalentLevel = actor.items.filter(i => i.type === 'talent' && i.name === talent).length;
+  let setupData = {
+    bypass: hideDialogs,
     testModifier: 0,
-    targetGroup: targetGroup,
+    rollMode: 'blindroll',
+    absolute: {
+      difficulty: 'challenging',
+      successBonus: actorTalentLevel,
+    },
+    passiveTest: true,
+    title: `Test: ${talent} (${actorSkill?.name})`,
   };
 
-  if (!game.user.isGM) {
-    ui.notifications.error(game.i18n.localize('MACROS-AND-MORE.Message.MakeSecretGroupTest.NoPermission'));
-    return;
-  }
+  if (actorSkill !== undefined) {
+    return (await actor.setupSkill(actorSkill, setupData)).roll();
+  } else {
+    actorSkill = await game.wfrp4e.utility.findSkill(skill);
+    const skillCharacteristic = game.wfrp4e.config.characteristics[actorSkill.characteristic.value];
+    setupData.title = `${talent} (${skillCharacteristic})`;
 
-  return game.gmtoolkit.grouptest.run(skill, testOptions);
+    return (await actor.setupCharacteristic(actorSkill.characteristic.value, setupData)).roll();
+  }
 }

@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Consume Alcohol Macro
-* VERSION: 1.0.0
+* VERSION: 1.0.1
 * AUTHORS: @Robak132
 * DESCRIPTION: Automatically counts failures and adds modifiers when drunk.
 ========== */
@@ -49,7 +49,7 @@ async function getDrunk() {
     return ui.notifications.error('Select one or more characters on which you want to run this macro');
   }
 
-  new Dialog({
+  await new Dialog({
     title: 'Determine Beverage',
     content: `
      <form>

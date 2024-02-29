@@ -3,7 +3,7 @@ const NAMES = {
   '0': 'Neutral',
   '1': 'Allies',
 };
-const DRILLED = "Drilled"
+const DRILLED = 'Drilled';
 
 export function handleLosingGroupAdvantage(combatants) {
   let content = {};
