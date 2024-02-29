@@ -1,7 +1,7 @@
 import {ItemTransfer} from './scripts/item-transfer.mjs';
-import {handleLosingGroupAdvantage} from './scripts/group-advantage-losing.js';
+import {handleLosingGroupAdvantage} from './scripts/group-advantage-losing.mjs';
 import {Utility} from './scripts/utility.mjs';
-import MaintenanceWrapper from './scripts/maintenance.js';
+import MaintenanceWrapper from './scripts/maintenance.mjs';
 
 Hooks.once("init", function () {
   game.robakMacros = {
@@ -34,6 +34,11 @@ Hooks.once("init", function () {
     type: MaintenanceWrapper,
     restricted: true
   })
+  game.settings.register("wfrp4e-macros-and-more", "passiveTests", {
+    scope: "world",
+    config: false,
+    default: []
+  })
 });
 
 Hooks.once('ready', function() {
@@ -46,5 +51,21 @@ Hooks.once('ready', function() {
 Hooks.on("updateCombat", (combat, updates, _, __) => {
   if (game.settings.get('wfrp4e-macros-and-more', 'losing-advantage') && game.user.isUniqueGM && foundry.utils.hasProperty(updates, 'round')) {
     handleLosingGroupAdvantage(combat.combatants);
+  }
+});
+
+Hooks.on('wfrp4e:rollTest', async function(testData, _) {
+  if (testData.options.passiveTest) {
+    return await game.settings.set('wfrp4e-macros-and-more', 'passiveTests', [
+      ...game.settings.get('wfrp4e-macros-and-more', 'passiveTests'), {
+        actor: testData.token || testData.actor,
+        skill: testData?.skill,
+        characteristic: testData?.characteristic,
+        outcome: testData.outcome,
+        sl: testData.result.SL,
+        description: testData.result.description,
+        roll: testData.result.roll,
+        target: testData.target,
+      }]);
   }
 });
