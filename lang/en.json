@@ -7,5 +7,10 @@
   "MACROS-AND-MORE.MessageNoPermission": "You have no permissions for this action",
   "NAME.SixthSense": "Sixth Sense",
   "NAME.Trapper": "Trapper",
-  "NAME.NoseForTrouble": "Nose for Trouble"
+  "NAME.NoseForTrouble": "Nose for Trouble",
+  "NAME.Drilled": "Drilled",
+  "MACROS-AND-MORE.LosingAdvantage": "Losing Advantage",
+  "MACROS-AND-MORE.Allies": "Allies",
+  "MACROS-AND-MORE.Neutral": "Neutral",
+  "MACROS-AND-MORE.Enemies": "Enemies"
 }
