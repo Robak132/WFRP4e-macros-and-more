@@ -1,10 +1,10 @@
-let DISPOSITION_LABELS = {
-  '-1': game.i18n.localize("MACROS-AND-MORE.Enemies"),
-  '0': game.i18n.localize("MACROS-AND-MORE.Neutral"),
-  '1': game.i18n.localize("MACROS-AND-MORE.Allies"),
-};
-
 export function handleLosingGroupAdvantage(combatants) {
+  let DISPOSITION_LABELS = {
+    '-1': game.i18n.localize("MACROS-AND-MORE.Enemies"),
+    '0': game.i18n.localize("MACROS-AND-MORE.Neutral"),
+    '1': game.i18n.localize("MACROS-AND-MORE.Allies"),
+  };
+
   let content = {};
   for (let combatant of combatants.filter(c => c.actor.details.size)) {
     const disposition = combatant.token.disposition;
