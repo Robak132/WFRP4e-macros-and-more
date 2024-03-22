@@ -27,9 +27,9 @@ Hooks.once("init", function () {
     type: Boolean,
   });
   game.settings.registerMenu('wfrp4e-macros-and-more', "menuMaintenance", {
-    name: "MACROS-AND-MORE.Settings.Maintenance.menu.name",
-    label: "MACROS-AND-MORE.Settings.Maintenance.menu.label",
-    hint: "MACROS-AND-MORE.Settings.Maintenance.menu.hint",
+    name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
+    label: "MACROS-AND-MORE.SettingsMaintenanceMenuLabel",
+    hint: "MACROS-AND-MORE.SettingsMaintenanceMenuHint",
     icon: "fas fa-cog",
     type: MaintenanceWrapper,
     restricted: true

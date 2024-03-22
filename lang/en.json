@@ -1,11 +1,17 @@
 {
-  "MACROS-AND-MORE.Dialog.Maintenance.Hint": "Remove all macros or tables in the 'GM Toolkit' Macro directory or RollTable folder, if that folder exists, and import the latest compendium versions.<br><br>Any customisations will be lost. Move these out of the GM Toolkit directory first if you want to preserve any changes you have made.",
-  "MACROS-AND-MORE.Dialog.Maintenance.Macros": "Macros",
-  "MACROS-AND-MORE.Settings.Maintenance.menu.name": "Module Maintenance",
-  "MACROS-AND-MORE.Settings.Maintenance.menu.hint": "Replace imported GM Toolkit macros and/or tables with latest compendium versions.",
-  "MACROS-AND-MORE.Settings.Maintenance.menu.label": "Update GM Toolkit Content",
+  "MACROS-AND-MORE.DialogMaintenanceHint": "Remove all macros and import the latest compendium versions.<br><br>Any customisations will be lost. Move these out of the directory first if you want to preserve any changes you have made.",
+  "MACROS-AND-MORE.DialogMaintenanceMacros": "Macros",
+  "MACROS-AND-MORE.SettingsMaintenanceMenuName": "Module Maintenance",
+  "MACROS-AND-MORE.SettingsMaintenanceMenuHint": "Replace imported macros with latest compendium versions.",
+  "MACROS-AND-MORE.SettingsMaintenanceMenuLabel": "Update Content",
   "MACROS-AND-MORE.MessageNoPermission": "You have no permissions for this action",
   "NAME.SixthSense": "Sixth Sense",
   "NAME.Trapper": "Trapper",
-  "NAME.NoseForTrouble": "Nose for Trouble"
+  "NAME.NoseForTrouble": "Nose for Trouble",
+  "NAME.Drilled": "Drilled",
+  "MACROS-AND-MORE.LosingAdvantage": "Losing Advantage",
+  "MACROS-AND-MORE.Allies": "Allies",
+  "MACROS-AND-MORE.Neutral": "Neutral",
+  "MACROS-AND-MORE.Enemies": "Enemies",
+  "MACROS-AND-MORE.ShowWeapons": "Show Weapons"
 }

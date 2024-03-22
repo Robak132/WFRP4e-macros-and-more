@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "pack": "fvtt package --in ./src/packs/macros --out ./packs/ -n macros --type Module pack macros",
-    "unpack": "fvtt package --in ./packs --out ./src/packs/macros -n macros --type Module unpack macros"
+    "pack": "pack.sh",
+    "unpack": "unpack.sh",
+    "move": "node move-to-src.js"
   }
 }
