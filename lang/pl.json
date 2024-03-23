@@ -13,5 +13,21 @@
   "MACROS-AND-MORE.Allies": "Sojusznicy",
   "MACROS-AND-MORE.Neutral": "Neutralni",
   "MACROS-AND-MORE.Enemies": "Wrogowie",
-  "MACROS-AND-MORE.ShowWeapons": "Prezentuj Broń"
+  "MACROS-AND-MORE.ShowWeapons": "Prezentuj Broń",
+
+  "SEA-WEATHER-GENERATOR.North": "Północ",
+  "SEA-WEATHER-GENERATOR.NorthAdj": "Płn.",
+  "SEA-WEATHER-GENERATOR.South": "Południe",
+  "SEA-WEATHER-GENERATOR.SouthAdj": "Płd.",
+  "SEA-WEATHER-GENERATOR.East": "Wschód",
+  "SEA-WEATHER-GENERATOR.EastAdj": "Wsch.",
+  "SEA-WEATHER-GENERATOR.West": "Zachód",
+  "SEA-WEATHER-GENERATOR.WestAdj": "Zach.",
+
+  "SEA-WEATHER-GENERATOR.Doldrums": "Flauta",
+  "SEA-WEATHER-GENERATOR.LightBreeze": "słaby wiatr",
+  "SEA-WEATHER-GENERATOR.FreshBreeze": "umiarkowany wiatr",
+  "SEA-WEATHER-GENERATOR.NearGale": "silny wiatr",
+  "SEA-WEATHER-GENERATOR.StrongGale": "silny sztorm",
+  "SEA-WEATHER-GENERATOR.ViolentStorm": "gwałtowny sztorm"
 }

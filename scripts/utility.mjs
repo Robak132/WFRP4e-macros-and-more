@@ -59,6 +59,10 @@ export class Utility {
     }
   }
 
+  static round(num, spaces) {
+    return +(Math.round(num + `e+${spaces}`) + `e-${spaces}`);
+  }
+
   static isOwner(actor) {
     return this.checkOwnership(actor, this.#OWNERSHIP_OWNER);
   }
