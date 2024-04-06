@@ -13,15 +13,19 @@ const ID_TABLE = {
   'JNQ2WbcC5IagKBcS': 'random-vampire-weakness',
   'XYrbBmTx4lG7YEQG': 'roll-passive-talent',
   'pbZ7tQT51RcpTedj': 'sea-weather-generator',
+  '4BGQJ4AjNqRqJOlI': 'show-weapons-remove',
+  'gHpAH6Ozz5DVGpRP': 'show-weapons',
+  'luVmQCZiZSUTxBPa': 'token-manipulator',
 };
 
 try {
   let obj = {};
   for (let file of fs.readdirSync(input_path)) {
     let fileName = file.split('.')[0];
-    let data = fs.readFileSync(path.join(input_path, `${fileName}.js`), 'utf8');
-    obj[fileName] = data.replace(/\r\n/g, '\n');
-
+    if (fileName !== "partials") {
+      let data = fs.readFileSync(path.join(input_path, `${fileName}.js`), 'utf8');
+      obj[fileName] = data.replace(/\r\n/g, '\n');
+    }
   }
   for (let file of fs.readdirSync(output_path)) {
     let fileName = file.split('.')[0];
