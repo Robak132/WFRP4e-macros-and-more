@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Random Sea Weather Generator
-* VERSION: 2.0.1
+* VERSION: 2.0.2
 * AUTHOR: Robak132
 * DESCRIPTION: Generates weather with Sea of Claws rules.
 ========== */
@@ -554,10 +554,11 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
         drift,
       };
     default:
-      description += `<p><b>Distance Travelled:</b> ${shiftDistance} mi (${modifier}%)</p>`;
+      let normal = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
+      description += `<p><b>Distance Travelled:</b> ${normal} mi (${modifier}%)</p>`;
       return {
         description,
-        normal: shiftDistance,
+        normal: normal,
         tack: 0,
         drift: 0,
       };
@@ -619,7 +620,6 @@ async function submit(html) {
   for (let timeOfDay of ['Dawn', 'Midday', 'Dusk', 'Midnight']) {
     if (changeRoll === 1) {
       windStrength = await windStrength.randomChange();
-      options.lastWindStrength = `${windStrength.value}`;
     }
     let windReport = createWindRaport(windStrength, windDirection, changeRoll, timeOfDay, options);
     totalDistance.normal += windReport.normal;
@@ -627,6 +627,7 @@ async function submit(html) {
     totalDistance.drift += windReport.drift;
     windReportsDesc += windReport.description;
 
+    options.lastWindStrength = `${windStrength.value}`;
     changeRoll = (await new Roll('d10').roll()).total;
   }
 
