@@ -1,6 +1,6 @@
 /* ==========
 * MACRO: Random Sea Weather Generator
-* VERSION: 2.0.0
+* VERSION: 2.0.1
 * AUTHOR: Robak132
 * DESCRIPTION: Generates weather with Sea of Claws rules.
 ========== */
@@ -503,7 +503,7 @@ function getSeasonModifier(season) {
 
 function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay, options) {
   const shipDirection = Direction.fromValue(options.shipDirection);
-  const shiftDistance = options.shipSpeed * 6 + (options.shipSpeed % 2 === 1 ? 0.5 : 0);
+  const shiftDistance = options.shipSpeed * 4.5;
   const windName = getWindName(shipDirection, windDirection);
   const WIND_EFFECT_TABLE = options.flyingJib === 'true' ? WIND_EFFECT_FLYING_JIB : WIND_EFFECT;
   const windEffect = WIND_EFFECT_TABLE[windStrength.value][windName][options.shipPropulsion];
