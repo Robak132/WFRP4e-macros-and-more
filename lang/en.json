@@ -16,6 +16,22 @@
   "MACROS-AND-MORE.Enemies": "Enemies",
   "MACROS-AND-MORE.ShowWeapons": "Show Weapons",
 
+  "SEA-WEATHER-GENERATOR.North": "North",
+  "SEA-WEATHER-GENERATOR.NorthAdj": "Northerly",
+  "SEA-WEATHER-GENERATOR.South": "South",
+  "SEA-WEATHER-GENERATOR.SouthAdj": "Southerly",
+  "SEA-WEATHER-GENERATOR.East": "East",
+  "SEA-WEATHER-GENERATOR.EastAdj": "Easterly",
+  "SEA-WEATHER-GENERATOR.West": "West",
+  "SEA-WEATHER-GENERATOR.WestAdj": "Westerly",
+
+  "SEA-WEATHER-GENERATOR.Doldrums": "Doldrums",
+  "SEA-WEATHER-GENERATOR.LightBreeze": "Light Breeze",
+  "SEA-WEATHER-GENERATOR.FreshBreeze": "Fresh Breeze",
+  "SEA-WEATHER-GENERATOR.NearGale": "Near Gale",
+  "SEA-WEATHER-GENERATOR.StrongGale": "Strong Gale",
+  "SEA-WEATHER-GENERATOR.ViolentStorm": "Violent Storm",
+
   "SEA-WEATHER-GENERATOR.Precipitation.None": "None",
   "SEA-WEATHER-GENERATOR.Precipitation.NoneDesc": "",
   "SEA-WEATHER-GENERATOR.Precipitation.Light": "Light",
