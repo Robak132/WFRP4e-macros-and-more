@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Random Vampire Weakness
-* VERSION: 1.0.0
 * AUTHORS: @Reppumaru, @Robak132, @Tyka_f4ft
 * DESCRIPTION: Generate random weakness for Vampires.
 ========== */

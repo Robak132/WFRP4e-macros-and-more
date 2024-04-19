@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Token Manipulator
-* VERSION: 1.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for quick token manipulations (disposition changes, system effects, showing weapons etc.)
 ========== */

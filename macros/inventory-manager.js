@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Inventory Manager
-* VERSION: 1.1.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easy item movement between containers and actors.
 ========== */

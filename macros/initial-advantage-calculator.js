@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Initial Advantage Calculator
-* VERSION: 1.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Calculate initial advantage and applies it to actors.
 ========== */

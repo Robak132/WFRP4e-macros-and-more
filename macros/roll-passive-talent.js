@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Roll Passive Talent
-* VERSION: 2.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easier interaction with passive talents like Sixth Sense and Trapper.
 ========== */

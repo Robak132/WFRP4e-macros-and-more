@@ -13,8 +13,6 @@ const ID_TABLE = {
   'JNQ2WbcC5IagKBcS': 'random-vampire-weakness',
   'XYrbBmTx4lG7YEQG': 'roll-passive-talent',
   'pbZ7tQT51RcpTedj': 'sea-weather-generator',
-  '4BGQJ4AjNqRqJOlI': 'show-weapons-remove',
-  'gHpAH6Ozz5DVGpRP': 'show-weapons',
   'luVmQCZiZSUTxBPa': 'token-manipulator',
 };
 
