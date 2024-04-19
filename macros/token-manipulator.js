@@ -12,6 +12,7 @@ const SHOW_WEAPONS_EFFECT = {
       effectTrigger: 'prePrepareItems',
       effectApplication: 'actor',
       script: `
+        if (!game.user.isUniqueGM) return
         effectsToCreate = [];
         effectsToDelete = [];
         for (let weapon of this.actor.itemCategories.weapon) {
@@ -61,7 +62,7 @@ const OPERATIONS = [
     }
   }, {
     id: 'toggle-weapons',
-    name: 'Toggle Weapons',
+    name: 'Toggle Weapons"',
     function: (token) => {
       if (token.actor.effects.find(e => e.name === game.i18n.localize('MACROS-AND-MORE.ShowWeapons')) === undefined) {
         token.actor.createEmbeddedDocuments('ActiveEffect', [SHOW_WEAPONS_EFFECT]);
@@ -74,26 +75,67 @@ const OPERATIONS = [
   }, {
     disabled: true
   }, {
-    id: 'set-friendly',
+    id: 'delete-token-magic-filters',
+    function: async (token) => {
+      await TokenMagic.deleteFiltersOnSelected();
+    },
+    name: 'Delete TokenMagic Filters'
+  }, {
+    disabled: true
+  }, {
+    id: 'link-token',
+    function: async (token) => {
+      await token.document.update({linkActor: true});
+      await game.actors.get(token.actor.id).prototypeToken.update({actorLink: true});
+    },
+    name: 'Link Token'
+  }, {
+    disabled: true
+  }, {
+    id: 'set-friendly-token',
     function: async (token) => {
       await token.document.update({disposition: 1});
       token.refresh(true);
     },
-    name: 'Set Token Friendly'
+    name: 'Set Friendly (Token only)'
   }, {
-    id: 'set-neutral',
+    id: 'set-friendly',
+    function: async (token) => {
+      await game.actors.get(token.actor.id).prototypeToken.update({disposition: 1});
+      await token.document.update({disposition: 1});
+      token.refresh(true);
+    },
+    name: 'Set Friendly'
+  }, {
+    id: 'set-neutral-token',
     function: async (token) => {
       await token.document.update({disposition: 0});
       token.refresh(true);
     },
-    name: 'Set Token Neutral'
-  }, {
-    id: 'set-hostile',
+    name: 'Set Neutral (Token only)'
+  },  {
+    id: 'set-neutral',
+    function: async (token) => {
+      await game.actors.get(token.actor.id).prototypeToken.update({disposition: 0});
+      await token.document.update({disposition: 0});
+      token.refresh(true);
+    },
+    name: 'Set Neutral'
+  },{
+    id: 'set-hostile-token',
     function: async (token) => {
       await token.document.update({disposition: -1});
       token.refresh(true);
     },
-    name: 'Set Token Hostile'
+    name: 'Set Hostile (Token only)'
+  }, {
+    id: 'set-hostile',
+    function: async (token) => {
+      await game.actors.get(token.actor.id).prototypeToken.update({disposition: -1});
+      await token.document.update({disposition: -1});
+      token.refresh(true);
+    },
+    name: 'Set Hostile'
   }, {
     disabled: true
   }, {
