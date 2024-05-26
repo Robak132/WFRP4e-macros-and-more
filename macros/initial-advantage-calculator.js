@@ -94,12 +94,12 @@ new Dialog({
 </form>`,
   buttons: {
     yes: {
-      icon: '<i class=\'fas fa-check\'></i>',
+      icon: `<i class='fas fa-check'></i>`,
       label: game.i18n.localize('Apply'),
       callback: async (html) => await submit(html),
     },
     no: {
-      icon: '<i class=\'fas fa-times\'></i>',
+      icon: `<i class='fas fa-times'></i>`,
       label: game.i18n.localize('Cancel'),
     },
   },

@@ -2,6 +2,7 @@ import {ItemTransfer} from './scripts/item-transfer.mjs';
 import {handleLosingGroupAdvantage} from './scripts/group-advantage-losing.mjs';
 import {Utility} from './scripts/utility.mjs';
 import MaintenanceWrapper from './scripts/maintenance.mjs';
+import {addContextOptions} from "./scripts/convert-items.mjs";
 
 Hooks.once("init", function () {
   game.robakMacros = {
@@ -69,3 +70,5 @@ Hooks.on('wfrp4e:rollTest', async function(testData, _) {
       }]);
   }
 });
+
+Hooks.on('getItemDirectoryEntryContext', addContextOptions)

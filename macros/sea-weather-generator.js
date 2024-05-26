@@ -1,6 +1,5 @@
 /* ==========
 * MACRO: Random Sea Weather Generator
-* VERSION: 2.0.2
 * AUTHOR: Robak132
 * DESCRIPTION: Generates weather with Sea of Claws rules.
 ========== */
@@ -11,8 +10,7 @@ class Direction {
   static SOUTH = new Direction(2, 'South');
   static WEST = new Direction(3, 'West');
 
-  static values = [
-    Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST];
+  static values = [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST];
 
   constructor(key, value) {
     this.key = key;
@@ -29,6 +27,19 @@ class Direction {
 
   opposite() {
     return Direction.values[(this.key + 2) % 4];
+  }
+
+  getArrow() {
+    switch (this.key) {
+      case 0:
+        return '&#8595;';
+      case 1:
+        return '&#8592;';
+      case 2:
+        return '&#8593;';
+      case 3:
+        return '&#8594;';
+    }
   }
 
   getAdj() {
@@ -95,8 +106,7 @@ class Precipitation {
   static HEAVY = new Precipitation(2, 'Heavy');
   static VERY_HEAVY = new Precipitation(3, 'VeryHeavy');
 
-  static values = [
-    Precipitation.NONE, Precipitation.LIGHT, Precipitation.HEAVY, Precipitation.VERY_HEAVY];
+  static values = [Precipitation.NONE, Precipitation.LIGHT, Precipitation.HEAVY, Precipitation.VERY_HEAVY];
 
   constructor(key, value) {
     this.key = key;
@@ -158,8 +168,7 @@ class Visibility {
   static FOGGY = new Visibility(2, 'Foggy');
   static THICK_FOG = new Visibility(3, 'ThickFog');
 
-  static values = [
-    Visibility.CLEAR, Visibility.MISTY, Visibility.FOGGY, Visibility.THICK_FOG];
+  static values = [Visibility.CLEAR, Visibility.MISTY, Visibility.FOGGY, Visibility.THICK_FOG];
 
   constructor(key, value) {
     this.key = key;
@@ -509,60 +518,149 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
   const windEffect = WIND_EFFECT_TABLE[windStrength.value][windName][options.shipPropulsion];
   const modifier = game.robakMacros.utils.round((windEffect?.modifier ?? 1) * 100, 2);
 
-  let description = `<h2>${timeOfDay}</h2>`;
+  let result = {
+    description: '',
+    normal: 0,
+    tack: 0,
+    drift: 0,
+  };
+
+  result.description = `<h2>${timeOfDay}</h2>`;
   if (windChangeRoll) {
-    description += `<p><b>Wind change roll:</b> ${windChangeRoll}</p>`;
+    result.description += `<p><b>Wind change roll:</b> ${windChangeRoll}</p>`;
   }
   if (windStrength !== WindStrength.DOLDRUMS) {
-    description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength.getName().toLowerCase()} (${windName})</p>`;
+    result.description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength.getName().
+        toLowerCase()} (${windName})</p>`;
   } else {
-    description += `<p><b>Wind:</b> ${windStrength.getName()}</p>`;
+    result.description += `<p><b>Wind:</b> ${windStrength.getName()}</p>`;
   }
   if (windStrength === WindStrength.STRONG_GALE || windStrength === WindStrength.VIOLENT_STORM) {
-    description += `<p><i>Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging (+0) Endurance</b> Test or suffer from sea sickness.</i></p>`;
+    result.description += `<p><i>Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging (+0) Endurance</b> Test or suffer from sea sickness.</i></p>`;
   }
 
   switch (windEffect?.effect) {
     case 'BECALMED':
-      description += `<p><b>Distance Travelled:</b> 0 mi (0%)</p>`;
-      return {
-        description,
-        normal: 0,
-        tack: 0,
-        drift: 0,
-      };
+      result.description += `<p><b>Distance Travelled:</b> 0 mi (0%)</p>`;
+      break;
     case 'TACK':
-      let tack = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
-      description += `
+      result.tack = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
+      result.description += `
         <p><b>Distance Travelled:</b> ${shiftDistance} mi (100%)</p>
-        <p><b>Distance Travelled (Tack):</b> +${tack} mi (+${modifier}%)</p>`;
-      return {
-        description,
-        normal: shiftDistance,
-        tack,
-        drift: 0,
-      };
+        <p><b>Distance Travelled (Tack):</b> +${result.tack} mi (+${modifier}%)</p>`;
+      result.normal = shiftDistance;
+      break;
     case 'BATTEN_DOWN':
-      let drift = game.robakMacros.utils.round((windName.value === 'Tailwind' ? 1 : -1) * shiftDistance * 0.25, 2);
+      result.drift = game.robakMacros.utils.round((windName.value === 'Tailwind' ? 1 : -1) * shiftDistance * 0.25, 2);
       description += `
         <p><b>Distance Travelled:</b> 0 mi (0%)</p>
-        <p><b>Distance Travelled (Drift):</b> ${drift} mi (25%)</p>`;
-      return {
-        description,
-        normal: 0,
-        tack: 0,
-        drift,
-      };
+        <p><b>Distance Travelled (Drift):</b> ${result.drift} mi (25%)</p>`;
+      break;
     default:
-      let normal = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
-      description += `<p><b>Distance Travelled:</b> ${normal} mi (${modifier}%)</p>`;
-      return {
-        description,
-        normal: normal,
-        tack: 0,
-        drift: 0,
-      };
+      result.normal = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
+      result.description += `<p><b>Distance Travelled:</b> ${result.normal} mi (${modifier}%)</p>`;
+      break;
   }
+  return {
+    ...result,
+    windStrength,
+    windDirection,
+  };
+}
+
+async function generateChatMessage(precipitation, temperature, visibility, winds) {
+  await ChatMessage.create({
+    content: `
+      <h1>Sea Weather Report</h1>
+      <p><b>Precipitation:</b> ${precipitation.getName()}</p>
+      <p><i>${precipitation.getDescription()}</i></p>
+      <p><b>Temperature:</b> ${temperature.getName()}</p>
+      <p><i>${temperature.getDescription()}</i></p>
+      <p><b>Visibility:</b> ${visibility.getName()}</p>
+      <p><i>${visibility.getDescription()}</i></p>
+      <h1>Wind Report</h1>
+      ${winds.description}
+      <h1>Total Distance Travelled</h1>
+      <p><b>Base:</b> ${winds.normal} mi</p>
+      ${winds.tack === 0 ? '' : `<p><b>Additional Tack Distance:</b> ${winds.tack} mi</p>`}
+      ${winds.drift === 0 ? '' : `<p><b>Drift Distance:</b> ${winds.drift} mi</p>`}`,
+    whisper: game.users.filter(u => u.isGM).map(u => u.id),
+  });
+}
+
+function tableCellHTML({
+  content,
+  style = 'text-align:center;vertical-align:middle',
+  rowspan = 1,
+  colspan = 1,
+}) {
+  let colspanTxt = (colspan !== 1) ? `colspan="${colspan}"` : '';
+  let rowspanTxt = (rowspan !== 1) ? `rowspan="${rowspan}"` : '';
+  return `<td style="${style}" ${rowspanTxt} ${colspanTxt}>${content}</td>`;
+}
+
+function tableRowHTML(cells) {
+  return '<tr>' + cells.join('') + '</tr>';
+}
+
+function tableHTML(rows) {
+  return '<table><tbody>' + rows.map(r => tableRowHTML(r)).join('') + '</tbody></table>';
+}
+
+async function createJournalEntry() {
+  await JournalEntry.create({
+    name: 'Dziennik kapitański',
+    content: tableHTML([
+      [
+        tableCellHTML({
+          content: '<b>Day</b',
+          rowspan: 2,
+        }),
+        tableCellHTML({
+          content: '<b>Precipitation</b>',
+          rowspan: 2,
+        }),
+        tableCellHTML({
+          content: '<b>Temperature</b>',
+          rowspan: 2,
+        }),
+        tableCellHTML({
+          content: '<b>Visibility</b>',
+          rowspan: 2,
+        }),
+        tableCellHTML({
+          content: '<b>Winds</b>',
+          colspan: 4,
+        })], [
+        tableCellHTML({content: '<b></b'}),
+        tableCellHTML({content: '<b>Precipitation</b>'}),
+        tableCellHTML({content: '<b>Temperature</b>'}),
+        tableCellHTML({content: '<b>Visibility</b>'})]]),
+  });
+}
+
+async function fillJournalEntry(captainsLog, precipitation, temperature, visibility, winds) {
+  let content = captainsLog.pages.contents[0].text.content;
+  let table = $(content)[0];
+  let lastDay = parseInt(table.rows[table.rows.length - 1].cells[0].innerText.trim());
+  let row = tableRowHTML([
+    `${lastDay + 1}`,
+    `<span data-toggle="tooltip" title='${precipitation.getDescription()}'>${precipitation.getName()}</span>`,
+    `<span data-toggle="tooltip" title='${temperature.getDescription()}'>${temperature.getName()}</span>`,
+    `<span data-toggle="tooltip" title='${visibility.getDescription()}'>${visibility.getName()}</span>`,
+    `<span data-toggle="tooltip">${winds.elements[0].windStrength.key +
+    1} ${winds.elements[0].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${winds.elements[1].windStrength.key +
+    1} ${winds.elements[1].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${winds.elements[2].windStrength.key +
+    1} ${winds.elements[2].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${winds.elements[3].windStrength.key +
+    1} ${winds.elements[3].windDirection.getArrow()}</span>`,
+    `<span>${winds.normal}/${winds.tack}/${winds.drift}</span>`]);
+
+  await captainsLog.pages.contents[0].update({
+    'text.content': content.replace(`</tbody></table>`, row + '</tbody></table>'),
+  });
 }
 
 async function submit(html) {
@@ -602,53 +700,44 @@ async function submit(html) {
     dice: '1d10',
     modifier: seasonModifier,
   }))[0];
-  if (options.lastWindStrength !== "Random") {
-    windStrength = WindStrength.fromValue(options.lastWindStrength)
+  if (options.lastWindStrength !== 'Random') {
+    windStrength = WindStrength.fromValue(options.lastWindStrength);
   }
-  if (options.windStrength !== "Random") {
-    windStrength = WindStrength.fromValue(options.windStrength)
+  if (options.windStrength !== 'Random') {
+    windStrength = WindStrength.fromValue(options.windStrength);
   }
 
-  let changeRoll = options.windStrength !== "Random" || options.lastWindStrength === 'Random' ? undefined : (await new Roll('d10').roll()).total;
-  let totalDistance = {
-    normal: 0,
-    tack: 0,
-    drift: 0,
-  };
-  let windReportsDesc = '';
+  let changeRoll = options.windStrength !== 'Random' || options.lastWindStrength === 'Random'
+      ? undefined
+      : (await new Roll('d10').roll()).total;
 
-  for (let timeOfDay of ['Dawn', 'Midday', 'Dusk', 'Midnight']) {
+  let windElements = [];
+  for (const timeOfDay of ['Dawn', 'Midday', 'Dusk', 'Midnight']) {
     if (changeRoll === 1) {
       windStrength = await windStrength.randomChange();
     }
-    let windReport = createWindRaport(windStrength, windDirection, changeRoll, timeOfDay, options);
-    totalDistance.normal += windReport.normal;
-    totalDistance.tack += windReport.tack;
-    totalDistance.drift += windReport.drift;
-    windReportsDesc += windReport.description;
-
+    windElements.push(createWindRaport(windStrength, windDirection, changeRoll, timeOfDay, options));
     options.lastWindStrength = `${windStrength.value}`;
     changeRoll = (await new Roll('d10').roll()).total;
   }
+  let winds = {
+    elements: windElements, ...windElements.reduce((prev, acc) => {
+      return {
+        normal: Number(prev.normal + acc.normal),
+        tack: Number(prev.tack + acc.tack),
+        drift: Number(prev.drift + acc.drift),
+        description: prev.description + acc.description,
+      };
+    }),
+  };
 
   await MACRO.setFlag('world', 'sea-weather-generator-options', options);
-  ChatMessage.create({
-    content: `
-      <h1>Sea Weather Report</h1>
-      <p><b>Precipitation:</b> ${precipitation.getName()}</p>
-      <p><i>${precipitation.getDescription()}</i></p>
-      <p><b>Temperature:</b> ${temperature.getName()}</p>
-      <p><i>${temperature.getDescription()}</i></p>
-      <p><b>Visibility:</b> ${visibility.getName()}</p>
-      <p><i>${visibility.getDescription()}</i></p>
-      <h1>Wind Report</h1>
-      ${windReportsDesc}
-      <h1>Total Distance Travelled</h1>
-      <p><b>Base:</b> ${totalDistance.normal} mi</p>
-      ${totalDistance.tack === 0 ? '' : `<p><b>Additional Tack Distance:</b> ${totalDistance.tack} mi</p>`}
-      ${totalDistance.drift === 0 ? '' : `<p><b>Drift Distance:</b> ${totalDistance.drift} mi</p>`}`,
-    whisper: game.users.filter(u => u.isGM).map(u => u.id),
-  });
+  let captainsLog = game.journal.find(j => j.name === 'Dziennik kapitański');
+  if (captainsLog === undefined) {
+    await createJournalEntry();
+  }
+  await fillJournalEntry(captainsLog, precipitation, temperature, visibility, winds);
+  await generateChatMessage(precipitation, temperature, visibility, winds);
 }
 
 const options = MACRO.getFlag('world', 'sea-weather-generator-options') ?? {
@@ -770,8 +859,8 @@ new Dialog({
       <div class="form-group">
         <label>Flying Jib:</label>
         <select name="flyingJib">
-          <option value="true" ${options.flyingJib === "true" ? 'selected' : ''}>Equipped</option>
-          <option value="false" ${options.flyingJib !== "true" ? 'selected' : ''}>Not Equipped</option>
+          <option value="true" ${options.flyingJib === 'true' ? 'selected' : ''}>Equipped</option>
+          <option value="false" ${options.flyingJib !== 'true' ? 'selected' : ''}>Not Equipped</option>
         </select>
       </div>
       <div class="form-group">
