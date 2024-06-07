@@ -1,0 +1,9 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <p>{{{ localize "MACROS-AND-MORE.DialogMaintenanceHint"}}}</p>
+  {{#each macros as |macro id|}}
+  <img style="vertical-align: bottom;max-height: 1.5em;" src="{{ macro.thumbnail }}" title="{{ macro.name }}"/>
+  {{ localize macro.name }}
+  <span style="color: #006188;font-weight: bold;">{{macro.flags.wfrp4e-macros-and-more.version}} -> {{macro.compendiumVersion}}</span>
+  <span style="color: #cbee8b75;">({{ macro.id }})</span><br>
+  {{/each}}
+</form>

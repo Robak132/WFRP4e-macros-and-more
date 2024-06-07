@@ -1,0 +1,37 @@
+{
+  "name": "Random Books Generator",
+  "type": "script",
+  "scope": "global",
+  "author": "MJAZjdKh3QKREKG2",
+  "img": "icons/svg/book.svg",
+  "folder": null,
+  "ownership": {
+    "default": 0,
+    "MJAZjdKh3QKREKG2": 3
+  },
+  "flags": {
+    "advanced-macros": {
+      "runAsGM": false,
+      "runForEveryone": false,
+      "runForSpecificUser": ""
+    },
+    "exportSource": {
+      "world": "skaveny",
+      "system": "wfrp4e",
+      "coreVersion": "10.291",
+      "systemVersion": "6.4.0"
+    },
+    "core": {}
+  },
+  "_stats": {
+    "systemId": "wfrp4e",
+    "systemVersion": "7.0.3",
+    "coreVersion": "11.315",
+    "createdTime": 1674911158287,
+    "modifiedTime": 1713963410592,
+    "lastModifiedBy": "MJAZjdKh3QKREKG2"
+  },
+  "_id": "yNsZXRtK59KMVH9E",
+  "sort": 0,
+  "_key": "!macros!yNsZXRtK59KMVH9E"
+}

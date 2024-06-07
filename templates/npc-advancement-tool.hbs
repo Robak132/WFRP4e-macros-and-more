@@ -1,0 +1,29 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <div class="form-group">
+    <p title="" class="select-label">Attributes</p>
+    <select style="text-align: center" name="attributes">
+      <option value="0">Average (+0)</option>
+      <option value="5">Above Average (+5)</option>
+      <option value="10">Perfect Specimen (+10)</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <p title="How competent are they?" class="select-label">Competency</p>
+    <select style="text-align: center" name="competency">
+      <option value="1" title="Skill is as at a level society expects for their career position">Competent</option>
+      <option value="2">Proficient</option>
+      <option value="3">Veteran</option>
+      <option value="4">Elite</option>
+      <option value="5" title="The pinnacle of skill and achievement, amongst the best to have lived">Apex</option>
+    </select>
+  </div>
+  <ol class="career-list">
+  {{#each careerList as |careerGroup c|}}
+    <h2 class="career-group">{{c}}</h2>
+    {{#each careerGroup as |careerTier t|}}
+      <li class="career-tier" data-index={{careerTier.index}}>{{careerTier.name}}</li>
+    {{/each}}
+  {{/each}}
+  </ol>
+  <button type="submit" name="submit">{{localize "Select"}}</button>
+</form>

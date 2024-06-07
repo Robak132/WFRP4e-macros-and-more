@@ -1,0 +1,29 @@
+{
+  "name": "Rescale Map",
+  "type": "script",
+  "scope": "global",
+  "author": "MJAZjdKh3QKREKG2",
+  "img": "icons/svg/dice-target.svg",
+  "folder": null,
+  "ownership": {
+    "default": 0,
+    "MJAZjdKh3QKREKG2": 3
+  },
+  "flags": {
+    "advanced-macros": {
+      "runForSpecificUser": ""
+    },
+    "core": {}
+  },
+  "_stats": {
+    "systemId": "wfrp4e",
+    "systemVersion": "7.0.3",
+    "coreVersion": "11.315",
+    "createdTime": 1706735544747,
+    "modifiedTime": 1713963426823,
+    "lastModifiedBy": "MJAZjdKh3QKREKG2"
+  },
+  "_id": "tVEB7ArgxwZbszvX",
+  "sort": 0,
+  "_key": "!macros!tVEB7ArgxwZbszvX"
+}
