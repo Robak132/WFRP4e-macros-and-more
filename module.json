@@ -1,61 +1,61 @@
 {
-  "id": "wfrp4e-macros-and-more",
-  "title": "Robak's macros and more (WFRP4)",
-  "authors": [
-    {
-      "name": "Robak132",
-      "discord": "Robak_132"
+    "id": "wfrp4e-macros-and-more",
+    "title": "Robak's macros and more (WFRP4)",
+    "authors": [
+        {
+            "name": "Robak132",
+            "discord": "Robak_132"
+        },
+        {
+            "name": "Jagusti",
+            "discord": "Jagusti#3610",
+            "ko-fi": "jagusti"
+        }
+    ],
+    "version": "1.5.3",
+    "compatibility": {
+        "minimum": "11",
+        "verified": "11",
+        "maximum": "11"
     },
-    {
-      "name": "Jagusti",
-      "discord": "Jagusti#3610",
-      "ko-fi": "jagusti"
-    }
-  ],
-  "version": "1.3.0",
-  "compatibility": {
-    "minimum": "11",
-    "verified": "11",
-    "maximum": "11"
-  },
-  "esmodules": [
-    "wfrp4e-macros-and-more.mjs"
-  ],
-  "relationships": {
-    "systems": [
-      {
-        "id": "wfrp4e",
-        "type": "system"
-      }
-    ]
-  },
-  "packs": [
-    {
-      "name": "macros",
-      "label": "Robak's Macros",
-      "path": "packs/macros",
-      "type": "Macro",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      },
-      "system": "wfrp4e"
-    }
-  ],
-  "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "lang/en.json"
+    "esmodules": [
+        "wfrp4e-macros-and-more.mjs"
+    ],
+    "relationships": {
+        "systems": [
+            {
+                "id": "wfrp4e",
+                "type": "system"
+            }
+        ]
     },
-    {
-      "lang": "pl",
-      "name": "Polski",
-      "path": "lang/pl.json"
-    }
-  ],
-  "socket": true,
-  "url": "https://github.com/Robak132/WFRP4e-macros-and-more",
-  "manifest": "https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest/download/module.json",
-  "download": "https://github.com/Robak132/WFRP4e-macros-and-more/releases/download/1.2.0/wfrp4e-macros-and-more.zip"
+    "packs": [
+        {
+            "name": "macros",
+            "label": "Robak's Macros",
+            "path": "packs/macros",
+            "type": "Macro",
+            "ownership": {
+                "PLAYER": "OBSERVER",
+                "ASSISTANT": "OWNER"
+            },
+            "system": "wfrp4e"
+        }
+    ],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "lang/en.json"
+        },
+        {
+            "lang": "pl",
+            "name": "Polski",
+            "path": "lang/pl.json"
+        }
+    ],
+    "socket": true,
+    "url": "https://github.com/Robak132/WFRP4e-macros-and-more",
+    "manifest": "https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest/download/module.json",
+    "download": "https://github.com/Robak132/WFRP4e-macros-and-more/releases/download/1.5.3/wfrp4e-macros-and-more.zip"
 }
