@@ -4,7 +4,7 @@
 * DESCRIPTION: Allows for easier money transactions
 ========== */
 
-MAIN_STYLE = 'flex: 1;text-align: center;font-family: CaslonPro;font-weight: 600;font-variant: small-caps';
+MAIN_STYLE = "flex: 1;text-align: center;font-family: CaslonPro;font-weight: 600;font-variant: small-caps";
 
 function normaliseMoney(bp) {
   let gc = Math.floor(bp / 240);
@@ -19,7 +19,7 @@ function normaliseMoney(bp) {
 }
 
 new Dialog({
-  title: 'Pay/Credit Helper',
+  title: "Pay/Credit Helper",
   content: `<form>
               <div class="form-group">
                 <p style="${MAIN_STYLE}">GC</p>
@@ -37,39 +37,39 @@ new Dialog({
           </form>`,
   buttons: {
     pay: {
-      label: 'Pay',
+      label: "Pay",
       callback: (html) => {
-        const form = new FormDataExtended(html[0].querySelector('form')).object;
+        const form = new FormDataExtended(html[0].querySelector("form")).object;
         let {gc, ss, bp} = normaliseMoney(form.gc * 240 + form.ss * 12 + form.bp);
         if (gc > 0 || ss > 0 || bp > 0) {
           new Macro({
             command: `/pay ` +
-              `${gc}${game.i18n.localize('MARKET.Abbrev.GC')}` +
-              `${ss}${game.i18n.localize('MARKET.Abbrev.SS')}` +
-              `${bp}${game.i18n.localize('MARKET.Abbrev.BP')} ${form.split ? 'split' : 'each'}`,
+                `${gc}${game.i18n.localize("MARKET.Abbrev.GC")}` +
+                `${ss}${game.i18n.localize("MARKET.Abbrev.SS")}` +
+                `${bp}${game.i18n.localize("MARKET.Abbrev.BP")} ${form.split ? "split" : "each"}`,
             type: `chat`,
-            name: 'pay',
+            name: "pay",
           }).execute();
         }
       },
     },
     credit: {
-      label: 'Credit',
+      label: "Credit",
       callback: (html) => {
-        const form = new FormDataExtended(html[0].querySelector('form')).object;
-        let {gc, ss, bp,} = normaliseMoney(form.gc * 240 + form.ss * 12 + form.bp);
+        const form = new FormDataExtended(html[0].querySelector("form")).object;
+        let {gc, ss, bp} = normaliseMoney(form.gc * 240 + form.ss * 12 + form.bp);
         if (gc > 0 || ss > 0 || bp > 0) {
           new Macro({
             command: `/credit ` +
-              `${gc}${game.i18n.localize('MARKET.Abbrev.GC')}` +
-              `${ss}${game.i18n.localize('MARKET.Abbrev.SS')}` +
-              `${bp}${game.i18n.localize('MARKET.Abbrev.BP')}`,
+                `${gc}${game.i18n.localize("MARKET.Abbrev.GC")}` +
+                `${ss}${game.i18n.localize("MARKET.Abbrev.SS")}` +
+                `${bp}${game.i18n.localize("MARKET.Abbrev.BP")}`,
             type: `chat`,
-            name: 'credit',
+            name: "credit",
           }).execute();
         }
       },
     },
   },
-  default: 'pay',
+  default: "pay",
 }).render(true);

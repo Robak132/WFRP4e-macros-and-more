@@ -5,11 +5,11 @@
 ========== */
 
 async function update(character, newAdvantage) {
-  return await character.actor.update({'system.status.advantage.value': newAdvantage});
+  return await character.actor.update({"system.status.advantage.value": newAdvantage});
 }
 
 async function submit(html) {
-  const advantage = $(html).find('select').map((_, e) => {
+  const advantage = $(html).find("select").map((_, e) => {
     return {
       players: e.options[e.options.selectedIndex].dataset.players ?? 0,
       enemy: e.options[e.options.selectedIndex].dataset.enemies ?? 0,
@@ -39,7 +39,7 @@ async function submit(html) {
 }
 
 new Dialog({
-  title: 'Initial Advantage',
+  title: "Initial Advantage",
   content: `<form>
   <div class="form-group">
     <p style="flex: 1" title="One side possessing an advantage in movement such as being mounted or facing giant spiders in trees." class="section-title">Manoeuvrability</p>
@@ -95,13 +95,13 @@ new Dialog({
   buttons: {
     yes: {
       icon: `<i class='fas fa-check'></i>`,
-      label: game.i18n.localize('Apply'),
+      label: game.i18n.localize("Apply"),
       callback: async (html) => await submit(html),
     },
     no: {
       icon: `<i class='fas fa-times'></i>`,
-      label: game.i18n.localize('Cancel'),
+      label: game.i18n.localize("Cancel"),
     },
   },
-  default: 'yes',
+  default: "yes",
 }).render(true);

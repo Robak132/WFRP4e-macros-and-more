@@ -13,8 +13,8 @@ const NATIONS = {
   tilea: "Tilea",
   dwarf: "Dwarf Keeps",
   elf: "Elf Kingdoms",
-  araby: "Araby"
-}
+  araby: "Araby",
+};
 const DATA = [
   [1.00, 1.05, 1.10, 1.10, 1.00, 0.80, 0.90, 1.05, 1.10],
   [0.95, 1.00, 1.05, 1.10, 1.00, 0.85, 0.85, 1.00, 1.05],
@@ -24,8 +24,8 @@ const DATA = [
   [0.50, 0.70, 0.80, 0.90, 1.00, 1.00, 0.00, 1.20, 0.90],
   [1.20, 1.30, 1.40, 1.00, 0.80, 1.50, 1.00, 1.00, 0.80],
   [0.95, 1.00, 1.05, 1.05, 0.95, 1.20, 1.00, 1.00, 0.95],
-  [0.90, 0.95, 1.00, 1.10, 1.00, 0.90, 1.20, 1.05, 1.00]
-]
+  [0.90, 0.95, 1.00, 1.10, 1.00, 0.90, 1.20, 1.05, 1.00],
+];
 
 main();
 
@@ -53,7 +53,7 @@ async function main() {
         icon: `<i class="fas fa-check"></i>`,
         label: "Next",
         callback: async (html) => {
-          let currentLocation = html.find('[name="currentLocation"]').val();
+          let currentLocation = html.find("[name=\"currentLocation\"]").val();
           await submit(currentLocation);
         },
       },
@@ -64,13 +64,13 @@ async function main() {
 
 function extractDataFromCoin(money) {
   let updates = {};
-  let coinValue = money.system.coinValue.value
+  let coinValue = money.system.coinValue.value;
   let location = money.flags["wfrp4e-macros-and-more"].moneyLocation;
   if (location === undefined) {
     updates["flags.wfrp4e-macros-and-more.moneyLocation"] = "empire";
     location = "empire";
   }
-  let baseCoinValue = money.flags["wfrp4e-macros-and-more"].moneyBaseValue
+  let baseCoinValue = money.flags["wfrp4e-macros-and-more"].moneyBaseValue;
   if (baseCoinValue === undefined) {
     updates["flags.wfrp4e-macros-and-more.moneyBaseValue"] = money.system.coinValue.value;
     baseCoinValue = coinValue;
@@ -84,23 +84,27 @@ function extractDataFromCoin(money) {
 }
 
 async function submit(currentLocation) {
-  let coinUpdates = []
+  let coinUpdates = [];
 
   let currentLocationIdx = getIdx(currentLocation);
-  let content = `<div style="overflow-y: scroll;max-height: 500px">`
+  let content = `<div style="overflow-y: scroll;max-height: 500px">`;
   for (let actor of game.actors) {
-    if (!actor._itemTypes.money.length) continue
+    if (!actor._itemTypes.money.length) {
+      continue;
+    }
 
-    let moneyContent = ""
+    let moneyContent = "";
     for (let money of actor._itemTypes.money) {
       const {
         location,
         coinValue,
         baseCoinValue,
       } = extractDataFromCoin(money);
-      let convertedValue = Math.round(DATA[getIdx(location)][currentLocationIdx] * baseCoinValue)
+      let convertedValue = Math.round(DATA[getIdx(location)][currentLocationIdx] * baseCoinValue);
 
-      if (money.system.quantity.value === 0 || convertedValue === coinValue) continue
+      if (money.system.quantity.value === 0 || convertedValue === coinValue) {
+        continue;
+      }
 
       moneyContent += `<div class="form-group">
         <span style="flex: 5;text-align: center">${money.name}</span>
@@ -108,15 +112,15 @@ async function submit(currentLocation) {
         <span style="flex: 1;text-align: center">${coinValue}</span>
         <span style="flex: 1;text-align: center">&#8594;</span>
         <span style="flex: 1;text-align: center">${convertedValue}</span>
-      </div>`
+      </div>`;
 
-      coinUpdates.push({object: money, value: convertedValue})
+      coinUpdates.push({object: money, value: convertedValue});
     }
     if (moneyContent !== "") {
-      content += `<p style="text-align: center">${actor.name}</p>` + moneyContent
+      content += `<p style="text-align: center">${actor.name}</p>` + moneyContent;
     }
   }
-  content += "</div>"
+  content += "</div>";
 
   await new Dialog({
     title: `Current Location: ${NATIONS[currentLocation]}`,
@@ -131,7 +135,7 @@ async function submit(currentLocation) {
         label: "Proceed",
         callback: async () => {
           for (let entry of coinUpdates) {
-            await entry.object.update({"system.coinValue.value": entry.value})
+            await entry.object.update({"system.coinValue.value": entry.value});
           }
         },
       },

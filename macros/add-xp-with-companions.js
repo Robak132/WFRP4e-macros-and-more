@@ -9,9 +9,9 @@ addXP();
 function getCurrentDate() {
   let currentDate = new Date();
   let year = currentDate.getFullYear();
-  let month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
-  let day = ('0' + currentDate.getDate()).slice(-2);
-  return year + '-' + month + '-' + day;
+  let month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+  let day = ("0" + currentDate.getDate()).slice(-2);
+  return year + "-" + month + "-" + day;
 }
 
 async function addXP() {
@@ -19,62 +19,66 @@ async function addXP() {
   let halfAwardees = [];
   if (game.user.targets.size < 1) {
     awardees = game.users.filter(u => u.character).map(g => g.character);
-    halfAwardees = game.actors.filter(a => a.hasPlayerOwner && a.type === 'character' && !awardees.includes(a));
+    halfAwardees = game.actors.filter(a => a.hasPlayerOwner && a.type === "character" && !awardees.includes(a));
   } else {
-    let group = game.actors.filter(a => a.hasPlayerOwner && a.type === 'character');
-    let targeted = game.canvas.tokens.placeables.filter(t => t.isTargeted).map(t => t.actor)
-    awardees = group.filter(a => targeted.includes(a))
+    let group = game.actors.filter(a => a.hasPlayerOwner && a.type === "character");
+    let targeted = game.canvas.tokens.placeables.filter(t => t.isTargeted).map(t => t.actor);
+    awardees = group.filter(a => targeted.includes(a));
   }
-  if (awardees.length < 1) return ui.notifications.error(game.i18n.localize('GMTOOLKIT.Token.TargetPCs'), {});
+  if (awardees.length < 1) {
+    return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Token.TargetPCs"), {});
+  }
 
-  const XP = Number(game.settings.get('wfrp4e-gm-toolkit', 'addXPDefaultAmount'));
-  let reason = (game.settings.get('wfrp4e-gm-toolkit', 'addXPDefaultReason') === 'null') ? '' : game.settings.get(
-      'wfrp4e-gm-toolkit', 'addXPDefaultReason');
+  const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
+  let reason = (game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") === "null") ? "" : game.settings.get(
+      "wfrp4e-gm-toolkit", "addXPDefaultReason");
   if (reason) {
-    reason = game.settings.get('wfrp4e-gm-toolkit', 'addXPDefaultReason');
+    reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
     const session = game.gmtoolkit.utility.getSession();
-    reason = reason.replace('(%date%)', `(${getCurrentDate()})`);
-    reason = (session.id !== 'null') ? reason.replace('%session%', session.id) : reason.replace('%session%', '');
+    reason = reason.replace("(%date%)", `(${getCurrentDate()})`);
+    reason = (session.id !== "null") ? reason.replace("%session%", session.id) : reason.replace("%session%", "");
   }
 
-  if (game.settings.get('wfrp4e-gm-toolkit', 'addXPPrompt')) {
-    let awardeeList = '<p>Full Experience will be awarded to:</p><ul>';
-    awardeeList += awardees.map(pc => `<li>${pc?.actor?.name || pc.name}</li>`).join("")
-    awardeeList += '</ul>';
-    let halfAwardeeList = '<p>Half Experience will be awarded to:</p><ul>';
+  if (game.settings.get("wfrp4e-gm-toolkit", "addXPPrompt")) {
+    let awardeeList = "<p>Full Experience will be awarded to:</p><ul>";
+    awardeeList += awardees.map(pc => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
+    awardeeList += "</ul>";
+    let halfAwardeeList = "<p>Half Experience will be awarded to:</p><ul>";
     halfAwardeeList += halfAwardees.map(pc => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
-    halfAwardeeList += '</ul>';
+    halfAwardeeList += "</ul>";
     await new Dialog({
-      title: game.i18n.localize('GMTOOLKIT.Dialog.AddXP.Title'),
+      title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
       content: `<form>
               ${awardeeList}
               ${halfAwardees.length > 0 ? halfAwardeeList : ""}
               <div class="form-group">
-                <label>${game.i18n.localize('GMTOOLKIT.Dialog.AddXP.Prompt')}</label> 
+                <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")}</label> 
                 <input type="text" id="add-xp" name="add-xp" value="${XP}" />
               </div>
               <div class="form-group">
-                <label>${game.i18n.localize('GMTOOLKIT.Dialog.AddXP.Reason')}</label> 
+                <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")}</label> 
                 <input type="text" id="xp-reason" name="xp-reason" value="${reason}" />
               </div>
           </form>`,
       buttons: {
         yes: {
           icon: `<i class='fas fa-check'></i>`,
-          label: game.i18n.localize('GMTOOLKIT.Dialog.Apply'),
+          label: game.i18n.localize("GMTOOLKIT.Dialog.Apply"),
           callback: html => {
-            const XP = Math.round(html.find('#add-xp').val());
-            if (isNaN(XP)) return ui.notifications.error(game.i18n.localize('GMTOOLKIT.Dialog.AddXP.InvalidXP'));
-            const reason = html.find('#xp-reason').val();
+            const XP = Math.round(html.find("#add-xp").val());
+            if (isNaN(XP)) {
+              return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Dialog.AddXP.InvalidXP"));
+            }
+            const reason = html.find("#xp-reason").val();
             updateXP(awardees, halfAwardees, XP, reason);
           },
         },
         no: {
           icon: `<i class='fas fa-times'></i>`,
-          label: game.i18n.localize('GMTOOLKIT.Dialog.Cancel'),
+          label: game.i18n.localize("GMTOOLKIT.Dialog.Cancel"),
         },
       },
-      default: 'yes',
+      default: "yes",
     }).render(true);
   } else {
     updateXP(awardees, halfAwardees, XP, reason);
@@ -90,7 +94,7 @@ function updateActorXP(pc, XP, reason) {
 
   pc?.actor ? pc.actor.awardExp(XP, reason) : pc.awardExp(XP, reason);
 
-  return game.i18n.format('GMTOOLKIT.AddXP.Success', {
+  return game.i18n.format("GMTOOLKIT.AddXP.Success", {
     recipient,
     XPTotal,
     newXPTotal,
@@ -101,7 +105,7 @@ function updateActorXP(pc, XP, reason) {
 
 function updateXP(awardees, halfAwardees = [], XP, reason) {
   let halfXP = Math.round(XP / 2);
-  let chatContent = '';
+  let chatContent = "";
 
   awardees.forEach(pc => {
     chatContent += updateActorXP(pc, XP, reason);
@@ -109,8 +113,8 @@ function updateXP(awardees, halfAwardees = [], XP, reason) {
   halfAwardees.forEach(pc => {
     chatContent += updateActorXP(pc, halfXP, reason);
   });
-  const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, 'gmroll', false);
-  chatData.flavor = game.i18n.format('GMTOOLKIT.AddXP.Flavor', {
+  const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "gmroll", false);
+  chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {
     XP,
     reason,
   });

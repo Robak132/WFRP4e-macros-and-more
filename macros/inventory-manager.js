@@ -7,27 +7,27 @@
 class InventoryManager {
   constructor() {
     new Dialog({
-      title: 'Inventory Manager',
+      title: "Inventory Manager",
       content: this.getHTMLForm(),
       buttons: {
         confirm: {
-          icon: '<i class="fas fa-check"></i>',
-          label: 'Move Items',
-          callback: (html) => this.transferItems(html)
+          icon: "<i class=\"fas fa-check\"></i>",
+          label: "Move Items",
+          callback: (html) => this.transferItems(html),
         },
         cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: 'Cancel',
+          icon: "<i class=\"fas fa-times\"></i>",
+          label: "Cancel",
         },
       },
-      default: 'confirm',
-    },  {width: 850}).render(true)
+      default: "confirm",
+    }, {width: 850}).render(true);
   }
 
   formatItemEnc(x) {
     const sourceItem = x._source;
     let lightweightBonus = sourceItem.system.qualities != null &&
-    sourceItem.system.qualities.value.some(q => q.name === 'lightweight') ? -1 : 0;
+    sourceItem.system.qualities.value.some(q => q.name === "lightweight") ? -1 : 0;
     let fullValue = Number(
         Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value);
     let currentValue = Number(x.system.encumbrance.value);
@@ -37,7 +37,7 @@ class InventoryManager {
       return `${currentValue} (${fullValue})`;
     }
   }
-  
+
   groupBy(list, func) {
     return list.reduce((rv, x) => {
       rv[func(x)] = rv[func(x)] ?? [];
@@ -47,17 +47,17 @@ class InventoryManager {
   }
 
   getItemType(x) {
-    let type = x.type === 'trapping' ? x.system.trappingType.value : x.type;
-    return type === '' ? 'misc' : type;
+    let type = x.type === "trapping" ? x.system.trappingType.value : x.type;
+    return type === "" ? "misc" : type;
   }
 
   getCategoryOrder(x) {
     switch (x) {
-      case 'weapon':
+      case "weapon":
         return 3;
-      case 'ammunition':
+      case "ammunition":
         return 2;
-      case 'armour':
+      case "armour":
         return 1;
       default:
         return 0;
@@ -71,7 +71,7 @@ class InventoryManager {
       ...actor.itemTypes.armour,
       ...actor.itemTypes.money,
       ...actor.itemTypes.trapping].
-        sort((a, b) => a.name.localeCompare(b.name, 'pl')).
+        sort((a, b) => a.name.localeCompare(b.name, "pl")).
         sort((a, b) => a.encumbrance.value > b.encumbrance.value ? -1 : 1);
 
     let itemsCategorised = this.groupBy(items, x => game.robakMacros.utils.clean(x.location.value));
@@ -80,7 +80,7 @@ class InventoryManager {
       itemsCategorised[key] = Object.fromEntries(Object.entries(value).sort((a, b) => {
         if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
           return game.i18n.localize(WFRP4E.trappingCategories[b[0]]).
-              localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), 'pl');
+              localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
         }
         return this.getCategoryOrder(a[0]) < this.getCategoryOrder(b[0]) ? 1 : -1;
       }));
@@ -91,7 +91,7 @@ class InventoryManager {
   getHTMLActorHeader(actor) {
     return `
       <h3 style="font-family: CaslonAntique,serif;font-size: 30px;font-variant: small-caps;font-weight: bold">
-        ${actor.name.toLocaleUpperCase('pl')}
+        ${actor.name.toLocaleUpperCase("pl")}
         (${actor.system.status.encumbrance.current}/${actor.system.status.encumbrance.max})
       </h3>`;
   }
@@ -106,7 +106,7 @@ class InventoryManager {
         <h3>
           <div class="form-group">
             <span style="flex: 1;text-align: center">${this.formatItemEnc(container.value)}</span>
-            <span style="flex: 10">${container.name} (${containerItemsEnc}/${container.value.carries.value ?? '-'})</span>
+            <span style="flex: 10">${container.name} (${containerItemsEnc}/${container.value.carries.value ?? "-"})</span>
           </div>
         </h3>`;
   }
@@ -151,13 +151,15 @@ class InventoryManager {
     let form = `<form><div style="overflow-y: scroll;height: 500px">`;
     for (const actor of game.robakMacros.utils.getStashableActors()) {
       const items = this.groupActorItems(actor);
-      const actorItems = items[''] ?? {};
+      const actorItems = items[""] ?? {};
 
       form += this.getHTMLActorHeader(actor);
-      form += this.getHTMLItemList(actorItems, '', actor.id);
+      form += this.getHTMLItemList(actorItems, "", actor.id);
       for (const container of game.robakMacros.utils.getContainers(actor)) {
         const containerItems = items[container.id] ?? {};
-        if (Object.values(containerItems).length === 0) continue;
+        if (Object.values(containerItems).length === 0) {
+          continue;
+        }
 
         form += this.getHTMLContainerHeader(containerItems, container);
         form += this.getHTMLItemList(containerItems, container.id, actor.id);
@@ -188,18 +190,18 @@ class InventoryManager {
   }
 
   async transferItems(html) {
-    let itemTransfers = $(html).find('select').map((_, e) => {
+    let itemTransfers = $(html).find("select").map((_, e) => {
       return {
         item: game.actors.get(e.dataset.sourceActor).items.get(e.dataset.item),
         targetActorId: e.options[e.options.selectedIndex].dataset.targetActor,
         targetContainerId: e.options[e.options.selectedIndex].dataset.targetContainer,
         sourceActorId: e.dataset.sourceActor,
         sourceContainerId: e.dataset.sourceContainer,
-        quantity: Number($(html).find(`input[type=number][name=${e.dataset.item}]`).val())
+        quantity: Number($(html).find(`input[type=number][name=${e.dataset.item}]`).val()),
       };
     }).get().filter(s => s.targetContainerId != null && s.targetActorId != null);
-    console.log(itemTransfers)
-    await game.robakMacros.transferItem.transferItems(itemTransfers)
+    console.log(itemTransfers);
+    await game.robakMacros.transferItem.transferItems(itemTransfers);
   }
 }
 

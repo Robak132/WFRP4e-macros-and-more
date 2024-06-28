@@ -6,7 +6,7 @@ for (let weapon of this.actor._itemTypes.weapon) {
     effectsToCreate.push({
       name: weapon.name,
       icon: weapon.img,
-      statuses: ['show-item'],
+      statuses: ["show-item"],
       transfer: true,
       flags: {
         wfrp4e: {
@@ -18,7 +18,7 @@ for (let weapon of this.actor._itemTypes.weapon) {
     effectsToDelete.push(weapon_effect._id);
   }
 }
-this.actor.createEmbeddedDocuments('ActiveEffect', effectsToCreate);
+this.actor.createEmbeddedDocuments("ActiveEffect", effectsToCreate);
 if (effectsToDelete.length) {
-  character.actor.deleteEmbeddedDocuments('ActiveEffect', effectsToDelete);
+  character.actor.deleteEmbeddedDocuments("ActiveEffect", effectsToDelete);
 }

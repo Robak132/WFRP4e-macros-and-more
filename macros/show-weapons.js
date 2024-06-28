@@ -33,25 +33,25 @@ function showWeapons() {
   this.actor.createEmbeddedDocuments('ActiveEffect', effectsToCreate);
   if (effectsToDelete.length) {
     character.actor.deleteEmbeddedDocuments('ActiveEffect', effectsToDelete);
-  }`
+  }`;
 
   if (canvas.tokens.controlled.length) {
     for (let character of canvas.tokens.controlled) {
-      if (!character.actor.effects.find((e => e.name === game.i18n.localize('MACROS-AND-MORE.ShowWeapons')))) {
-        character.actor.createEmbeddedDocuments('ActiveEffect', [
+      if (!character.actor.effects.find((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")))) {
+        character.actor.createEmbeddedDocuments("ActiveEffect", [
           {
-            name: game.i18n.localize('MACROS-AND-MORE.ShowWeapons'),
+            name: game.i18n.localize("MACROS-AND-MORE.ShowWeapons"),
             flags: {
               wfrp4e: {
-                'effectTrigger': 'prePrepareItems',
-                'effectApplication': 'actor',
-                'script': macro_effect,
+                "effectTrigger": "prePrepareItems",
+                "effectApplication": "actor",
+                "script": macro_effect,
               },
             },
           }]);
       }
     }
   } else {
-    return ui.notifications.error('Select one or more characters on which you want to run this macro');
+    return ui.notifications.error("Select one or more characters on which you want to run this macro");
   }
 }
