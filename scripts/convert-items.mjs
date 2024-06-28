@@ -2,24 +2,19 @@ const localiseType = type => game.i18n.localize(`TYPES.Item.${type}`);
 
 const getDefaultIcon = type => {
   switch (type) {
-    case "career":
-    case "critical":
-    case "extendedTest":
-      return null
     case "ammunition":
     case "container":
     case "trapping":
     case "weapon":
     case "money":
     case "cargo":
-    case "vehicleMod":
-      return `modules/wfrp4e-core/icons/equipment/trapping.png`
+      return `modules/wfrp4e-core/icons/equipment/trapping.png`;
     case "armour":
-      return `modules/wfrp4e-core/icons/armour/armour.png`
+      return `modules/wfrp4e-core/icons/armour/armour.png`;
     case "injury":
-      return `modules/wfrp4e-core/icons/injuries/injury.png`
+      return `modules/wfrp4e-core/icons/injuries/injury.png`;
     case "psychology":
-      return `modules/wfrp4e-core/icons/psychologies/psychology.png`
+      return `modules/wfrp4e-core/icons/psychologies/psychology.png`;
     case "disease":
     case "prayer":
     case "skill":
@@ -27,16 +22,19 @@ const getDefaultIcon = type => {
     case "spell":
     case "trait":
     case "mutation":
-      return `modules/wfrp4e-core/icons/${type}s/${type}.png`
+      return `modules/wfrp4e-core/icons/${type}s/${type}.png`;
+    default:
+      return null;
   }
-}
+};
 
 const hasDefaultIcon = item => {
-  if (item.type === "weapon" && (item.img === "modules/wfrp4e-core/icons/equipment/melee-weapon.png" || "modules/wfrp4e-core/icons/equipment/ranged-weapon.png")) {
-    return true
+  if (item.type === "weapon" && (item.img === "modules/wfrp4e-core/icons/equipment/melee-weapon.png" ||
+      "modules/wfrp4e-core/icons/equipment/ranged-weapon.png")) {
+    return true;
   }
   return item.img === getDefaultIcon(item.type);
-}
+};
 
 export async function addContextOptions(html, options) {
   options.push({
@@ -48,8 +46,8 @@ export async function addContextOptions(html, options) {
       let item = game.items.get(itemId);
       const originalTypeLocalised = localiseType(item.type);
       const options = game.system.template.Item.types.filter(t => t !== item.type).
-        sort((a, b) => localiseType(a).localeCompare(localiseType(b))).
-        map(t => `<option value="${t}">${localiseType(t)}</option>`);
+          sort((a, b) => localiseType(a).localeCompare(localiseType(b))).
+          map(t => `<option value="${t}">${localiseType(t)}</option>`);
 
       await new Dialog({
         title: game.i18n.localize("MACROS-AND-MORE.ChangeItemType"),
@@ -71,9 +69,9 @@ export async function addContextOptions(html, options) {
             icon: `<i class="fas fa-check"></i>`,
             label: "Confirm",
             callback: async (html) => {
-              let convertType = html.find('[name="convert-type"]').val();
+              let convertType = html.find(`[name="convert-type"]`).val();
               if (hasDefaultIcon(item)) {
-                item.img = getDefaultIcon(convertType) ?? item.img
+                item.img = getDefaultIcon(convertType) ?? item.img;
               }
               await item.update({type: convertType, img: item.img});
             },

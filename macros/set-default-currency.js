@@ -89,10 +89,10 @@ async function submit(currentLocation) {
   let currentLocationIdx = getIdx(currentLocation);
   let content = `<div style="overflow-y: scroll;max-height: 500px">`
   for (let actor of game.actors) {
-    if (!actor.itemCategories.money.length) continue
+    if (!actor._itemTypes.money.length) continue
 
     let moneyContent = ""
-    for (let money of actor.itemCategories.money) {
+    for (let money of actor._itemTypes.money) {
       const {
         location,
         coinValue,

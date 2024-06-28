@@ -1,21 +1,23 @@
-import {Utility} from './utility.mjs';
+import {Utility} from "./utility.mjs";
 
-Hooks.on('renderActorSheetWfrp4e', (sheet, html, _) => setupItemHandler(sheet, html));
+Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => setupItemHandler(sheet, html));
 
 function setupItemHandler(sheet, html) {
-  if (!game.settings.get('wfrp4e-macros-and-more', 'transfer-item-gui')) return;
+  if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) {
+    return;
+  }
 
   $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
-    insertAfter(html.find('.inventory .item-post'));
+      insertAfter(html.find(".inventory .item-post"));
   $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
-    insertBefore(html.find('.inventory .item-remove'));
-  html.find('.item-control.item-transfer').on('click', ItemTransfer.transferItemHandler.bind(sheet.actor));
+      insertBefore(html.find(".inventory .item-remove"));
+  html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
 }
 
 export class ItemTransfer {
   static transferItemHandler(e) {
     e.preventDefault();
-    const item = this.items.find(item => item.id === e.currentTarget.closest('.item').dataset.itemId);
+    const item = this.items.find(item => item.id === e.currentTarget.closest(".item").dataset.itemId);
     ItemTransfer.#createDialog(this, item);
   }
 
@@ -28,10 +30,12 @@ export class ItemTransfer {
       } else if (!game.users.find(u => u.active && u.isGM)) {
         return ui.notifications.error(`You cannot offer item to other player's actor when is GM not present`);
       } else {
-        await game.socket.emit('module.wfrp4e-macros-and-more', transferObject);
+        await game.socket.emit("module.wfrp4e-macros-and-more", transferObject);
       }
 
-      if (transferObject.sourceActorId === transferObject.targetActorId) continue;
+      if (transferObject.sourceActorId === transferObject.targetActorId) {
+        continue;
+      }
       let obj = groupedObjects.find(
           o => o.sourceActorId === transferObject.sourceActorId && o.targetActorId === transferObject.targetActorId);
       if (obj === undefined) {
@@ -50,13 +54,13 @@ export class ItemTransfer {
         <b>From: </b>${game.actors.get(group.sourceActorId).name}<br>
         <b>To: </b>${game.actors.get(group.targetActorId).name}<br>
         <b>Items: </b>
-        <ul>${group.value.map(o => `<li>${o.item.name} (${o.quantity})</li>`).join('')}</ul>`;
-    }).join('<hr>');
-    if (msg !== '') {
+        <ul>${group.value.map(o => `<li>${o.item.name} (${o.quantity})</li>`).join("")}</ul>`;
+    }).join("<hr>");
+    if (msg !== "") {
       ChatMessage.create({
         user: game.userId,
         speaker: ChatMessage.getSpeaker(),
-        content: '<h1>Item Transfer Raport</h1>' + msg,
+        content: "<h1>Item Transfer Raport</h1>" + msg,
         whisper: game.users.filter(u => u.isGM).map(u => u._id),
       });
     }
@@ -88,9 +92,9 @@ export class ItemTransfer {
       } else {
         let createdItem = duplicate(item);
         createdItem.system.quantity.value = quantity;
-        createdItem.system.location.value = '';
+        createdItem.system.location.value = "";
 
-        updatedItem = (await targetActor.createEmbeddedDocuments('Item', [createdItem]))[0];
+        updatedItem = (await targetActor.createEmbeddedDocuments("Item", [createdItem]))[0];
         Utility.log(`Duplicate not found: Creating ${updatedItem._id}`);
       }
       Utility.log(`Removing ${item._id} from ${sourceActorId} (${sourceContainerId})`);
@@ -102,7 +106,7 @@ export class ItemTransfer {
     }
 
     // Local Transfer
-    if (!(sourceActorId === targetActorId && item.system.quantity.value !== quantity) && targetContainerId !== '') {
+    if (!(sourceActorId === targetActorId && item.system.quantity.value !== quantity) && targetContainerId !== "") {
       Utility.log(`Transfer ${updatedItem._id} from ${sourceContainerId} to ${targetContainerId}`);
       let foundItem = this.#findItems(updatedItem, targetActor, quantity, targetContainerId);
       if (foundItem) {
@@ -128,11 +132,11 @@ export class ItemTransfer {
     Utility.log(`Updating ${item._id}: changing location to ${containerId}`);
     let update = {
       _id: item._id,
-      'system.location.value': containerId,
-      'system.equipped': false,
-      'system.worn.value': false,
+      "system.location.value": containerId,
+      "system.equipped": false,
+      "system.worn.value": false,
     };
-    return (await actor.updateEmbeddedDocuments('Item', [update]))[0];
+    return (await actor.updateEmbeddedDocuments("Item", [update]))[0];
   }
 
   static async #updateItem({
@@ -143,14 +147,14 @@ export class ItemTransfer {
     Utility.log(`Updating ${item._id}: changing quantity to ${quantity}`);
     let update = {
       _id: item._id,
-      'system.quantity.value': quantity,
-      'system.equipped': false,
-      'system.worn.value': false,
+      "system.quantity.value": quantity,
+      "system.equipped": false,
+      "system.worn.value": false,
     };
-    let updatedItem = (await actor.updateEmbeddedDocuments('Item', [update]))[0];
+    let updatedItem = (await actor.updateEmbeddedDocuments("Item", [update]))[0];
     if (updatedItem.system.quantity.value === 0) {
       Utility.log(`Deleting ${item._id}`);
-      await actor.deleteEmbeddedDocuments('Item', [item._id]);
+      await actor.deleteEmbeddedDocuments("Item", [item._id]);
       return null;
     }
   }
@@ -160,16 +164,17 @@ export class ItemTransfer {
       let dupActorItem = duplicate(actorItem);
       let dupSourceItem = duplicate(sourceItem);
 
-      if (dupActorItem.name !== dupSourceItem.name) continue;
-      if (dupActorItem.system.quantity?.value == null || dupActorItem.system.quantity.value - quantity < 0) continue;
+      if (dupActorItem.name !== dupSourceItem.name) {
+        continue;
+      }
+      if (dupActorItem.system.quantity?.value == null || dupActorItem.system.quantity.value - quantity < 0) {
+        continue;
+      }
 
       dupActorItem.system.location.value = Utility.clean(dupActorItem.system.location.value);
       dupSourceItem.system.location.value = Utility.clean(containerId);
-      if (Utility.isObjectEqual({
-        x: dupActorItem.system,
-        y: dupSourceItem.system,
-        ignore: ['quantity.value', 'equipped', 'worn.value'],
-      })) {
+      if (Utility.isObjectEqual(dupActorItem.system, dupSourceItem.system,
+          ["quantity.value", "equipped", "worn.value"])) {
         return actorItem;
       }
     }
@@ -178,7 +183,7 @@ export class ItemTransfer {
 
   static #createDialog(actor, item) {
     new Dialog({
-      title: 'Transfer Item',
+      title: "Transfer Item",
       content: `
         <form>
           <div class="form-group">
@@ -206,17 +211,17 @@ export class ItemTransfer {
       buttons: {
         yes: {
           icon: `<i class="fas fa-check"></i>`,
-          label: 'Transfer Item',
+          label: "Transfer Item",
           callback: (html) => {
-            let quantity = document.getElementById('quantity').value;
+            let quantity = document.getElementById("quantity").value;
             if (isNaN(quantity)) {
-              Utility.log('Item quantity invalid');
+              Utility.log("Item quantity invalid");
               return ui.notifications.error(`Item quantity invalid.`);
             } else {
               quantity = Number(quantity);
             }
 
-            let transferObjects = $(html).find('select').map((_, e) => {
+            let transferObjects = $(html).find("select").map((_, e) => {
               return {
                 item: item,
                 targetActorId: e.options[e.options.selectedIndex].dataset.targetActor,
@@ -231,10 +236,10 @@ export class ItemTransfer {
         },
         no: {
           icon: `<i class="fas fa-times"></i>`,
-          label: 'Cancel',
+          label: "Cancel",
         },
       },
-      default: 'yes',
+      default: "yes",
     }).render(true);
   }
 
@@ -246,23 +251,23 @@ export class ItemTransfer {
           <option style="font-weight: bold;"
                   data-target-container=""
                   data-target-actor="${actor.id}"
-                  ${(actor.id === sourceActorId && '' === cleanedSourceContainerId) ? 'disabled' : ''}
+                  ${(actor.id === sourceActorId && "" === cleanedSourceContainerId) ? "disabled" : ""}
                   label="${actor.name}">`;
       for (const container of Utility.getContainers(actor)) {
         select += `
           <option data-target-container="${container.id}"
                   data-target-actor="${actor.id}" 
-                  ${(actor.id === sourceActorId && container.id === cleanedSourceContainerId) ? 'disabled' : ''}
+                  ${(actor.id === sourceActorId && container.id === cleanedSourceContainerId) ? "disabled" : ""}
                   label="&nbsp;&nbsp;&nbsp;&nbsp;${container.name}">`;
       }
     }
-    const isGMActive = !!game.users.find(u => u.active && u.isGM)
+    const isGMActive = !!game.users.find(u => u.active && u.isGM);
     const otherActors = Utility.getTransferableActors().map((actor) => `
           <option style="font-weight: bold;"
                   data-target-container=""
                   data-target-actor="${actor.id}"
-                  ${isGMActive ? '' : 'disabled'}
-                  label="${actor.name}">`)
+                  ${isGMActive ? "" : "disabled"}
+                  label="${actor.name}">`);
     if (otherActors.length !== 0) {
       select += "<option disabled>──────────</option>" + otherActors.join("")
     }

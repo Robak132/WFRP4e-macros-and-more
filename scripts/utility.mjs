@@ -3,53 +3,39 @@ export class Utility {
   static #OWNERSHIP_OBSERVER = 2;
   static #OWNERSHIP_LIMITED = 1;
 
-  static log(message, level="info") {
+  static log(message, level = "info") {
     switch (level) {
-      case 'warn':
+      case "warn":
         console.warn(`Robak's macros | ` + message);
         break;
-      case 'debug':
+      case "debug":
         console.debug(`Robak's macros | ` + message);
         break;
-      case 'info':
+      case "info":
       default:
         console.log(`Robak's macros | ` + message);
         break;
     }
   }
 
-  static isObjectEqual({
-    x,
-    y,
-    ignore,
-    path = [],
-  }) {
-    const result = this.#isObjectEqualRaw({
-      x,
-      y,
-      ignore,
-      path,
-    });
-    if (!result) this.log(`${JSON.stringify(x)} vs ${JSON.stringify(y)}: false`, 'debug');
+  static isObjectEqual(x, y, ignore, path = []) {
+    const result = this.#isObjectEqualRaw(x, y, ignore, path);
+    if (!result) {
+      this.log(`${JSON.stringify(x)} vs ${JSON.stringify(y)}: false`, "debug");
+    }
     return result;
   }
 
-  static #isObjectEqualRaw({
-    x,
-    y,
-    ignore,
-    path = [],
-  }) {
-    if (ignore.includes(path.join('.')) || x === y) return true;
-    if (typeof x == 'object' && x != null && typeof y == 'object' && y != null) {
-      if (Object.keys(x).length !== Object.keys(y).length) return false;
+  static #isObjectEqualRaw(x, y, ignore, path = []) {
+    if (ignore.includes(path.join(".")) || x === y) {
+      return true;
+    }
+    if (typeof x == "object" && x != null && typeof y == "object" && y != null) {
+      if (Object.keys(x).length !== Object.keys(y).length) {
+        return false;
+      }
       for (let prop in x) {
-        if (!y.hasOwnProperty(prop) || !this.isObjectEqual({
-          x: x[prop],
-          y: y[prop],
-          ignore,
-          path: path.concat([prop]),
-        })) {
+        if (!y.hasOwnProperty(prop) || !this.isObjectEqual(x[prop], y[prop], ignore, path.concat([prop]))) {
           return false;
         }
       }
@@ -68,12 +54,12 @@ export class Utility {
   }
 
   static checkOwnership(actor, ownership) {
-    return actor.ownership[game.user.id] >= ownership || actor.ownership['default'] >= ownership;
+    return actor.ownership[game.user.id] >= ownership || actor.ownership["default"] >= ownership;
   }
 
   static clean(value) {
-    if (value === 0 || value === '0') {
-      return '';
+    if (value === 0 || value === "0") {
+      return "";
     }
     return value;
   }
@@ -94,19 +80,12 @@ export class Utility {
   static getContainers(actor) {
     return actor.itemTypes.container.map((c) => {
       return {
-        id: c.id,
-        name: c.name,
-        value: c,
+        id: c.id, name: c.name, value: c,
       };
     });
   }
 
-  static async rollFromCodeObject({
-    table,
-    dice = '1d10',
-    modifier = 0,
-    amount = 1,
-  }) {
+  static async rollFromCodeObject({table, dice = "1d10", modifier = 0, amount = 1}) {
     let editedTable = [...table];
     let resultList = [];
     for (let i = 0; i < Math.min(table.length, amount); i++) {

@@ -12,7 +12,7 @@ function showWeapons() {
   if (!game.user.isUniqueGM) return
   effectsToCreate = [];
   effectsToDelete = [];
-  for (let weapon of this.actor.itemCategories.weapon) {
+  for (let weapon of this.actor._itemTypes.weapon) {
     let weapon_effect = this.actor.effects.find((value) => value.name === weapon.name);
     if (weapon.equipped && weapon_effect === undefined) {
       effectsToCreate.push({
