@@ -53,8 +53,8 @@ const OPERATIONS = [
     id: "hide-weapons",
     name: "Hide Weapons",
     function: (token) => {
-      let effects = token.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))).
-          map(e => e._id);
+      let effects = token.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")))
+          .map(e => e._id);
       effects = effects.concat(token.actor.effects.filter((e => e.statuses.has("show-item"))).map(e => e._id));
       if (effects.length) {
         token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
@@ -67,8 +67,8 @@ const OPERATIONS = [
       if (token.actor.effects.find(e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")) === undefined) {
         token.actor.createEmbeddedDocuments("ActiveEffect", [SHOW_WEAPONS_EFFECT]);
       } else {
-        let effects = token.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))).
-            map(e => e._id);
+        let effects = token.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")))
+            .map(e => e._id);
         effects = effects.concat(token.actor.effects.filter((e => e.statuses.has("show-item"))).map(e => e._id));
         token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
       }

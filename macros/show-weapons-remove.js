@@ -12,8 +12,8 @@ function showWeapons() {
     for (let character of canvas.tokens.controlled) {
       let effects = [];
       effects = effects.concat(
-          character.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))).
-              map(e => e._id));
+          character.actor.effects.filter((e => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")))
+              .map(e => e._id));
       effects = effects.concat(character.actor.effects.filter((e => e.statuses.has("show-item"))).map(e => e._id));
       if (effects.length) {
         character.actor.deleteEmbeddedDocuments("ActiveEffect", effects);

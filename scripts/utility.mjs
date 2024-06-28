@@ -73,8 +73,8 @@ export class Utility {
   }
 
   static getTransferableActors() {
-    return game.actors.filter(a => a.hasPlayerOwner).
-        filter(a => this.checkOwnership(a, this.#OWNERSHIP_LIMITED) && !this.checkOwnership(a, this.#OWNERSHIP_OWNER));
+    return game.actors.filter(a => a.hasPlayerOwner)
+        .filter(a => this.checkOwnership(a, this.#OWNERSHIP_LIMITED) && !this.checkOwnership(a, this.#OWNERSHIP_OWNER));
   }
 
   static getContainers(actor) {
@@ -96,5 +96,15 @@ export class Utility {
       resultList.push(rolledObject.result);
     }
     return resultList;
+  }
+
+  static randomID() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 16; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
   }
 }

@@ -70,17 +70,16 @@ class InventoryManager {
       ...actor.itemTypes.ammunition,
       ...actor.itemTypes.armour,
       ...actor.itemTypes.money,
-      ...actor.itemTypes.trapping].
-        sort((a, b) => a.name.localeCompare(b.name, "pl")).
-        sort((a, b) => a.encumbrance.value > b.encumbrance.value ? -1 : 1);
+      ...actor.itemTypes.trapping].sort((a, b) => a.name.localeCompare(b.name, "pl"))
+        .sort((a, b) => a.encumbrance.value > b.encumbrance.value ? -1 : 1);
 
     let itemsCategorised = this.groupBy(items, x => game.robakMacros.utils.clean(x.location.value));
     for (let [key, value] of Object.entries(itemsCategorised)) {
       value = this.groupBy(value, x => this.getItemType(x));
       itemsCategorised[key] = Object.fromEntries(Object.entries(value).sort((a, b) => {
         if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
-          return game.i18n.localize(WFRP4E.trappingCategories[b[0]]).
-              localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
+          return game.i18n.localize(WFRP4E.trappingCategories[b[0]])
+              .localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
         }
         return this.getCategoryOrder(a[0]) < this.getCategoryOrder(b[0]) ? 1 : -1;
       }));
@@ -97,8 +96,8 @@ class InventoryManager {
   }
 
   getHTMLContainerHeader(containerItems, container) {
-    let containerItemsEnc = Number(Object.values(containerItems).
-        reduce((sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)), 0));
+    let containerItemsEnc = Number(Object.values(containerItems)
+        .reduce((sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)), 0));
     if (containerItemsEnc % 1 !== 0) {
       containerItemsEnc = containerItemsEnc.toFixed(2);
     }
@@ -205,4 +204,4 @@ class InventoryManager {
   }
 }
 
-new InventoryManager()
+new InventoryManager();

@@ -7,10 +7,10 @@ function setupItemHandler(sheet, html) {
     return;
   }
 
-  $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
-      insertAfter(html.find(".inventory .item-post"));
-  $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`).
-      insertBefore(html.find(".inventory .item-remove"));
+  $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`)
+      .insertAfter(html.find(".inventory .item-post"));
+  $(`<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>`)
+      .insertBefore(html.find(".inventory .item-remove"));
   html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
 }
 
@@ -269,7 +269,7 @@ export class ItemTransfer {
                   ${isGMActive ? "" : "disabled"}
                   label="${actor.name}">`);
     if (otherActors.length !== 0) {
-      select += "<option disabled>──────────</option>" + otherActors.join("")
+      select += "<option disabled>──────────</option>" + otherActors.join("");
     }
     return select;
   }

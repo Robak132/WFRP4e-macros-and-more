@@ -2,6 +2,6 @@
   "scripts": {
     "pack": "pack.sh",
     "unpack": "unpack.sh",
-    "move": "node move-to-src.js"
+    "move": "node move-to-src.mjs"
   }
 }

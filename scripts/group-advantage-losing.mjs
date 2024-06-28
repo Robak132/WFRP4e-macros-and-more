@@ -22,8 +22,12 @@ export function handleLosingGroupAdvantage(combatants) {
   let chatMsg = `<h1>${game.i18n.localize("MACROS-AND-MORE.LosingAdvantage")}</h1>`;
   for (let i = 1; i >= -1; i--) {
     if (content[i]) {
-      chatMsg += `<h2>${DISPOSITION_LABELS[i]} [${content[i].filter(a => !a.defeated).reduce((a, c) => a + c.size, 0)}]</h2>`;
-      let sortedActors = content[i].sort((a, b) => a.name.localeCompare(b.name, "pl")).sort((a, b) => a.size > b.size ? -1 : 1);
+      chatMsg += `<h2>${DISPOSITION_LABELS[i]} [${content[i]
+          .filter(a => !a.defeated)
+          .reduce((a, c) => a + c.size, 0)}]</h2>`;
+      let sortedActors = content[i]
+          .sort((a, b) => a.name.localeCompare(b.name, "pl"))
+          .sort((a, b) => a.size > b.size ? -1 : 1);
       for (let actor of sortedActors) {
         chatMsg += (actor.defeated) ? `<p><s>` : `<p>`;
         chatMsg += `${actor.name} `;

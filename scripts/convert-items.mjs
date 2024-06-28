@@ -45,9 +45,9 @@ export async function addContextOptions(html, options) {
       const itemId = header.data("document-id");
       let item = game.items.get(itemId);
       const originalTypeLocalised = localiseType(item.type);
-      const options = game.system.template.Item.types.filter(t => t !== item.type).
-          sort((a, b) => localiseType(a).localeCompare(localiseType(b))).
-          map(t => `<option value="${t}">${localiseType(t)}</option>`);
+      const options = game.system.template.Item.types.filter(t => t !== item.type)
+          .sort((a, b) => localiseType(a).localeCompare(localiseType(b)))
+          .map(t => `<option value="${t}">${localiseType(t)}</option>`);
 
       await new Dialog({
         title: game.i18n.localize("MACROS-AND-MORE.ChangeItemType"),

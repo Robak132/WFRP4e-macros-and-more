@@ -99,6 +99,6 @@ async function getDrunk() {
         },
       },
     },
-    default: 'yes',
+    default: "yes",
   }).render(true);
 }

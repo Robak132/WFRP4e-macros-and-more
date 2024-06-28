@@ -530,8 +530,8 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
     result.description += `<p><b>Wind change roll:</b> ${windChangeRoll}</p>`;
   }
   if (windStrength !== WindStrength.DOLDRUMS) {
-    result.description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength.getName().
-        toLowerCase()} (${windName})</p>`;
+    result.description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength.getName()
+        .toLowerCase()} (${windName})</p>`;
   } else {
     result.description += `<p><b>Wind:</b> ${windStrength.getName()}</p>`;
   }

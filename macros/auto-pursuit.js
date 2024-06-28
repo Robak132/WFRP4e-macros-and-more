@@ -148,11 +148,11 @@ class SimplePursuit {
   }
 
   sortObjects(objects) {
-    return objects.sort((a, b) => a.name.localeCompare(b.name, "pl")).
-        sort((a, b) => a.move < b.move ? -1 : 1).
-        sort((a, b) => Number(a.quarry) - Number(b.quarry)).
-        sort((a, b) => Number(a.type === "obstacle") - Number(b.type === "obstacle")).
-        sort((a, b) => a.distance < b.distance ? -1 : 1);
+    return objects.sort((a, b) => a.name.localeCompare(b.name, "pl"))
+        .sort((a, b) => a.move < b.move ? -1 : 1)
+        .sort((a, b) => Number(a.quarry) - Number(b.quarry))
+        .sort((a, b) => Number(a.type === "obstacle") - Number(b.type === "obstacle"))
+        .sort((a, b) => a.distance < b.distance ? -1 : 1);
   }
 
   //-------------//
@@ -957,5 +957,5 @@ PursuitDialogHelper.createPursuitDialogFormatted({
       callback: () => new ComplexPursuit().renderCreatePursuitDialog(),
     },
   },
-  defaultButton: 'yes',
+  defaultButton: "yes",
 });

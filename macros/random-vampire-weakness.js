@@ -113,8 +113,8 @@ async function submit(html) {
   });
   let message = `<h1>Vampires Weaknesses</h1>`;
   message += weaknesses.map(
-      (weakness, index) => `<p><b>Weakness ${index + 1}:</b> ${weakness.value}<br>${weakness.description}</p>`).
-      join("");
+      (weakness, index) => `<p><b>Weakness ${index + 1}:</b> ${weakness.value}<br>${weakness.description}</p>`)
+      .join("");
   ChatMessage.create({
     content: message,
     whisper: game.users.filter(u => u.isGM).map(u => u.id),
