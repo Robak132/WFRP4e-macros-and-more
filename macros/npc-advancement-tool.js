@@ -1,11 +1,11 @@
 main();
 
 async function getCareers() {
-  const careerList = {};
-  const careers = await game.wfrp4e.utility.findAll("career", game.i18n.localize("CAREER.Loading"));
+  let careerList = {};
+  let careers = await game.wfrp4e.utility.findAll('career', game.i18n.localize('CAREER.Loading'));
   careers.forEach((tier, i) => {
-    const clsObject = careerList[tier.system.class.value] ?? {};
-    const careerGroup = clsObject[tier.system.careergroup.value] ?? [];
+    let clsObject = careerList[tier.system.class.value] ?? {};
+    let careerGroup = clsObject[tier.system.careergroup.value] ?? [];
     careerGroup.push({
       link: tier.link,
       level: tier.level.value,
@@ -23,9 +23,9 @@ async function getCareers() {
 
 async function sortCareers(careerList) {
   let sortedCareerList = {};
-  for (const [careerClass, careerGroups] of Object.entries(careerList)) {
-    const sortedCareerGroups = {};
-    for (const [careerGroup, careers] of Object.entries(careerGroups)) {
+  for (let [careerClass, careerGroups] of Object.entries(careerList)) {
+    let sortedCareerGroups = {};
+    for (let [careerGroup, careers] of Object.entries(careerGroups)) {
       sortedCareerGroups[careerGroup] = careers.sort((a, b) => a.level - b.level);
     }
     sortedCareerList[careerClass] = Object.fromEntries(Object.entries(sortedCareerGroups).sort());
@@ -35,15 +35,15 @@ async function sortCareers(careerList) {
 }
 
 async function getCareerOptions() {
-  let careerList = await getCareers();
-  careerList = await sortCareers(careerList);
-  let result = "";
-  for (const [careerClass, careerGroups] of Object.entries(careerList)) {
-    result += `<option disabled>${careerClass}</option>`;
-    for (const [careerGroup, careers] of Object.entries(careerGroups)) {
-      result += `<option disabled>&nbsp;&nbsp;${careerGroup}</option>`;
-      for (const career of careers) {
-        result += `<option value="${career.index}">&nbsp;&nbsp;&nbsp;&nbsp;${career.level} - ${career.name}</option>`;
+  let careerList = await getCareers()
+  careerList = await sortCareers(careerList)
+  let result = ""
+  for (let [careerClass, careerGroups] of Object.entries(careerList)) {
+    result += `<option disabled>${careerClass}</option>`
+    for (let [careerGroup, careers] of Object.entries(careerGroups)) {
+      result += `<option disabled>&nbsp;&nbsp;${careerGroup}</option>`
+      for (let career of careers) {
+        result += `<option value="${career.index}">&nbsp;&nbsp;&nbsp;&nbsp;${career.level} - ${career.name}</option>`
       }
     }
   }
@@ -53,11 +53,10 @@ async function getCareerOptions() {
 async function submit() {}
 
 async function main() {
-  const careerOptions = await getCareerOptions();
-  await new Dialog(
-    {
-      title: "NPC Advancement Tool",
-      content: `<form>
+  let careerOptions = await getCareerOptions()
+  await new Dialog({
+    title: 'NPC Advancement Tool',
+    content: `<form>
         <div class="form-group">
           <p style="flex: 1" class="section-title">Attributes</p>
           <select style="flex: 2" name="characteristics">
@@ -83,19 +82,17 @@ async function main() {
           </select>
         </div>
       </form>`,
-      buttons: {
-        no: {
-          icon: "<i class='fas fa-times'></i>",
-          label: game.i18n.localize("Cancel")
-        },
-        yes: {
-          icon: "<i class='fas fa-check'></i>",
-          label: game.i18n.localize("Apply"),
-          callback: async (html) => await submit(html)
-        }
+    buttons: {
+      no: {
+        icon: `<i class='fas fa-times'></i>`,
+        label: game.i18n.localize('Cancel'),
       },
-      default: "yes"
+      yes: {
+        icon: `<i class='fas fa-check'></i>`,
+        label: game.i18n.localize('Apply'),
+        callback: async (html) => await submit(html),
+      },
     },
-    {width: 500}
-  ).render(true);
+    default: 'yes',
+  }, {width: 500}).render(true);
 }

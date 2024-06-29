@@ -1,11 +1,13 @@
 import path from "path";
 import fs from "fs";
+import {compilePack} from "@foundryvtt/foundryvtt-cli";
 
 const input_path = "macros";
-const output_path = "src/packs/macros";
+const json_path = "src/packs/macros";
+const output_path = "packs/macros";
 const macrosData = JSON.parse(fs.readFileSync("macros.data.json"));
 
-function transformData (macro) {
+function transformData(macro) {
   const data = fs.readFileSync(path.join(input_path, macro.code_file), "utf8");
   macro.command = data.replace(/\r\n/g, "\n");
   macro.flags = {
@@ -25,13 +27,17 @@ function transformData (macro) {
   return macro;
 }
 
-for (let filepath of fs.readdirSync(output_path)) {
-  fs.unlinkSync(path.join(output_path, filepath));
+for (let filepath of fs.readdirSync(json_path)) {
+  fs.unlinkSync(path.join(json_path, filepath));
 }
 for (const macro of macrosData.macros) {
   const fileName = `${macro.name.replace(/[^A-Za-z0-9]/gi, "_")}_${macro._id}.json`;
   let fileData = macrosData.common;
   fileData = Object.assign(fileData, macro);
   fileData = transformData(fileData);
-  fs.writeFileSync(path.join(output_path, fileName), JSON.stringify(fileData, null, 2) + "\n");
+  fs.writeFileSync(path.join(json_path, fileName), JSON.stringify(fileData, null, 2) + "\n", "utf8");
 }
+
+compilePack(json_path, output_path, {log: true})
+  .then(() => console.log("Pack compilation complete."))
+  .catch((err) => console.log(err.message));

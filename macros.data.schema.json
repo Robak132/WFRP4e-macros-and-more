@@ -12,7 +12,6 @@
           "_id",
           "code_file",
           "version",
-          "img",
           "name"
         ],
         "properties": {
