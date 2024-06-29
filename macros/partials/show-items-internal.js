@@ -1,7 +1,7 @@
 effectsToCreate = [];
 effectsToDelete = [];
-for (let weapon of this.actor._itemTypes.weapon) {
-  let weapon_effect = this.actor.effects.find((value) => value.name === weapon.name);
+for (const weapon of this.actor._itemTypes.weapon) {
+  const weapon_effect = this.actor.effects.find((value) => value.name === weapon.name);
   if (weapon.equipped && weapon_effect === undefined) {
     effectsToCreate.push({
       name: weapon.name,
@@ -10,9 +10,9 @@ for (let weapon of this.actor._itemTypes.weapon) {
       transfer: true,
       flags: {
         wfrp4e: {
-          preventDuplicateEffects: true,
-        },
-      },
+          preventDuplicateEffects: true
+        }
+      }
     });
   } else if (!weapon.equipped && weapon_effect !== undefined) {
     effectsToDelete.push(weapon_effect._id);

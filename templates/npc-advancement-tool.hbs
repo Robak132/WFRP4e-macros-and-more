@@ -18,12 +18,12 @@
     </select>
   </div>
   <ol class="career-list">
-  {{#each careerList as |careerGroup c|}}
-    <h2 class="career-group">{{c}}</h2>
-    {{#each careerGroup as |careerTier t|}}
-      <li class="career-tier" data-index={{careerTier.index}}>{{careerTier.name}}</li>
+    {{#each careerList as |careerGroup c|}}
+      <h2 class="career-group">{{c}}</h2>
+      {{#each careerGroup as |careerTier t|}}
+        <li class="career-tier" data-index={{careerTier.index}}>{{careerTier.name}}</li>
+      {{/each}}
     {{/each}}
-  {{/each}}
   </ol>
   <button type="submit" name="submit">{{localize "Select"}}</button>
 </form>

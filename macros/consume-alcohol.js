@@ -7,23 +7,23 @@
 getDrunk();
 
 function findFailures() {
-  let ca1 = actor.actorEffects.filter(e => e.conditionId === "consumealcohol1");
-  if (!!ca1.length) {
+  const ca1 = actor.actorEffects.filter((e) => e.conditionId === "consumealcohol1");
+  if (ca1.length) {
     return 1;
   }
-  let ca2 = actor.actorEffects.filter(e => e.conditionId === "consumealcohol2");
-  if (!!ca2.length) {
+  const ca2 = actor.actorEffects.filter((e) => e.conditionId === "consumealcohol2");
+  if (ca2.length) {
     return 2;
   }
-  let ca3 = actor.actorEffects.filter(e => e.conditionId === "consumealcohol3");
-  if (!!ca3.length) {
+  const ca3 = actor.actorEffects.filter((e) => e.conditionId === "consumealcohol3");
+  if (ca3.length) {
     return ca3.length + 2;
   }
   return 0;
 }
 
 async function addAlcoholModifiers(actor) {
-  let failures = findFailures();
+  const failures = findFailures();
   if (failures === 0) {
     actor.addSystemEffect("consumealcohol1");
   } else if (failures < 3) {
@@ -32,13 +32,14 @@ async function addAlcoholModifiers(actor) {
   } else {
     await actor.updateEmbeddedDocuments("ActiveEffect", [
       {
-        "_id": actor.actorEffects.find(e => e.conditionId === "consumealcohol3" && e.disabled === false).id,
-        "disabled": true,
-      }]);
+        _id: actor.actorEffects.find((e) => e.conditionId === "consumealcohol3" && e.disabled === false).id,
+        disabled: true
+      }
+    ]);
     actor.addSystemEffect("consumealcohol3");
   }
   if (actor.characteristics.t.bonus <= failures + 1) {
-    game.tables.find(table => table.getFlag("wfrp4e", "key") === "stinking-drunk").draw();
+    game.tables.find((table) => table.getFlag("wfrp4e", "key") === "stinking-drunk").draw();
   }
 }
 
@@ -49,7 +50,7 @@ async function getDrunk() {
     characters.push(game.user.character);
   } else if (canvas.tokens.controlled.length) {
     // Get selected characters
-    characters = canvas.tokens.controlled.map(t => t.actor);
+    characters = canvas.tokens.controlled.map((t) => t.actor);
   } else {
     return ui.notifications.error("Select one or more characters on which you want to run this macro");
   }
@@ -70,14 +71,14 @@ async function getDrunk() {
     </form>`,
     buttons: {
       no: {
-        icon: "<i class=\"fas fa-times\"></i>",
-        label: "Cancel",
+        icon: '<i class="fas fa-times"></i>',
+        label: "Cancel"
       },
       yes: {
-        icon: "<i class=\"fas fa-check\"></i>",
+        icon: '<i class="fas fa-check"></i>',
         label: "Drink",
         callback: async (html) => {
-          let brewStrength = html.find("[name=\"inputStrength\"]").val();
+          let brewStrength = html.find('[name="inputStrength"]').val();
           let tests = 1;
           if (brewStrength === "bugman") {
             tests = 4;
@@ -86,9 +87,9 @@ async function getDrunk() {
 
           for (const actor of characters) {
             for (let i = 0; i < tests; i++) {
-              let test = await actor.setupSkill(game.i18n.localize("NAME.ConsumeAlcohol"), {
+              const test = await actor.setupSkill(game.i18n.localize("NAME.ConsumeAlcohol"), {
                 bypass: false,
-                absolute: {difficulty: brewStrength},
+                absolute: {difficulty: brewStrength}
               });
               await test.roll();
               if (test.result.outcome === "failure") {
@@ -96,9 +97,9 @@ async function getDrunk() {
               }
             }
           }
-        },
-      },
+        }
+      }
     },
-    default: "yes",
+    default: "yes"
   }).render(true);
 }

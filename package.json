@@ -3,5 +3,8 @@
     "pack": "pack.sh",
     "unpack": "unpack.sh",
     "move": "node move-to-src.mjs"
+  },
+  "devDependencies": {
+    "prettier": "3.3.2"
   }
 }

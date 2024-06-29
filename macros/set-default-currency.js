@@ -13,18 +13,18 @@ const NATIONS = {
   tilea: "Tilea",
   dwarf: "Dwarf Keeps",
   elf: "Elf Kingdoms",
-  araby: "Araby",
+  araby: "Araby"
 };
 const DATA = [
-  [1.00, 1.05, 1.10, 1.10, 1.00, 0.80, 0.90, 1.05, 1.10],
-  [0.95, 1.00, 1.05, 1.10, 1.00, 0.85, 0.85, 1.00, 1.05],
-  [0.90, 0.95, 1.00, 0.90, 1.00, 0.90, 0.80, 1.00, 1.00],
-  [0.90, 0.95, 1.10, 1.00, 0.95, 0.90, 0.90, 1.05, 1.10],
-  [0.70, 0.80, 0.90, 0.95, 1.00, 1.00, 0.80, 0.90, 1.00],
-  [0.50, 0.70, 0.80, 0.90, 1.00, 1.00, 0.00, 1.20, 0.90],
-  [1.20, 1.30, 1.40, 1.00, 0.80, 1.50, 1.00, 1.00, 0.80],
-  [0.95, 1.00, 1.05, 1.05, 0.95, 1.20, 1.00, 1.00, 0.95],
-  [0.90, 0.95, 1.00, 1.10, 1.00, 0.90, 1.20, 1.05, 1.00],
+  [1.0, 1.05, 1.1, 1.1, 1.0, 0.8, 0.9, 1.05, 1.1],
+  [0.95, 1.0, 1.05, 1.1, 1.0, 0.85, 0.85, 1.0, 1.05],
+  [0.9, 0.95, 1.0, 0.9, 1.0, 0.9, 0.8, 1.0, 1.0],
+  [0.9, 0.95, 1.1, 1.0, 0.95, 0.9, 0.9, 1.05, 1.1],
+  [0.7, 0.8, 0.9, 0.95, 1.0, 1.0, 0.8, 0.9, 1.0],
+  [0.5, 0.7, 0.8, 0.9, 1.0, 1.0, 0.0, 1.2, 0.9],
+  [1.2, 1.3, 1.4, 1.0, 0.8, 1.5, 1.0, 1.0, 0.8],
+  [0.95, 1.0, 1.05, 1.05, 0.95, 1.2, 1.0, 1.0, 0.95],
+  [0.9, 0.95, 1.0, 1.1, 1.0, 0.9, 1.2, 1.05, 1.0]
 ];
 
 main();
@@ -40,31 +40,33 @@ async function main() {
      <form>
       <div class="form-group">
         <select style="text-align: center" name="currentLocation">
-          ${Object.entries(NATIONS).map((entry) => `<option value="${entry[0]}">${entry[1]}</option>`).join("")}
+          ${Object.entries(NATIONS)
+            .map((entry) => `<option value="${entry[0]}">${entry[1]}</option>`)
+            .join("")}
         </select>
       </div>
     </form>`,
     buttons: {
       no: {
-        icon: `<i class="fas fa-times"></i>`,
-        label: "Cancel",
+        icon: '<i class="fas fa-times"></i>',
+        label: "Cancel"
       },
       yes: {
-        icon: `<i class="fas fa-check"></i>`,
+        icon: '<i class="fas fa-check"></i>',
         label: "Next",
         callback: async (html) => {
-          let currentLocation = html.find("[name=\"currentLocation\"]").val();
+          const currentLocation = html.find('[name="currentLocation"]').val();
           await submit(currentLocation);
-        },
-      },
+        }
+      }
     },
-    default: "yes",
+    default: "yes"
   }).render(true);
 }
 
 function extractDataFromCoin(money) {
-  let updates = {};
-  let coinValue = money.system.coinValue.value;
+  const updates = {};
+  const coinValue = money.system.coinValue.value;
   let location = money.flags["wfrp4e-macros-and-more"].moneyLocation;
   if (location === undefined) {
     updates["flags.wfrp4e-macros-and-more.moneyLocation"] = "empire";
@@ -79,28 +81,24 @@ function extractDataFromCoin(money) {
   return {
     location,
     coinValue,
-    baseCoinValue,
+    baseCoinValue
   };
 }
 
 async function submit(currentLocation) {
-  let coinUpdates = [];
+  const coinUpdates = [];
 
-  let currentLocationIdx = getIdx(currentLocation);
-  let content = `<div style="overflow-y: scroll;max-height: 500px">`;
-  for (let actor of game.actors) {
+  const currentLocationIdx = getIdx(currentLocation);
+  let content = '<div style="overflow-y: scroll;max-height: 500px">';
+  for (const actor of game.actors) {
     if (!actor._itemTypes.money.length) {
       continue;
     }
 
     let moneyContent = "";
-    for (let money of actor._itemTypes.money) {
-      const {
-        location,
-        coinValue,
-        baseCoinValue,
-      } = extractDataFromCoin(money);
-      let convertedValue = Math.round(DATA[getIdx(location)][currentLocationIdx] * baseCoinValue);
+    for (const money of actor._itemTypes.money) {
+      const {location, coinValue, baseCoinValue} = extractDataFromCoin(money);
+      const convertedValue = Math.round(DATA[getIdx(location)][currentLocationIdx] * baseCoinValue);
 
       if (money.system.quantity.value === 0 || convertedValue === coinValue) {
         continue;
@@ -124,23 +122,22 @@ async function submit(currentLocation) {
 
   await new Dialog({
     title: `Current Location: ${NATIONS[currentLocation]}`,
-    content: content,
+    content,
     buttons: {
       no: {
-        icon: `<i class="fas fa-times"></i>`,
-        label: "Cancel",
+        icon: '<i class="fas fa-times"></i>',
+        label: "Cancel"
       },
       yes: {
-        icon: `<i class="fas fa-check"></i>`,
+        icon: '<i class="fas fa-check"></i>',
         label: "Proceed",
         callback: async () => {
-          for (let entry of coinUpdates) {
+          for (const entry of coinUpdates) {
             await entry.object.update({"system.coinValue.value": entry.value});
           }
-        },
-      },
+        }
+      }
     },
-    default: "yes",
+    default: "yes"
   }).render(true);
-
 }

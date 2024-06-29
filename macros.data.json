@@ -2,7 +2,8 @@
   "common": {
     "author": "MJAZjdKh3QKREKG2",
     "scope": "global",
-    "type": "script"
+    "type": "script",
+    "folder": null
   },
   "macros": [
     {
@@ -86,6 +87,84 @@
       "version": "1.1.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/token-manipulator.svg",
       "name": "Token Manipulator"
+    },
+    {
+      "name": "Random Books Generator",
+      "img": "icons/svg/book.svg",
+      "flags": {
+        "advanced-macros": {
+          "runAsGM": false,
+          "runForEveryone": false,
+          "runForSpecificUser": ""
+        },
+        "exportSource": {
+          "world": "skaveny",
+          "system": "wfrp4e",
+          "coreVersion": "10.291",
+          "systemVersion": "6.4.0"
+        },
+        "core": {}
+      },
+      "_id": "yNsZXRtK59KMVH9E",
+      "_key": "!macros!yNsZXRtK59KMVH9E"
+    },
+    {
+      "name": "Rescale Map",
+      "type": "script",
+      "scope": "global",
+      "author": "MJAZjdKh3QKREKG2",
+      "img": "icons/svg/dice-target.svg",
+      "folder": null,
+      "ownership": {
+        "default": 0,
+        "MJAZjdKh3QKREKG2": 3
+      },
+      "flags": {
+        "advanced-macros": {
+          "runForSpecificUser": ""
+        },
+        "core": {}
+      },
+      "_stats": {
+        "systemId": "wfrp4e",
+        "systemVersion": "7.0.3",
+        "coreVersion": "11.315",
+        "createdTime": 1706735544747,
+        "modifiedTime": 1713963426823,
+        "lastModifiedBy": "MJAZjdKh3QKREKG2"
+      },
+      "_id": "tVEB7ArgxwZbszvX",
+      "sort": 0,
+      "_key": "!macros!tVEB7ArgxwZbszvX"
+    },
+    {
+      "name": "Reveal Fog of War",
+      "type": "script",
+      "scope": "global",
+      "author": "MJAZjdKh3QKREKG2",
+      "img": "icons/svg/light.svg",
+      "folder": null,
+      "ownership": {
+        "default": 0,
+        "MJAZjdKh3QKREKG2": 3
+      },
+      "flags": {
+        "advanced-macros": {
+          "runForSpecificUser": ""
+        },
+        "core": {}
+      },
+      "_stats": {
+        "systemId": "wfrp4e",
+        "systemVersion": "7.0.3",
+        "coreVersion": "11.315",
+        "createdTime": 1713782954632,
+        "modifiedTime": 1713783053192,
+        "lastModifiedBy": "MJAZjdKh3QKREKG2"
+      },
+      "_id": "rcR8rDpEYe899SQc",
+      "sort": 100000,
+      "_key": "!macros!rcR8rDpEYe899SQc"
     }
   ]
 }

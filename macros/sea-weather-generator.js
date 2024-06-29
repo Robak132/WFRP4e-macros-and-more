@@ -22,7 +22,7 @@ class Direction {
   }
 
   static fromValue(value) {
-    return Direction.values.find(e => e.value === value);
+    return Direction.values.find((e) => e.value === value);
   }
 
   opposite() {
@@ -65,7 +65,8 @@ class WindStrength {
     WindStrength.FRESH_BREEZE,
     WindStrength.NEAR_GALE,
     WindStrength.STRONG_GALE,
-    WindStrength.VIOLENT_STORM];
+    WindStrength.VIOLENT_STORM
+  ];
 
   constructor(key, value) {
     this.key = key;
@@ -77,7 +78,7 @@ class WindStrength {
   }
 
   static fromValue(value) {
-    return WindStrength.values.find(e => e.value === value);
+    return WindStrength.values.find((e) => e.value === value);
   }
 
   async randomChange() {
@@ -118,7 +119,7 @@ class Precipitation {
   }
 
   static fromValue(value) {
-    return Precipitation.values.find(e => e.value === value);
+    return Precipitation.values.find((e) => e.value === value);
   }
 
   getName() {
@@ -138,7 +139,12 @@ class Temperature {
   static BITTER = new Temperature(4, "Bitter");
 
   static values = [
-    Temperature.SWELTERING, Temperature.HOT, Temperature.COMFORTABLE, Temperature.CHILLY, Temperature.BITTER];
+    Temperature.SWELTERING,
+    Temperature.HOT,
+    Temperature.COMFORTABLE,
+    Temperature.CHILLY,
+    Temperature.BITTER
+  ];
 
   constructor(key, value) {
     this.key = key;
@@ -150,7 +156,7 @@ class Temperature {
   }
 
   static fromValue(value) {
-    return Temperature.values.find(e => e.value === value);
+    return Temperature.values.find((e) => e.value === value);
   }
 
   getName() {
@@ -180,7 +186,7 @@ class Visibility {
   }
 
   static fromValue(value) {
-    return Visibility.values.find(e => e.value === value);
+    return Visibility.values.find((e) => e.value === value);
   }
 
   getName() {
@@ -197,295 +203,327 @@ const MACRO = this;
 const PRECIPITATION = [
   {
     min: 1,
-    result: Precipitation.NONE,
-  }, {
+    result: Precipitation.NONE
+  },
+  {
     min: 7,
-    result: Precipitation.LIGHT,
-  }, {
+    result: Precipitation.LIGHT
+  },
+  {
     min: 10,
-    result: Precipitation.HEAVY,
-  }, {
+    result: Precipitation.HEAVY
+  },
+  {
     min: 11,
-    result: Precipitation.VERY_HEAVY,
-  }, {
+    result: Precipitation.VERY_HEAVY
+  },
+  {
     min: 13,
-    result: Precipitation.HEAVY,
-  }, {
+    result: Precipitation.HEAVY
+  },
+  {
     min: 14,
-    result: Precipitation.NONE,
-  }];
+    result: Precipitation.NONE
+  }
+];
 const TEMPERATURE = [
   {
     min: 1,
-    result: Temperature.SWELTERING,
-  }, {
+    result: Temperature.SWELTERING
+  },
+  {
     min: 2,
-    result: Temperature.HOT,
-  }, {
+    result: Temperature.HOT
+  },
+  {
     min: 3,
-    result: Temperature.COMFORTABLE,
-  }, {
+    result: Temperature.COMFORTABLE
+  },
+  {
     min: 9,
-    result: Temperature.CHILLY,
-  }, {
+    result: Temperature.CHILLY
+  },
+  {
     min: 13,
-    result: Temperature.BITTER,
-  }];
+    result: Temperature.BITTER
+  }
+];
 const VISIBILITY = [
   {
     min: 1,
-    result: Visibility.CLEAR,
-  }, {
+    result: Visibility.CLEAR
+  },
+  {
     min: 5,
-    result: Visibility.MISTY,
-  }, {
+    result: Visibility.MISTY
+  },
+  {
     min: 9,
-    result: Visibility.FOGGY,
-  }, {
+    result: Visibility.FOGGY
+  },
+  {
     min: 10,
-    result: Visibility.THICK_FOG,
-  }, {
+    result: Visibility.THICK_FOG
+  },
+  {
     min: 11,
-    result: Visibility.MISTY,
-  }, {
+    result: Visibility.MISTY
+  },
+  {
     min: 14,
-    result: Visibility.CLEAR,
-  }];
+    result: Visibility.CLEAR
+  }
+];
 const WIND_STRENGTH = [
   {
     min: 1,
-    result: WindStrength.DOLDRUMS,
-  }, {
+    result: WindStrength.DOLDRUMS
+  },
+  {
     min: 2,
-    result: WindStrength.LIGHT_BREEZE,
-  }, {
+    result: WindStrength.LIGHT_BREEZE
+  },
+  {
     min: 3,
-    result: WindStrength.FRESH_BREEZE,
-  }, {
+    result: WindStrength.FRESH_BREEZE
+  },
+  {
     min: 5,
-    result: WindStrength.NEAR_GALE,
-  }, {
+    result: WindStrength.NEAR_GALE
+  },
+  {
     min: 7,
-    result: WindStrength.STRONG_GALE,
-  }, {
+    result: WindStrength.STRONG_GALE
+  },
+  {
     min: 9,
-    result: WindStrength.VIOLENT_STORM,
-  }, {
+    result: WindStrength.VIOLENT_STORM
+  },
+  {
     min: 10,
-    result: WindStrength.NEAR_GALE,
-  }, {
+    result: WindStrength.NEAR_GALE
+  },
+  {
     min: 11,
-    result: WindStrength.FRESH_BREEZE,
-  }, {
+    result: WindStrength.FRESH_BREEZE
+  },
+  {
     min: 13,
-    result: WindStrength.LIGHT_BREEZE,
-  }, {
+    result: WindStrength.LIGHT_BREEZE
+  },
+  {
     min: 14,
-    result: WindStrength.DOLDRUMS,
-  }];
+    result: WindStrength.DOLDRUMS
+  }
+];
 const WIND_EFFECT = {
-  "Doldrums": {
-    "Tailwind": {
+  Doldrums: {
+    Tailwind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
+      other: {effect: "BECALMED"}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
+      other: {effect: "BECALMED"}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
-    },
+      other: {effect: "BECALMED"}
+    }
   },
-  "LightBreeze": {
-    "Tailwind": {
+  LightBreeze: {
+    Tailwind: {
       sail: {modifier: 1},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {modifier: 1},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.9},
-      other: {modifier: 1},
-    },
+      other: {modifier: 1}
+    }
   },
-  "FreshBreeze": {
-    "Tailwind": {
+  FreshBreeze: {
+    Tailwind: {
       sail: {modifier: 1.1},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {
         modifier: 0.1,
-        effect: "TACK",
+        effect: "TACK"
       },
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.75},
-      other: {modifier: 1},
-    },
+      other: {modifier: 1}
+    }
   },
-  "NearGale": {
-    "Tailwind": {
+  NearGale: {
+    Tailwind: {
       sail: {modifier: 1.25},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {
         modifier: 0.25,
-        effect: "TACK",
+        effect: "TACK"
       },
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.5},
-      other: {modifier: 0.9},
-    },
+      other: {modifier: 0.9}
+    }
   },
-  "StrongGale": {
-    "Tailwind": {
+  StrongGale: {
+    Tailwind: {
       sail: {modifier: 1.25},
-      other: {modifier: 1.1},
+      other: {modifier: 1.1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {modifier: 0.95},
+      other: {modifier: 0.95}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {modifier: 0.75},
-    },
+      other: {modifier: 0.75}
+    }
   },
-  "ViolentStorm": {
-    "Tailwind": {
+  ViolentStorm: {
+    Tailwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
+      other: {effect: "BATTEN_DOWN"}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
+      other: {effect: "BATTEN_DOWN"}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
-    },
-  },
+      other: {effect: "BATTEN_DOWN"}
+    }
+  }
 };
 const WIND_EFFECT_FLYING_JIB = {
-  "Doldrums": {
-    "Tailwind": {
+  Doldrums: {
+    Tailwind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
+      other: {effect: "BECALMED"}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
+      other: {effect: "BECALMED"}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BECALMED"},
-      other: {effect: "BECALMED"},
-    },
+      other: {effect: "BECALMED"}
+    }
   },
-  "LightBreeze": {
-    "Tailwind": {
+  LightBreeze: {
+    Tailwind: {
       sail: {modifier: 1.1},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {modifier: 1},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.9},
-      other: {modifier: 1},
-    },
+      other: {modifier: 1}
+    }
   },
-  "FreshBreeze": {
-    "Tailwind": {
+  FreshBreeze: {
+    Tailwind: {
       sail: {modifier: 1.25},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {
         modifier: 0.25,
-        effect: "TACK",
+        effect: "TACK"
       },
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.75},
-      other: {modifier: 1},
-    },
+      other: {modifier: 1}
+    }
   },
-  "NearGale": {
-    "Tailwind": {
+  NearGale: {
+    Tailwind: {
       sail: {modifier: 1.25},
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {
         modifier: 0.25,
-        effect: "TACK",
+        effect: "TACK"
       },
-      other: {modifier: 1},
+      other: {modifier: 1}
     },
-    "Headwind": {
+    Headwind: {
       sail: {modifier: 0.5},
-      other: {modifier: 0.9},
-    },
+      other: {modifier: 0.9}
+    }
   },
-  "StrongGale": {
-    "Tailwind": {
+  StrongGale: {
+    Tailwind: {
       sail: {modifier: 1.5},
-      other: {modifier: 1.1},
+      other: {modifier: 1.1}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {modifier: 0.95},
+      other: {modifier: 0.95}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {modifier: 0.75},
-    },
+      other: {modifier: 0.75}
+    }
   },
-  "ViolentStorm": {
-    "Tailwind": {
+  ViolentStorm: {
+    Tailwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
+      other: {effect: "BATTEN_DOWN"}
     },
-    "Sidewind": {
+    Sidewind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
+      other: {effect: "BATTEN_DOWN"}
     },
-    "Headwind": {
+    Headwind: {
       sail: {effect: "BATTEN_DOWN"},
-      other: {effect: "BATTEN_DOWN"},
-    },
-  },
+      other: {effect: "BATTEN_DOWN"}
+    }
+  }
 };
 
 function getWindDirectionTable(prevailingWind) {
   return [
     {
       min: 1,
-      result: Direction.fromValue(prevailingWind),
-    }, {
+      result: Direction.fromValue(prevailingWind)
+    },
+    {
       min: 7,
-      result: Direction.NORTH,
-    }, {
+      result: Direction.NORTH
+    },
+    {
       min: 8,
-      result: Direction.SOUTH,
-    }, {
+      result: Direction.SOUTH
+    },
+    {
       min: 9,
-      result: Direction.EAST,
-    }, {
+      result: Direction.EAST
+    },
+    {
       min: 10,
-      result: Direction.WEST,
-    }];
+      result: Direction.WEST
+    }
+  ];
 }
 
 function getWindName(shipDirection, windDirection) {
@@ -518,11 +556,11 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
   const windEffect = WIND_EFFECT_TABLE[windStrength.value][windName][options.shipPropulsion];
   const modifier = game.robakMacros.utils.round((windEffect?.modifier ?? 1) * 100, 2);
 
-  let result = {
+  const result = {
     description: "",
     normal: 0,
     tack: 0,
-    drift: 0,
+    drift: 0
   };
 
   result.description = `<h2>${timeOfDay}</h2>`;
@@ -530,18 +568,20 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
     result.description += `<p><b>Wind change roll:</b> ${windChangeRoll}</p>`;
   }
   if (windStrength !== WindStrength.DOLDRUMS) {
-    result.description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength.getName()
-        .toLowerCase()} (${windName})</p>`;
+    result.description += `<p><b>Wind:</b> ${windDirection.getAdj()} ${windStrength
+      .getName()
+      .toLowerCase()} (${windName})</p>`;
   } else {
     result.description += `<p><b>Wind:</b> ${windStrength.getName()}</p>`;
   }
   if (windStrength === WindStrength.STRONG_GALE || windStrength === WindStrength.VIOLENT_STORM) {
-    result.description += `<p><i>Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging (+0) Endurance</b> Test or suffer from sea sickness.</i></p>`;
+    result.description +=
+      "<p><i>Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging (+0) Endurance</b> Test or suffer from sea sickness.</i></p>";
   }
 
   switch (windEffect?.effect) {
     case "BECALMED":
-      result.description += `<p><b>Distance Travelled:</b> 0 mi (0%)</p>`;
+      result.description += "<p><b>Distance Travelled:</b> 0 mi (0%)</p>";
       break;
     case "TACK":
       result.tack = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
@@ -564,7 +604,7 @@ function createWindRaport(windStrength, windDirection, windChangeRoll, timeOfDay
   return {
     ...result,
     windStrength,
-    windDirection,
+    windDirection
   };
 }
 
@@ -584,18 +624,13 @@ async function generateChatMessage(precipitation, temperature, visibility, winds
       <p><b>Base:</b> ${winds.normal} mi</p>
       ${winds.tack === 0 ? "" : `<p><b>Additional Tack Distance:</b> ${winds.tack} mi</p>`}
       ${winds.drift === 0 ? "" : `<p><b>Drift Distance:</b> ${winds.drift} mi</p>`}`,
-    whisper: game.users.filter(u => u.isGM).map(u => u.id),
+    whisper: game.users.filter((u) => u.isGM).map((u) => u.id)
   });
 }
 
-function tableCellHTML({
-  content,
-  style = "text-align:center;vertical-align:middle",
-  rowspan = 1,
-  colspan = 1,
-}) {
-  let colspanTxt = (colspan !== 1) ? `colspan="${colspan}"` : "";
-  let rowspanTxt = (rowspan !== 1) ? `rowspan="${rowspan}"` : "";
+function tableCellHTML({content, style = "text-align:center;vertical-align:middle", rowspan = 1, colspan = 1}) {
+  const colspanTxt = colspan !== 1 ? `colspan="${colspan}"` : "";
+  const rowspanTxt = rowspan !== 1 ? `rowspan="${rowspan}"` : "";
   return `<td style="${style}" ${rowspanTxt} ${colspanTxt}>${content}</td>`;
 }
 
@@ -604,7 +639,7 @@ function tableRowHTML(cells) {
 }
 
 function tableHTML(rows) {
-  return "<table><tbody>" + rows.map(r => tableRowHTML(r)).join("") + "</tbody></table>";
+  return "<table><tbody>" + rows.map((r) => tableRowHTML(r)).join("") + "</tbody></table>";
 }
 
 async function createJournalEntry() {
@@ -614,92 +649,115 @@ async function createJournalEntry() {
       [
         tableCellHTML({
           content: "<b>Day</b",
-          rowspan: 2,
+          rowspan: 2
         }),
         tableCellHTML({
           content: "<b>Precipitation</b>",
-          rowspan: 2,
+          rowspan: 2
         }),
         tableCellHTML({
           content: "<b>Temperature</b>",
-          rowspan: 2,
+          rowspan: 2
         }),
         tableCellHTML({
           content: "<b>Visibility</b>",
-          rowspan: 2,
+          rowspan: 2
         }),
         tableCellHTML({
           content: "<b>Winds</b>",
-          colspan: 4,
-        })], [
+          colspan: 4
+        })
+      ],
+      [
         tableCellHTML({content: "<b></b"}),
         tableCellHTML({content: "<b>Precipitation</b>"}),
         tableCellHTML({content: "<b>Temperature</b>"}),
-        tableCellHTML({content: "<b>Visibility</b>"})]]),
+        tableCellHTML({content: "<b>Visibility</b>"})
+      ]
+    ])
   });
 }
 
 async function fillJournalEntry(captainsLog, precipitation, temperature, visibility, winds) {
-  let content = captainsLog.pages.contents[0].text.content;
-  let table = $(content)[0];
-  let lastDay = parseInt(table.rows[table.rows.length - 1].cells[0].innerText.trim());
-  let row = tableRowHTML([
+  const content = captainsLog.pages.contents[0].text.content;
+  const table = $(content)[0];
+  const lastDay = parseInt(table.rows[table.rows.length - 1].cells[0].innerText.trim());
+  const row = tableRowHTML([
     `${lastDay + 1}`,
     `<span data-toggle="tooltip" title='${precipitation.getDescription()}'>${precipitation.getName()}</span>`,
     `<span data-toggle="tooltip" title='${temperature.getDescription()}'>${temperature.getName()}</span>`,
     `<span data-toggle="tooltip" title='${visibility.getDescription()}'>${visibility.getName()}</span>`,
-    `<span data-toggle="tooltip">${winds.elements[0].windStrength.key +
-    1} ${winds.elements[0].windDirection.getArrow()}</span>`,
-    `<span data-toggle="tooltip">${winds.elements[1].windStrength.key +
-    1} ${winds.elements[1].windDirection.getArrow()}</span>`,
-    `<span data-toggle="tooltip">${winds.elements[2].windStrength.key +
-    1} ${winds.elements[2].windDirection.getArrow()}</span>`,
-    `<span data-toggle="tooltip">${winds.elements[3].windStrength.key +
-    1} ${winds.elements[3].windDirection.getArrow()}</span>`,
-    `<span>${winds.normal}/${winds.tack}/${winds.drift}</span>`]);
+    `<span data-toggle="tooltip">${
+      winds.elements[0].windStrength.key + 1
+    } ${winds.elements[0].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${
+      winds.elements[1].windStrength.key + 1
+    } ${winds.elements[1].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${
+      winds.elements[2].windStrength.key + 1
+    } ${winds.elements[2].windDirection.getArrow()}</span>`,
+    `<span data-toggle="tooltip">${
+      winds.elements[3].windStrength.key + 1
+    } ${winds.elements[3].windDirection.getArrow()}</span>`,
+    `<span>${winds.normal}/${winds.tack}/${winds.drift}</span>`
+  ]);
 
   await captainsLog.pages.contents[0].update({
-    "text.content": content.replace(`</tbody></table>`, row + "</tbody></table>"),
+    "text.content": content.replace("</tbody></table>", row + "</tbody></table>")
   });
 }
 
 async function submit(html) {
-  let options = new FormDataExtended(html[0].querySelector("form")).object;
-  let seasonModifier = getSeasonModifier(options.season);
-  let seaTemperatureModifier = options.seaTemperature === "cold" ? 0 : -2;
+  const options = new FormDataExtended(html[0].querySelector("form")).object;
+  const seasonModifier = getSeasonModifier(options.season);
+  const seaTemperatureModifier = options.seaTemperature === "cold" ? 0 : -2;
 
-  let precipitation = options.precipitation !== "Random"
+  const precipitation =
+    options.precipitation !== "Random"
       ? Precipitation.fromValue(options.precipitation)
-      : (await game.robakMacros.utils.rollFromCodeObject({
-        table: PRECIPITATION,
-        dice: "1d10",
-        modifier: seasonModifier,
-      }))[0];
-  let temperature = options.temperature !== "Random"
+      : (
+          await game.robakMacros.utils.rollFromCodeObject({
+            table: PRECIPITATION,
+            dice: "1d10",
+            modifier: seasonModifier
+          })
+        )[0];
+  const temperature =
+    options.temperature !== "Random"
       ? Temperature.fromValue(options.temperature)
-      : (await game.robakMacros.utils.rollFromCodeObject({
-        table: TEMPERATURE,
-        dice: "1d10",
-        modifier: seasonModifier + seaTemperatureModifier,
-      }))[0];
-  let visibility = options.visibility !== "Random"
+      : (
+          await game.robakMacros.utils.rollFromCodeObject({
+            table: TEMPERATURE,
+            dice: "1d10",
+            modifier: seasonModifier + seaTemperatureModifier
+          })
+        )[0];
+  const visibility =
+    options.visibility !== "Random"
       ? Visibility.fromValue(options.visibility)
-      : (await game.robakMacros.utils.rollFromCodeObject({
-        table: VISIBILITY,
-        dice: "1d10",
-        modifier: seasonModifier + seaTemperatureModifier,
-      }))[0];
-  let windDirection = options.windDirection !== "Random"
+      : (
+          await game.robakMacros.utils.rollFromCodeObject({
+            table: VISIBILITY,
+            dice: "1d10",
+            modifier: seasonModifier + seaTemperatureModifier
+          })
+        )[0];
+  const windDirection =
+    options.windDirection !== "Random"
       ? Direction.fromValue(options.windDirection)
-      : (await game.robakMacros.utils.rollFromCodeObject({
-        table: getWindDirectionTable(options.prevailingWind),
-        dice: "1d10",
-      }))[0];
-  let windStrength = (await game.robakMacros.utils.rollFromCodeObject({
-    table: WIND_STRENGTH,
-    dice: "1d10",
-    modifier: seasonModifier,
-  }))[0];
+      : (
+          await game.robakMacros.utils.rollFromCodeObject({
+            table: getWindDirectionTable(options.prevailingWind),
+            dice: "1d10"
+          })
+        )[0];
+  let windStrength = (
+    await game.robakMacros.utils.rollFromCodeObject({
+      table: WIND_STRENGTH,
+      dice: "1d10",
+      modifier: seasonModifier
+    })
+  )[0];
   if (options.lastWindStrength !== "Random") {
     windStrength = WindStrength.fromValue(options.lastWindStrength);
   }
@@ -707,11 +765,12 @@ async function submit(html) {
     windStrength = WindStrength.fromValue(options.windStrength);
   }
 
-  let changeRoll = options.windStrength !== "Random" || options.lastWindStrength === "Random"
+  let changeRoll =
+    options.windStrength !== "Random" || options.lastWindStrength === "Random"
       ? undefined
       : (await new Roll("d10").roll()).total;
 
-  let windElements = [];
+  const windElements = [];
   for (const timeOfDay of ["Dawn", "Midday", "Dusk", "Midnight"]) {
     if (changeRoll === 1) {
       windStrength = await windStrength.randomChange();
@@ -720,19 +779,20 @@ async function submit(html) {
     options.lastWindStrength = `${windStrength.value}`;
     changeRoll = (await new Roll("d10").roll()).total;
   }
-  let winds = {
-    elements: windElements, ...windElements.reduce((prev, acc) => {
+  const winds = {
+    elements: windElements,
+    ...windElements.reduce((prev, acc) => {
       return {
         normal: Number(prev.normal + acc.normal),
         tack: Number(prev.tack + acc.tack),
         drift: Number(prev.drift + acc.drift),
-        description: prev.description + acc.description,
+        description: prev.description + acc.description
       };
-    }),
+    })
   };
 
   await MACRO.setFlag("world", "sea-weather-generator-options", options);
-  let captainsLog = game.journal.find(j => j.name === "Dziennik kapitański");
+  const captainsLog = game.journal.find((j) => j.name === "Dziennik kapitański");
   if (captainsLog === undefined) {
     await createJournalEntry();
   }
@@ -753,11 +813,11 @@ const options = MACRO.getFlag("world", "sea-weather-generator-options") ?? {
   shipDirection: "West",
   shipPropulsion: "sail",
   shipSpeed: 8,
-  flyingJib: false,
+  flyingJib: false
 };
 
 new Dialog({
-  title: `Random Sea Weather Generator`,
+  title: "Random Sea Weather Generator",
   content: `<form>
       <div class="form-group section-title">
         <label class="section-title">Sea Weather Elements</label>
@@ -766,45 +826,45 @@ new Dialog({
         <label>Precipitation:</label>
         <select name="precipitation">
           <option value="Random" ${options.precipitation === "Random" ? "selected" : ""}>Random</option>
-          ${Precipitation.values.map(e => {
-    return `<option value="${e.value}" ${options.precipitation === e.value ? "selected" : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${Precipitation.values.map((e) => {
+            return `<option value="${e.value}" ${options.precipitation === e.value ? "selected" : ""}>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group">
         <label>Temperature:</label>
         <select name="temperature">
           <option value="Random" ${options.temperature === "Random" ? "selected" : ""}>Random</option>
-          ${Temperature.values.map(e => {
-    return `<option value="${e.value}" ${options.temperature === e.value ? "selected" : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${Temperature.values.map((e) => {
+            return `<option value="${e.value}" ${options.temperature === e.value ? "selected" : ""}>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group">
         <label>Visibility:</label>
         <select name="visibility">
           <option value="Random" ${options.visibility === "Random" ? "selected" : ""}>Random</option>
-          ${Visibility.values.map(e => {
-    return `<option value="${e.value}" ${options.visibility === e.value ? "selected" : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${Visibility.values.map((e) => {
+            return `<option value="${e.value}" ${options.visibility === e.value ? "selected" : ""}>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group">
         <label>Wind Direction:</label>
         <select name="windDirection">
           <option value="Random" ${options.windDirection === "Random" ? "selected" : ""}>Random</option>
-          ${Direction.values.map(e => {
-    return `<option value="${e.value}" ${options.windDirection === e.value ? "selected" : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${Direction.values.map((e) => {
+            return `<option value="${e.value}" ${options.windDirection === e.value ? "selected" : ""}>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group">
         <label>Wind Strength:</label>
         <select name="windStrength">
           <option value="Random" ${options.windStrength === "Random" ? "selected" : ""}>Random</option>
-          ${WindStrength.values.map(e => {
-    return `<option value="${e.value}" ${options.windStrength === e.value ? "selected" : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${WindStrength.values.map((e) => {
+            return `<option value="${e.value}" ${options.windStrength === e.value ? "selected" : ""}>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group section-title">
@@ -839,11 +899,11 @@ new Dialog({
         <label>Wind Strength at Midnight:</label>
         <select name="lastWindStrength">
           <option value="Random" ${options.lastWindStrength === "Random" ? "selected" : ""}>Random</option>
-          ${WindStrength.values.map(e => {
-    return `<option value="${e.value}" ${options.lastWindStrength === e.value
-        ? "selected"
-        : ""}>${e.getName()}</option>`;
-  })}.join()
+          ${WindStrength.values.map((e) => {
+            return `<option value="${e.value}" ${
+              options.lastWindStrength === e.value ? "selected" : ""
+            }>${e.getName()}</option>`;
+          })}.join()
         </select>
       </div>
       <div class="form-group section-title">
@@ -879,14 +939,14 @@ new Dialog({
     </form>`,
   buttons: {
     no: {
-      icon: `<i class='fas fa-times'></i>`,
-      label: `Cancel`,
+      icon: "<i class='fas fa-times'></i>",
+      label: "Cancel"
     },
     yes: {
-      icon: `<i class='fas fa-check'></i>`,
-      label: `Submit`,
-      callback: async (html) => await submit(html),
-    },
+      icon: "<i class='fas fa-check'></i>",
+      label: "Submit",
+      callback: async (html) => await submit(html)
+    }
   },
-  default: "yes",
+  default: "yes"
 }).render(true);

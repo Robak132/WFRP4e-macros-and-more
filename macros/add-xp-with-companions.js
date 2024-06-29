@@ -7,10 +7,10 @@
 addXP();
 
 function getCurrentDate() {
-  let currentDate = new Date();
-  let year = currentDate.getFullYear();
-  let month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
-  let day = ("0" + currentDate.getDate()).slice(-2);
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
+  const day = ("0" + currentDate.getDate()).slice(-2);
   return year + "-" + month + "-" + day;
 }
 
@@ -18,33 +18,35 @@ async function addXP() {
   let awardees = [];
   let halfAwardees = [];
   if (game.user.targets.size < 1) {
-    awardees = game.users.filter(u => u.character).map(g => g.character);
-    halfAwardees = game.actors.filter(a => a.hasPlayerOwner && a.type === "character" && !awardees.includes(a));
+    awardees = game.users.filter((u) => u.character).map((g) => g.character);
+    halfAwardees = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character" && !awardees.includes(a));
   } else {
-    let group = game.actors.filter(a => a.hasPlayerOwner && a.type === "character");
-    let targeted = game.canvas.tokens.placeables.filter(t => t.isTargeted).map(t => t.actor);
-    awardees = group.filter(a => targeted.includes(a));
+    const group = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character");
+    const targeted = game.canvas.tokens.placeables.filter((t) => t.isTargeted).map((t) => t.actor);
+    awardees = group.filter((a) => targeted.includes(a));
   }
   if (awardees.length < 1) {
     return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Token.TargetPCs"), {});
   }
 
   const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
-  let reason = (game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") === "null") ? "" : game.settings.get(
-      "wfrp4e-gm-toolkit", "addXPDefaultReason");
+  let reason =
+    game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") === "null"
+      ? ""
+      : game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
   if (reason) {
     reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
     const session = game.gmtoolkit.utility.getSession();
     reason = reason.replace("(%date%)", `(${getCurrentDate()})`);
-    reason = (session.id !== "null") ? reason.replace("%session%", session.id) : reason.replace("%session%", "");
+    reason = session.id !== "null" ? reason.replace("%session%", session.id) : reason.replace("%session%", "");
   }
 
   if (game.settings.get("wfrp4e-gm-toolkit", "addXPPrompt")) {
     let awardeeList = "<p>Full Experience will be awarded to:</p><ul>";
-    awardeeList += awardees.map(pc => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
+    awardeeList += awardees.map((pc) => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
     awardeeList += "</ul>";
     let halfAwardeeList = "<p>Half Experience will be awarded to:</p><ul>";
-    halfAwardeeList += halfAwardees.map(pc => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
+    halfAwardeeList += halfAwardees.map((pc) => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
     halfAwardeeList += "</ul>";
     await new Dialog({
       title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
@@ -62,23 +64,23 @@ async function addXP() {
           </form>`,
       buttons: {
         yes: {
-          icon: `<i class='fas fa-check'></i>`,
+          icon: "<i class='fas fa-check'></i>",
           label: game.i18n.localize("GMTOOLKIT.Dialog.Apply"),
-          callback: html => {
+          callback: (html) => {
             const XP = Math.round(html.find("#add-xp").val());
             if (isNaN(XP)) {
               return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Dialog.AddXP.InvalidXP"));
             }
             const reason = html.find("#xp-reason").val();
             updateXP(awardees, halfAwardees, XP, reason);
-          },
+          }
         },
         no: {
-          icon: `<i class='fas fa-times'></i>`,
-          label: game.i18n.localize("GMTOOLKIT.Dialog.Cancel"),
-        },
+          icon: "<i class='fas fa-times'></i>",
+          label: game.i18n.localize("GMTOOLKIT.Dialog.Cancel")
+        }
       },
-      default: "yes",
+      default: "yes"
     }).render(true);
   } else {
     updateXP(awardees, halfAwardees, XP, reason);
@@ -99,24 +101,24 @@ function updateActorXP(pc, XP, reason) {
     XPTotal,
     newXPTotal,
     XPCurrent,
-    newXPCurrent,
+    newXPCurrent
   });
 }
 
 function updateXP(awardees, halfAwardees = [], XP, reason) {
-  let halfXP = Math.round(XP / 2);
+  const halfXP = Math.round(XP / 2);
   let chatContent = "";
 
-  awardees.forEach(pc => {
+  awardees.forEach((pc) => {
     chatContent += updateActorXP(pc, XP, reason);
   });
-  halfAwardees.forEach(pc => {
+  halfAwardees.forEach((pc) => {
     chatContent += updateActorXP(pc, halfXP, reason);
   });
   const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "gmroll", false);
   chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {
     XP,
-    reason,
+    reason
   });
   ChatMessage.create(chatData, {});
 }

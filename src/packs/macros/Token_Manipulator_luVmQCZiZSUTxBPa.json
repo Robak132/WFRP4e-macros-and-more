@@ -10,7 +10,7 @@
   "folder": null,
   "img": "modules/wfrp4e-macros-and-more/assets/icons/token-manipulator.svg",
   "name": "Token Manipulator",
-  "type": "script",
   "scope": "global",
+  "type": "script",
   "_key": "!macros!luVmQCZiZSUTxBPa"
 }

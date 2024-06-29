@@ -6,31 +6,37 @@
 
 class InventoryManager {
   constructor() {
-    new Dialog({
-      title: "Inventory Manager",
-      content: this.getHTMLForm(),
-      buttons: {
-        confirm: {
-          icon: "<i class=\"fas fa-check\"></i>",
-          label: "Move Items",
-          callback: (html) => this.transferItems(html),
+    new Dialog(
+      {
+        title: "Inventory Manager",
+        content: this.getHTMLForm(),
+        buttons: {
+          confirm: {
+            icon: '<i class="fas fa-check"></i>',
+            label: "Move Items",
+            callback: (html) => this.transferItems(html)
+          },
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "Cancel"
+          }
         },
-        cancel: {
-          icon: "<i class=\"fas fa-times\"></i>",
-          label: "Cancel",
-        },
+        default: "confirm"
       },
-      default: "confirm",
-    }, {width: 850}).render(true);
+      {width: 850}
+    ).render(true);
   }
 
   formatItemEnc(x) {
     const sourceItem = x._source;
-    let lightweightBonus = sourceItem.system.qualities != null &&
-    sourceItem.system.qualities.value.some(q => q.name === "lightweight") ? -1 : 0;
-    let fullValue = Number(
-        Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value);
-    let currentValue = Number(x.system.encumbrance.value);
+    const lightweightBonus =
+      sourceItem.system.qualities != null && sourceItem.system.qualities.value.some((q) => q.name === "lightweight")
+        ? -1
+        : 0;
+    const fullValue = Number(
+      Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value
+    );
+    const currentValue = Number(x.system.encumbrance.value);
     if (fullValue.toFixed(2) === currentValue.toFixed(2)) {
       return `${currentValue}`;
     } else {
@@ -47,7 +53,7 @@ class InventoryManager {
   }
 
   getItemType(x) {
-    let type = x.type === "trapping" ? x.system.trappingType.value : x.type;
+    const type = x.type === "trapping" ? x.system.trappingType.value : x.type;
     return type === "" ? "misc" : type;
   }
 
@@ -65,24 +71,29 @@ class InventoryManager {
   }
 
   groupActorItems(actor) {
-    let items = [
+    const items = [
       ...actor.itemTypes.weapon,
       ...actor.itemTypes.ammunition,
       ...actor.itemTypes.armour,
       ...actor.itemTypes.money,
-      ...actor.itemTypes.trapping].sort((a, b) => a.name.localeCompare(b.name, "pl"))
-        .sort((a, b) => a.encumbrance.value > b.encumbrance.value ? -1 : 1);
+      ...actor.itemTypes.trapping
+    ]
+      .sort((a, b) => a.name.localeCompare(b.name, "pl"))
+      .sort((a, b) => (a.encumbrance.value > b.encumbrance.value ? -1 : 1));
 
-    let itemsCategorised = this.groupBy(items, x => game.robakMacros.utils.clean(x.location.value));
+    const itemsCategorised = this.groupBy(items, (x) => game.robakMacros.utils.clean(x.location.value));
     for (let [key, value] of Object.entries(itemsCategorised)) {
-      value = this.groupBy(value, x => this.getItemType(x));
-      itemsCategorised[key] = Object.fromEntries(Object.entries(value).sort((a, b) => {
-        if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
-          return game.i18n.localize(WFRP4E.trappingCategories[b[0]])
+      value = this.groupBy(value, (x) => this.getItemType(x));
+      itemsCategorised[key] = Object.fromEntries(
+        Object.entries(value).sort((a, b) => {
+          if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
+            return game.i18n
+              .localize(WFRP4E.trappingCategories[b[0]])
               .localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
-        }
-        return this.getCategoryOrder(a[0]) < this.getCategoryOrder(b[0]) ? 1 : -1;
-      }));
+          }
+          return this.getCategoryOrder(a[0]) < this.getCategoryOrder(b[0]) ? 1 : -1;
+        })
+      );
     }
     return itemsCategorised;
   }
@@ -96,8 +107,12 @@ class InventoryManager {
   }
 
   getHTMLContainerHeader(containerItems, container) {
-    let containerItemsEnc = Number(Object.values(containerItems)
-        .reduce((sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)), 0));
+    let containerItemsEnc = Number(
+      Object.values(containerItems).reduce(
+        (sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)),
+        0
+      )
+    );
     if (containerItemsEnc % 1 !== 0) {
       containerItemsEnc = containerItemsEnc.toFixed(2);
     }
@@ -111,7 +126,7 @@ class InventoryManager {
   }
 
   getHTMLItemList(containerItems, containerId, actorId) {
-    let form = ``;
+    let form = "";
     for (const [categoryName, categoryList] of Object.entries(containerItems)) {
       if (categoryList.length > 0) {
         let categoryEnc = Number(categoryList.reduce((acc, x) => acc + Number(x.encumbrance.value), 0));
@@ -147,7 +162,7 @@ class InventoryManager {
   }
 
   getHTMLForm() {
-    let form = `<form><div style="overflow-y: scroll;height: 500px">`;
+    let form = '<form><div style="overflow-y: scroll;height: 500px">';
     for (const actor of game.robakMacros.utils.getStashableActors()) {
       const items = this.groupActorItems(actor);
       const actorItems = items[""] ?? {};
@@ -189,16 +204,20 @@ class InventoryManager {
   }
 
   async transferItems(html) {
-    let itemTransfers = $(html).find("select").map((_, e) => {
-      return {
-        item: game.actors.get(e.dataset.sourceActor).items.get(e.dataset.item),
-        targetActorId: e.options[e.options.selectedIndex].dataset.targetActor,
-        targetContainerId: e.options[e.options.selectedIndex].dataset.targetContainer,
-        sourceActorId: e.dataset.sourceActor,
-        sourceContainerId: e.dataset.sourceContainer,
-        quantity: Number($(html).find(`input[type=number][name=${e.dataset.item}]`).val()),
-      };
-    }).get().filter(s => s.targetContainerId != null && s.targetActorId != null);
+    const itemTransfers = $(html)
+      .find("select")
+      .map((_, e) => {
+        return {
+          item: game.actors.get(e.dataset.sourceActor).items.get(e.dataset.item),
+          targetActorId: e.options[e.options.selectedIndex].dataset.targetActor,
+          targetContainerId: e.options[e.options.selectedIndex].dataset.targetContainer,
+          sourceActorId: e.dataset.sourceActor,
+          sourceContainerId: e.dataset.sourceContainer,
+          quantity: Number($(html).find(`input[type=number][name=${e.dataset.item}]`).val())
+        };
+      })
+      .get()
+      .filter((s) => s.targetContainerId != null && s.targetActorId != null);
     console.log(itemTransfers);
     await game.robakMacros.transferItem.transferItems(itemTransfers);
   }

@@ -1,30 +1,34 @@
 import path from "node:path";
 import fs from "node:fs";
-import {Utility} from "./scripts/utility.mjs";
 
 const input_path = "macros";
 const output_path = "src/packs/macros";
+const macrosData = JSON.parse(fs.readFileSync("macros.data.json"));
 
-let macrosData = JSON.parse(fs.readFileSync("macros.data.json"))
-for (let file of fs.readdirSync(input_path)) {
-  let fileName = file.split(".")[0];
-  if (fileName !== "partials") {
-    let data = fs.readFileSync(path.join(input_path, `${fileName}.js`), "utf8");
-    if (!macrosData[fileName]) {
-      macrosData[fileName] = {"_id": Utility.randomID()};
+function transformData (macro) {
+  const data = fs.readFileSync(path.join(input_path, macro.code_file), "utf8");
+  macro.command = data.replace(/\r\n/g, "\n");
+  macro.flags = {
+    "wfrp4e-macros-and-more": {
+      version: macro.version
     }
-    macrosData[fileName]["code_file"] = file
-  }
-}
-for (let file of fs.readdirSync(output_path)) {
-  let fileName = file.split('.')[0];
-  let data = JSON.parse(fs.readFileSync(path.join(output_path, `${fileName}.json`), 'utf8'));
-  let m = Object.values(macrosData).find(m => m._id === data._id)
-  if (!m) {
-    macrosData[data.id] = data;
-  } else {
-    m = Object.assign(m, data);
-  }
+  };
+  macro = Object.keys(macro)
+    .sort()
+    .reduce((acc, c) => {
+      acc[c] = macro[c];
+      return acc;
+    }, {});
+  macro._key = `!macros!${macro._id}`;
+  delete macro.version;
+  delete macro.code_file;
+  return macro;
 }
 
-fs.writeFileSync("macros.data.json", JSON.stringify(macrosData, null, 2) + "\n", "utf8");
+for (const macro of macrosData.macros) {
+  const fileName = `${macro.name.replace(/[^A-Za-z0-9]/gi, "_")}_${macro._id}.json`;
+  let fileData = macrosData.common;
+  fileData = Object.assign(fileData, macro);
+  fileData = transformData(fileData);
+  fs.writeFileSync(path.join(output_path, fileName), JSON.stringify(fileData, null, 2) + "\n");
+}
