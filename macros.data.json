@@ -8,82 +8,82 @@
   "macros": [
     {
       "_id": "aLO0KCxITOp3g4X8",
-      "code_file": "add-xp-with-companions.js",
+      "codeFile": "add-xp-with-companions.js",
       "version": "1.1.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/add-xp-with-companions.svg",
       "name": "Add XP"
     },
     {
       "_id": "YcPRalpleYddyR1I",
-      "code_file": "auto-pursuit.js",
+      "codeFile": "auto-pursuit.js",
       "version": "1.0.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/auto-pursuit.svg",
       "name": "Auto-Pursuit"
     },
     {
       "_id": "JWjzBGehkaWilWJo",
-      "code_file": "consume-alcohol.js",
+      "codeFile": "consume-alcohol.js",
       "version": "1.0.1",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/consume-alcohol.svg",
       "name": "Consume Alcohol"
     },
     {
       "_id": "QD63FDePjDK6qfIZ",
-      "code_file": "initial-advantage-calculator.js",
+      "codeFile": "initial-advantage-calculator.js",
       "version": "1.0.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/initial-advantage-calculator.svg",
       "name": "Initial Advantage Calculator"
     },
     {
       "_id": "BePzQIhToFpTWdJw",
-      "code_file": "inventory-manager.js",
+      "codeFile": "inventory-manager.js",
       "version": "1.1.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/inventory-manager.svg",
       "name": "Inventory Manager"
     },
     {
       "_id": "fz90AQ3MpUppcM6o",
-      "code_file": "pay-credit-helper.js",
+      "codeFile": "pay-credit-helper.js",
       "version": "1.0.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/pay-credit-helper.svg",
       "name": "Pay/Credit Money Helper"
     },
     {
       "_id": "JNQ2WbcC5IagKBcS",
-      "code_file": "random-vampire-weakness.js",
+      "codeFile": "random-vampire-weakness.js",
       "version": "1.0.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/vampire-weakness.svg",
       "name": "Random Vampire Weakness"
     },
     {
       "_id": "XYrbBmTx4lG7YEQG",
-      "code_file": "roll-passive-talent.js",
+      "codeFile": "roll-passive-talent.js",
       "version": "2.0.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/roll-passive-talent.svg",
       "name": "Roll Passive Talent"
     },
     {
       "_id": "pbZ7tQT51RcpTedj",
-      "code_file": "sea-weather-generator.js",
+      "codeFile": "sea-weather-generator.js",
       "version": "2.0.2",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/sea-weather-generator.svg",
       "name": "Weather Report (Sea)"
     },
     {
       "_id": "fg0YtewDtFu0tEnv",
-      "code_file": "npc-advancement-tool.js",
+      "codeFile": "npc-advancement-tool.js",
       "name": "NPC Advancement Tool",
       "version": "1.0.0"
     },
     {
       "_id": "BcFZlpf41SZBPFlq",
-      "code_file": "set-default-currency.js",
+      "codeFile": "set-default-currency.js",
       "version": "1.0.0",
       "name": "Set Default Currency"
     },
     {
       "_id": "luVmQCZiZSUTxBPa",
-      "code_file": "token-manipulator.js",
+      "codeFile": "token-manipulator.js",
       "version": "1.1.0",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/token-manipulator.svg",
       "name": "Token Manipulator"
@@ -92,18 +92,18 @@
       "name": "Random Books Generator",
       "version": "1.0.0",
       "_id": "yNsZXRtK59KMVH9E",
-      "code_file": "random-book-generator.js"
+      "codeFile": "random-book-generator.js"
     },
     {
       "name": "Rescale Map",
       "_id": "tVEB7ArgxwZbszvX",
-      "code_file": "rescale-map.js",
+      "codeFile": "rescale-map.js",
       "version": "1.0.0"
     },
     {
       "name": "Reveal Fog of War",
       "_id": "rcR8rDpEYe899SQc",
-      "code_file": "reveal-fow.js",
+      "codeFile": "reveal-fow.js",
       "version": "1.0.0"
     }
   ]

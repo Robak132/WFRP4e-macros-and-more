@@ -10,7 +10,7 @@
         "type": "object",
         "required": [
           "_id",
-          "code_file",
+          "codeFile",
           "version",
           "name"
         ],
@@ -18,7 +18,7 @@
           "_id": {
             "type": "string"
           },
-          "code_file": {
+          "codeFile": {
             "type": "string"
           },
           "version": {
