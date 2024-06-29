@@ -1,8 +1,8 @@
 {
   "common": {
     "author": "MJAZjdKh3QKREKG2",
-    "scope": "global",
     "type": "script",
+    "scope": "global",
     "folder": null
   },
   "macros": [
