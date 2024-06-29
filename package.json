@@ -1,7 +1,12 @@
 {
   "scripts": {
-    "pack": "pack.sh",
-    "unpack": "unpack.sh",
-    "move": "node move-to-src.js"
+    "pack": "node pack.mjs",
+    "pack-effect": "node pack-scripts.mjs",
+    "unpack": "node unpack.mjs"
+  },
+  "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^1.0.3",
+    "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
+    "prettier": "3.3.2"
   }
 }
