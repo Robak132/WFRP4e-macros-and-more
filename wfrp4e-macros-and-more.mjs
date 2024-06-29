@@ -2,9 +2,9 @@ import {ItemTransfer} from "./scripts/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./scripts/group-advantage-losing.mjs";
 import {Utility} from "./scripts/utility.mjs";
 import MaintenanceWrapper from "./scripts/maintenance.mjs";
-import {addContextOptions} from "./scripts/convert-items.mjs";
+import {addActorContextOptions, addItemContextOptions} from "./scripts/convert.mjs";
 
-Hooks.once("init", function() {
+Hooks.once("init", function () {
   game.robakMacros = {
     transferItem: ItemTransfer,
     maintenance: MaintenanceWrapper,
@@ -20,8 +20,8 @@ Hooks.once("init", function() {
     type: Boolean
   });
   game.settings.register("wfrp4e-macros-and-more", "losing-advantage", {
-    name: "Enable \"Losing Advantage\" rule",
-    hint: "Prints reminder of \"Losing Advantage\" rule every combat round if using Group Advantage.",
+    name: 'Enable "Losing Advantage" rule',
+    hint: 'Prints reminder of "Losing Advantage" rule every combat round if using Group Advantage.',
     scope: "world",
     config: true,
     default: false,
@@ -42,7 +42,7 @@ Hooks.once("init", function() {
   });
 });
 
-Hooks.once("ready", function() {
+Hooks.once("ready", function () {
   game.socket.on("module.wfrp4e-macros-and-more", async (transferObject) => {
     if (!game.user.isUniqueGM) {
       return;
@@ -61,7 +61,7 @@ Hooks.on("updateCombat", (combat, updates, _, __) => {
   }
 });
 
-Hooks.on("wfrp4e:rollTest", async function(testData, _) {
+Hooks.on("wfrp4e:rollTest", async function (testData, _) {
   if (testData.options.passiveTest) {
     return await game.settings.set("wfrp4e-macros-and-more", "passiveTests", [
       ...game.settings.get("wfrp4e-macros-and-more", "passiveTests"),
@@ -79,4 +79,5 @@ Hooks.on("wfrp4e:rollTest", async function(testData, _) {
   }
 });
 
-Hooks.on("getItemDirectoryEntryContext", addContextOptions);
+Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
+Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
