@@ -16,16 +16,22 @@
   "compatibility": {
     "minimum": "11",
     "verified": "11",
-    "maximum": "11"
+    "maximum": "12"
   },
   "esmodules": [
-    "wfrp4e-macros-and-more.mjs"
+    "wfrp4e-macros-and-more.mjs",
+    "load-scripts.mjs"
   ],
   "relationships": {
     "systems": [
       {
         "id": "wfrp4e",
-        "type": "system"
+        "type": "system",
+        "manifest": "https://github.com/moo-man/WFRP4e-FoundryVTT/releases/latest/download/system.json",
+        "compatibility": {
+          "minimum": "7",
+          "verified": "7.2.4"
+        }
       }
     ]
   },

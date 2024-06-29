@@ -5,42 +5,18 @@
 ========== */
 
 const SHOW_WEAPONS_EFFECT = {
-  name: game.i18n.localize("MACROS-AND-MORE.ShowWeapons"),
-  flags: {
-    wfrp4e: {
-      effectTrigger: "prePrepareItems",
-      effectApplication: "actor",
-      script: `
-        if (!game.user.isUniqueGM) return
-        effectsToCreate = [];
-        effectsToDelete = [];
-        for (let weapon of this.actor._itemTypes.weapon) {
-          let weapon_effect = this.actor.effects.find((value) => value.name === weapon.name);
-          if (weapon.equipped && weapon_effect === undefined) {
-            effectsToCreate.push({
-                name: weapon.name,
-                icon: weapon.img,
-                statuses: ['show-item'],
-                transfer: true,
-                flags: {
-                  wfrp4e: {
-                    preventDuplicateEffects: true,
-                  },
-                },
-              });
-          } else if (!weapon.equipped && weapon_effect !== undefined) {
-            effectsToDelete.push(weapon_effect._id);
-          }
-        }
-        this.actor.createEmbeddedDocuments('ActiveEffect', effectsToCreate);
-        if (effectsToDelete.length) {
-          token.actor.deleteEmbeddedDocuments('ActiveEffect', effectsToDelete);
-        }`
+  "flags.wfrp4e.scriptData": [
+    {
+      label: game.i18n.localize("MACROS-AND-MORE.ShowWeapons"),
+      trigger: "prePrepareItems",
+      script: "[Script.1jX37MkxtB6uzViV]"
     }
-  }
+  ],
+  name: game.i18n.localize("MACROS-AND-MORE.ShowWeapons"),
+  icon: "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-show.svg"
 };
 
-const OPERATIONS = [
+let OPERATIONS = [
   {
     id: "show-weapons",
     name: "Show Weapons",
@@ -83,7 +59,7 @@ const OPERATIONS = [
   },
   {
     id: "delete-token-magic-filters",
-    function: async (token) => {
+    function: async () => {
       await TokenMagic.deleteFiltersOnSelected();
     },
     name: "Delete TokenMagic Filters"
@@ -163,42 +139,38 @@ const OPERATIONS = [
   }
 ];
 
-main();
-
-function main() {
-  if (canvas.tokens.controlled.length) {
-    new Dialog({
-      title: "Select operation",
-      content: `
-     <form>
-      <div class="form-group">
-        <select style="text-align: center" name="operation">
-        ${OPERATIONS.map((op) => {
-          return op.disabled === true
-            ? "<option disabled>──────────</option>"
-            : `<option value="${op.id}">${op.name}</option>`;
-        }).join()}
-        </select>
-      </div>
-    </form>`,
-      buttons: {
-        no: {
-          icon: '<i class="fas fa-times"></i>',
-          label: "Cancel"
-        },
-        yes: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Confirm",
-          callback: async (html) => {
-            const operationId = html.find('[name="operation"]').val();
-            const operation = OPERATIONS.find((op) => op.id === operationId);
-            canvas.tokens.controlled.forEach((token) => operation.function(token));
-          }
-        }
+if (canvas.tokens.controlled.length) {
+  new Dialog({
+    title: "Select operation",
+    content: `
+   <form>
+    <div class="form-group">
+      <select style="text-align: center" name="operation">
+      ${OPERATIONS.map((op) => {
+        return op.disabled === true
+          ? "<option disabled>──────────</option>"
+          : `<option value="${op.id}">${op.name}</option>`;
+      }).join()}
+      </select>
+    </div>
+  </form>`,
+    buttons: {
+      no: {
+        icon: '<i class="fas fa-times"></i>',
+        label: "Cancel"
       },
-      default: "yes"
-    }).render(true);
-  } else {
-    return ui.notifications.error("Select one or more tokens on which you want to run this macro");
-  }
+      yes: {
+        icon: '<i class="fas fa-check"></i>',
+        label: "Confirm",
+        callback: async (html) => {
+          const operationId = html.find('[name="operation"]').val();
+          const operation = OPERATIONS.find((op) => op.id === operationId);
+          canvas.tokens.controlled.forEach((token) => operation.function());
+        }
+      }
+    },
+    default: "yes"
+  }).render(true);
+} else {
+  return ui.notifications.error("Select one or more tokens on which you want to run this macro");
 }

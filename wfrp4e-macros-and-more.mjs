@@ -80,4 +80,5 @@ Hooks.on("wfrp4e:rollTest", async function (testData, _) {
 });
 
 Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
+
 Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);

@@ -1,6 +1,7 @@
 {
   "scripts": {
     "pack": "node pack.mjs",
+    "pack-effect": "node pack-scripts.mjs",
     "unpack": "node unpack.mjs"
   },
   "devDependencies": {
