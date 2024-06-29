@@ -1,37 +1,16 @@
 {
-  "name": "Random Books Generator",
-  "type": "script",
-  "scope": "global",
-  "author": "MJAZjdKh3QKREKG2",
-  "img": "icons/svg/book.svg",
-  "folder": null,
-  "ownership": {
-    "default": 0,
-    "MJAZjdKh3QKREKG2": 3
-  },
-  "flags": {
-    "advanced-macros": {
-      "runAsGM": false,
-      "runForEveryone": false,
-      "runForSpecificUser": ""
-    },
-    "exportSource": {
-      "world": "skaveny",
-      "system": "wfrp4e",
-      "coreVersion": "10.291",
-      "systemVersion": "6.4.0"
-    },
-    "core": {}
-  },
-  "_stats": {
-    "systemId": "wfrp4e",
-    "systemVersion": "7.0.3",
-    "coreVersion": "11.315",
-    "createdTime": 1674911158287,
-    "modifiedTime": 1713963410592,
-    "lastModifiedBy": "MJAZjdKh3QKREKG2"
-  },
   "_id": "yNsZXRtK59KMVH9E",
-  "sort": 0,
-  "_key": "!macros!yNsZXRtK59KMVH9E"
+  "_key": "!macros!yNsZXRtK59KMVH9E",
+  "author": "MJAZjdKh3QKREKG2",
+  "command": "/* ==========\n* MACRO: Token Manipulator\n* AUTHOR: Robak132\n* DESCRIPTION: Allows for quick token manipulations (disposition changes, system effects, showing weapons etc.)\n========== */\n\nconst SHOW_WEAPONS_EFFECT = {\n  name: game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\"),\n  flags: {\n    wfrp4e: {\n      effectTrigger: \"prePrepareItems\",\n      effectApplication: \"actor\",\n      script: `\n        if (!game.user.isUniqueGM) return\n        effectsToCreate = [];\n        effectsToDelete = [];\n        for (let weapon of this.actor._itemTypes.weapon) {\n          let weapon_effect = this.actor.effects.find((value) => value.name === weapon.name);\n          if (weapon.equipped && weapon_effect === undefined) {\n            effectsToCreate.push({\n                name: weapon.name,\n                icon: weapon.img,\n                statuses: ['show-item'],\n                transfer: true,\n                flags: {\n                  wfrp4e: {\n                    preventDuplicateEffects: true,\n                  },\n                },\n              });\n          } else if (!weapon.equipped && weapon_effect !== undefined) {\n            effectsToDelete.push(weapon_effect._id);\n          }\n        }\n        this.actor.createEmbeddedDocuments('ActiveEffect', effectsToCreate);\n        if (effectsToDelete.length) {\n          token.actor.deleteEmbeddedDocuments('ActiveEffect', effectsToDelete);\n        }`\n    }\n  }\n};\n\nconst OPERATIONS = [\n  {\n    id: \"show-weapons\",\n    name: \"Show Weapons\",\n    function: (token) => {\n      if (token.actor.effects.find((e) => e.name === game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\")) === undefined) {\n        token.actor.createEmbeddedDocuments(\"ActiveEffect\", [SHOW_WEAPONS_EFFECT]);\n      }\n    }\n  },\n  {\n    id: \"hide-weapons\",\n    name: \"Hide Weapons\",\n    function: (token) => {\n      let effects = token.actor.effects\n        .filter((e) => e.name === game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\"))\n        .map((e) => e._id);\n      effects = effects.concat(token.actor.effects.filter((e) => e.statuses.has(\"show-item\")).map((e) => e._id));\n      if (effects.length) {\n        token.actor.deleteEmbeddedDocuments(\"ActiveEffect\", effects);\n      }\n    }\n  },\n  {\n    id: \"toggle-weapons\",\n    name: 'Toggle Weapons\"',\n    function: (token) => {\n      if (token.actor.effects.find((e) => e.name === game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\")) === undefined) {\n        token.actor.createEmbeddedDocuments(\"ActiveEffect\", [SHOW_WEAPONS_EFFECT]);\n      } else {\n        let effects = token.actor.effects\n          .filter((e) => e.name === game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\"))\n          .map((e) => e._id);\n        effects = effects.concat(token.actor.effects.filter((e) => e.statuses.has(\"show-item\")).map((e) => e._id));\n        token.actor.deleteEmbeddedDocuments(\"ActiveEffect\", effects);\n      }\n    }\n  },\n  {\n    disabled: true\n  },\n  {\n    id: \"delete-token-magic-filters\",\n    function: async (token) => {\n      await TokenMagic.deleteFiltersOnSelected();\n    },\n    name: \"Delete TokenMagic Filters\"\n  },\n  {\n    disabled: true\n  },\n  {\n    id: \"link-token\",\n    function: async (token) => {\n      await token.document.update({linkActor: true});\n      await game.actors.get(token.actor.id).prototypeToken.update({actorLink: true});\n    },\n    name: \"Link Token\"\n  },\n  {\n    disabled: true\n  },\n  {\n    id: \"set-friendly-token\",\n    function: async (token) => {\n      await token.document.update({disposition: 1});\n      token.refresh(true);\n    },\n    name: \"Set Friendly (Token only)\"\n  },\n  {\n    id: \"set-friendly\",\n    function: async (token) => {\n      await game.actors.get(token.actor.id).prototypeToken.update({disposition: 1});\n      await token.document.update({disposition: 1});\n      token.refresh(true);\n    },\n    name: \"Set Friendly\"\n  },\n  {\n    id: \"set-neutral-token\",\n    function: async (token) => {\n      await token.document.update({disposition: 0});\n      token.refresh(true);\n    },\n    name: \"Set Neutral (Token only)\"\n  },\n  {\n    id: \"set-neutral\",\n    function: async (token) => {\n      await game.actors.get(token.actor.id).prototypeToken.update({disposition: 0});\n      await token.document.update({disposition: 0});\n      token.refresh(true);\n    },\n    name: \"Set Neutral\"\n  },\n  {\n    id: \"set-hostile-token\",\n    function: async (token) => {\n      await token.document.update({disposition: -1});\n      token.refresh(true);\n    },\n    name: \"Set Hostile (Token only)\"\n  },\n  {\n    id: \"set-hostile\",\n    function: async (token) => {\n      await game.actors.get(token.actor.id).prototypeToken.update({disposition: -1});\n      await token.document.update({disposition: -1});\n      token.refresh(true);\n    },\n    name: \"Set Hostile\"\n  },\n  {\n    disabled: true\n  },\n  {\n    id: \"set-infighting\",\n    function: (token) => token.actor.addSystemEffect(\"infighting\"),\n    name: \"Set Infighting\"\n  }\n];\n\nmain();\n\nfunction main() {\n  if (canvas.tokens.controlled.length) {\n    new Dialog({\n      title: \"Select operation\",\n      content: `\n     <form>\n      <div class=\"form-group\">\n        <select style=\"text-align: center\" name=\"operation\">\n        ${OPERATIONS.map((op) => {\n          return op.disabled === true\n            ? \"<option disabled>──────────</option>\"\n            : `<option value=\"${op.id}\">${op.name}</option>`;\n        }).join()}\n        </select>\n      </div>\n    </form>`,\n      buttons: {\n        no: {\n          icon: '<i class=\"fas fa-times\"></i>',\n          label: \"Cancel\"\n        },\n        yes: {\n          icon: '<i class=\"fas fa-check\"></i>',\n          label: \"Confirm\",\n          callback: async (html) => {\n            const operationId = html.find('[name=\"operation\"]').val();\n            const operation = OPERATIONS.find((op) => op.id === operationId);\n            canvas.tokens.controlled.forEach((token) => operation.function(token));\n          }\n        }\n      },\n      default: \"yes\"\n    }).render(true);\n  } else {\n    return ui.notifications.error(\"Select one or more tokens on which you want to run this macro\");\n  }\n}\n",
+  "flags": {
+    "wfrp4e-macros-and-more": {
+      "version": "1.1.0"
+    }
+  },
+  "folder": null,
+  "img": "icons/svg/book.svg",
+  "name": "Random Books Generator",
+  "scope": "global",
+  "type": "script"
 }

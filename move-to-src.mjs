@@ -1,5 +1,5 @@
-import path from "node:path";
-import fs from "node:fs";
+import path from "path";
+import fs from "fs";
 
 const input_path = "macros";
 const output_path = "src/packs/macros";
@@ -25,6 +25,9 @@ function transformData (macro) {
   return macro;
 }
 
+for (let filepath of fs.readdirSync(output_path)) {
+  fs.unlinkSync(path.join(output_path, filepath));
+}
 for (const macro of macrosData.macros) {
   const fileName = `${macro.name.replace(/[^A-Za-z0-9]/gi, "_")}_${macro._id}.json`;
   let fileData = macrosData.common;
