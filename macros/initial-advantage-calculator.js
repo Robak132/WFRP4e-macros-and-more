@@ -1,46 +1,53 @@
 /* ==========
 * MACRO: Initial Advantage Calculator
-* VERSION: 1.0.0
 * AUTHOR: Robak132
 * DESCRIPTION: Calculate initial advantage and applies it to actors.
 ========== */
 
 async function update(character, newAdvantage) {
-  return await character.actor.update({'system.status.advantage.value': newAdvantage});
+  return await character.actor.update({
+    "system.status.advantage.value": newAdvantage
+  });
 }
 
 async function submit(html) {
-  const advantage = $(html).find('select').map((_, e) => {
-    return {
-      players: e.options[e.options.selectedIndex].dataset.players ?? 0,
-      enemy: e.options[e.options.selectedIndex].dataset.enemies ?? 0,
-    };
-  }).get();
+  const advantage = $(html)
+    .find("select")
+    .map((_, e) => {
+      return {
+        players: e.options[e.options.selectedIndex].dataset.players ?? 0,
+        enemy: e.options[e.options.selectedIndex].dataset.enemies ?? 0
+      };
+    })
+    .get();
   const playersAdvantage = advantage.reduce((acc, x) => acc + Number(x.players), 0);
   const enemiesAdvantage = advantage.reduce((acc, x) => acc + Number(x.enemy), 0);
 
   if (game.combat !== null) {
-    let enemy = game.combat.combatants.find(combatant => combatant.token.disposition === -1);
+    const enemy = game.combat.combatants.find((combatant) => combatant.token.disposition === -1);
     console.log(enemy);
     await update(enemy, enemiesAdvantage);
 
-    let players = game.combat.combatants.find(combatant => combatant.token.disposition === 1);
+    const players = game.combat.combatants.find((combatant) => combatant.token.disposition === 1);
     console.log(players);
     await update(players, playersAdvantage);
   }
 
-  let chatMsgContent = `
+  const chatMsgContent = `
 		<h1>Initial Advantage</h1>
 		<p><b>Players:</b> ${playersAdvantage}</p>
 		<p><b>Enemies:</b> ${enemiesAdvantage}</p>`;
-  ChatMessage.create({
-    content: chatMsgContent,
-    whisper: game.users.filter(u => u.isGM).map(u => u.id),
-  }, false);
+  ChatMessage.create(
+    {
+      content: chatMsgContent,
+      whisper: game.users.filter((u) => u.isGM).map((u) => u.id)
+    },
+    false
+  );
 }
 
 new Dialog({
-  title: 'Initial Advantage',
+  title: "Initial Advantage",
   content: `<form>
   <div class="form-group">
     <p style="flex: 1" title="One side possessing an advantage in movement such as being mounted or facing giant spiders in trees." class="section-title">Manoeuvrability</p>
@@ -95,14 +102,14 @@ new Dialog({
 </form>`,
   buttons: {
     yes: {
-      icon: '<i class=\'fas fa-check\'></i>',
-      label: game.i18n.localize('Apply'),
-      callback: async (html) => await submit(html),
+      icon: "<i class='fas fa-check'></i>",
+      label: game.i18n.localize("Apply"),
+      callback: async (html) => await submit(html)
     },
     no: {
-      icon: '<i class=\'fas fa-times\'></i>',
-      label: game.i18n.localize('Cancel'),
-    },
+      icon: "<i class='fas fa-times'></i>",
+      label: game.i18n.localize("Cancel")
+    }
   },
-  default: 'yes',
+  default: "yes"
 }).render(true);

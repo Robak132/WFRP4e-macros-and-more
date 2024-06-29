@@ -1,0 +1,37 @@
+{
+  "type": "object",
+  "properties": {
+    "common": {
+      "type": "object"
+    },
+    "macros": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "_id",
+          "codeFile",
+          "version",
+          "name"
+        ],
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "codeFile": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "img": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
