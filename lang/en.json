@@ -19,6 +19,36 @@
   "MACROS-AND-MORE.ChangeItemType": "Change Item Type",
   "MACROS-AND-MORE.ChangeActorType": "Change Actor Type",
 
+  "MACROS-AND-MORE.Settings": "Settings",
+  "MACROS-AND-MORE.Disabled": "Disabled",
+  "MACROS-AND-MORE.Random": "Random",
+  "MACROS-AND-MORE.Create": "Create",
+  "MACROS-AND-MORE.True": "True",
+  "MACROS-AND-MORE.False": "False",
+
+  "SEA-WEATHER-GENERATOR.Label": "Sea Weather Generator",
+  "SEA-WEATHER-GENERATOR.ExternalConditions": "External Conditions",
+  "SEA-WEATHER-GENERATOR.WindDirection": "Wind Direction",
+  "SEA-WEATHER-GENERATOR.Season": "Season",
+  "SEA-WEATHER-GENERATOR.ShowGM": "Show to GM",
+  "SEA-WEATHER-GENERATOR.ShowAll": "Show to All",
+  "SEA-WEATHER-GENERATOR.CaptainLog": "Captain's Log",
+  "SEA-WEATHER-GENERATOR.CaptainLogDisabled": "Disabled (Distance to Target not used)",
+  "SEA-WEATHER-GENERATOR.CaptainLogStandard": "Standard (Base distance only)",
+  "SEA-WEATHER-GENERATOR.CaptainLogOptimal": "Optimal (Base distance + Tack + favorable Drift)",
+  "SEA-WEATHER-GENERATOR.SeaTemperature": "Sea Temperature",
+  "SEA-WEATHER-GENERATOR.Cold": "Zimna",
+  "SEA-WEATHER-GENERATOR.Warm": "Ciepła",
+
+  "SEA-WEATHER-GENERATOR.WeatherRaport": "Weather Raport",
+  "SEA-WEATHER-GENERATOR.WindsRaport": "Winds Raport",
+  "SEA-WEATHER-GENERATOR.DistanceRaport": "Distance Raport",
+
+  "SEA-WEATHER-GENERATOR.Spring": "Spring",
+  "SEA-WEATHER-GENERATOR.Summer": "Summer",
+  "SEA-WEATHER-GENERATOR.Autumn": "Autumn",
+  "SEA-WEATHER-GENERATOR.Winter": "Winter",
+
   "SEA-WEATHER-GENERATOR.North": "North",
   "SEA-WEATHER-GENERATOR.NorthAdj": "Northerly",
   "SEA-WEATHER-GENERATOR.South": "South",
@@ -34,7 +64,9 @@
   "SEA-WEATHER-GENERATOR.NearGale": "Near Gale",
   "SEA-WEATHER-GENERATOR.StrongGale": "Strong Gale",
   "SEA-WEATHER-GENERATOR.ViolentStorm": "Violent Storm",
+  "SEA-WEATHER-GENERATOR.SeaSickness": "Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging(+0) Endurance</b> Test or suffer from sea sickness.",
 
+  "SEA-WEATHER-GENERATOR.Precipitation.Label": "Precipitation",
   "SEA-WEATHER-GENERATOR.Precipitation.None": "None",
   "SEA-WEATHER-GENERATOR.Precipitation.NoneDesc": "",
   "SEA-WEATHER-GENERATOR.Precipitation.Light": "Light",
@@ -44,6 +76,7 @@
   "SEA-WEATHER-GENERATOR.Precipitation.VeryHeavy": "Very Heavy",
   "SEA-WEATHER-GENERATOR.Precipitation.VeryHeavyDesc": "–30 to Athletics, Climb, and Ranged (Blackpowder) Tests, -20 to Leadership, Navigation, Perception, Row, and Sail Tests, –10 to all other Tests",
 
+  "SEA-WEATHER-GENERATOR.Temperature.Label": "Temperature",
   "SEA-WEATHER-GENERATOR.Temperature.Sweltering": "Sweltering",
   "SEA-WEATHER-GENERATOR.Temperature.SwelteringDesc": "Every two hours, make a <b>Challenging (+0) Endurance</b> Test. If the Test is failed, suffer the effects of Heat Exposure. Crew members must drink two gallons of water a day or else suffer from Thirst",
   "SEA-WEATHER-GENERATOR.Temperature.Hot": "Hot",
@@ -55,6 +88,7 @@
   "SEA-WEATHER-GENERATOR.Temperature.Bitter": "Bitter",
   "SEA-WEATHER-GENERATOR.Temperature.BitterDesc": "Every two hours, make a <b>Challenging (+0) Endurance</b> Test. If the Test is failed, suffer effects of Cold Exposure.",
 
+  "SEA-WEATHER-GENERATOR.Visibility.Label": "Visibility",
   "SEA-WEATHER-GENERATOR.Visibility.Clear": "Clear",
   "SEA-WEATHER-GENERATOR.Visibility.ClearDesc": "",
   "SEA-WEATHER-GENERATOR.Visibility.Misty": "Misty",
