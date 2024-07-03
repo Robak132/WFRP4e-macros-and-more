@@ -1,5 +1,5 @@
 /* ==========
-* MACRO: Random Sea Weather Generator
+* MACRO: Sea Weather Generator
 * AUTHOR: Robak132
 * DESCRIPTION: Generates weather with Sea of Claws rules.
 ========== */
@@ -745,11 +745,9 @@ async function createJournal() {
 }
 
 async function fillJournal(options, weather, winds, totalDistance) {
-  const captainsLog =
-    options.captainLogJournal === "Generate"
-      ? await createJournal(weather)
-      : game.journal.get(options.captainLogJournal);
-  const content = captainsLog?.pages?.contents[0]?.text?.content;
+  const logbook =
+    options.logbookJournal === "Generate" ? await createJournal(weather) : game.journal.get(options.logbookJournal);
+  const content = logbook?.pages?.contents[0]?.text?.content;
   if (content == null) {
     ui.notifications.error("Journal not found!");
     return;
@@ -787,10 +785,10 @@ async function fillJournal(options, weather, winds, totalDistance) {
     ])
   );
 
-  await captainsLog.pages.contents[0].update({
+  await logbook.pages.contents[0].update({
     "text.content": table.toString()
   });
-  options.captainLogJournal = captainsLog.id;
+  options.logbookJournal = logbook.id;
   options.currentTimestamp = SimpleCalendar.api.timestampPlusInterval(options.currentTimestamp, {day: 1});
   options.currentDate = SimpleCalendar.api.formatTimestamp(options.currentTimestamp, "DD MMMM YYYY");
 }
@@ -841,7 +839,7 @@ async function submit(options) {
     await createMessage(getDistanceReport(totalDistance, options), options.distanceReport);
   }
 
-  if (options.captainLogJournal !== "Disabled") await fillJournal(options, weather, winds, totalDistance);
+  if (options.logbookJournal !== "Disabled") await fillJournal(options, weather, winds, totalDistance);
 }
 
 function getJournalWithFolders() {
@@ -902,7 +900,7 @@ const DEFAULT_OPTIONS = {
   shipPropulsion: "Sail",
   shipSpeed: 8,
   flyingJib: false,
-  captainLogJournal: "Generate",
+  logbookJournal: "Generate",
   distanceCalculation: "Optimal",
   currentDate: SimpleCalendar?.api?.currentDateTimeDisplay()?.date ?? "1",
   currentTimestamp: getCurrentTimestamp(),
@@ -984,8 +982,8 @@ new Dialog(
               </select>
             </div>
             <div class="form-group">
-              <label style="width: 50%">${localize("SEA-WEATHER-GENERATOR.CaptainLog")}:</label>
-              <select style="width: 50%" id="captainLogJournal" name="captainLogJournal">
+              <label style="width: 50%">${localize("SEA-WEATHER-GENERATOR.Logbook")}:</label>
+              <select style="width: 50%" id="logbookJournal" name="logbookJournal">
                 <option value="Generate">${localize("MACROS-AND-MORE.Create")}</option>
                 <option value="Disabled">${localize("MACROS-AND-MORE.Disabled")}</option>
                 <option disabled>──────────</option>
@@ -995,9 +993,9 @@ new Dialog(
             <div class="form-group">
               <label style="width: 50%">${localize("SEA-WEATHER-GENERATOR.DistanceCalculation")}:</label>
               <select style="width: 50%" id="distanceCalculation" name="distanceCalculation">
-                <option value="Disabled">${localize("SEA-WEATHER-GENERATOR.CaptainLogDisabled")}</option>
-                <option value="Standard">${localize("SEA-WEATHER-GENERATOR.CaptainLogStandard")}</option>
-                <option value="Optimal">${localize("SEA-WEATHER-GENERATOR.CaptainLogOptimal")}</option>
+                <option value="Disabled">${localize("SEA-WEATHER-GENERATOR.LogbookDisabled")}</option>
+                <option value="Standard">${localize("SEA-WEATHER-GENERATOR.LogbookStandard")}</option>
+                <option value="Optimal">${localize("SEA-WEATHER-GENERATOR.LogbookOptimal")}</option>
               </select>
             </div>
           </div>
@@ -1022,23 +1020,23 @@ new Dialog(
               </select>
             </div>
             <div class="form-group">
-              <label>Prevailing Winds:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.PrevailingWinds")}:</label>
               <select style="width: 50%" id="prevailingWind" name="prevailingWind">
                 ${Direction.values.map((e) => `<option value="${e.value}">${e.getAdj()} (${e.getName()} -> ${e.opposite().getName()})</option>`).join("")}
               </select>
             </div>
             <div class="form-group">
-              <label>Wind at Midnight:</label>
-              <select id="lastWindStrength" name="lastWindStrength">
+              <label style="width: 50%">${localize("SEA-WEATHER-GENERATOR.WindMidnight")}:</label>
+              <select style="width: 50%" id="lastWindStrength" name="lastWindStrength">
                 <option value="Random">${localize("MACROS-AND-MORE.Random")}</option>
                 ${WindStrength.values.map((e) => `<option value="${e.value}">${e.getName()}</option>`).join("")}
               </select>
             </div>
             <div class="form-group section-title">
-              <label class="section-title">Ship</label>
+              <label class="section-title">${localize("SEA-WEATHER-GENERATOR.Ship")}</label>
             </div>
             <div class="form-group">
-              <label>Ship:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.Ship")}:</label>
               <select id="ship" name="ship">
                   <option value=""></option>
                   ${game.robakMacros.utils
@@ -1049,44 +1047,44 @@ new Dialog(
               </select>
             </div>
             <div class="form-group">
-              <label>Flying Jib:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.FlyingJib")}:</label>
               <select id="flyingJib" name="flyingJib">
-                <option value="true">True</option>
-                <option value="false">False</option>
+                <option value="true">${localize("SEA-WEATHER-GENERATOR.True")}</option>
+                <option value="false">${localize("SEA-WEATHER-GENERATOR.False")}False</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Propulsion:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.Propulsion")}:</label>
               <select id="shipPropulsion" name="shipPropulsion">
-                <option value="Sail">Sail</option>
-                <option value="Other">Other</option>
+                <option value="Sail">${localize("SEA-WEATHER-GENERATOR.Sail")}</option>
+                <option value="Other">${localize("SEA-WEATHER-GENERATOR.Other")}</option>
               </select>
             </div>
             <div class="form-group">
-              <label>Speed:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.Speed")}:</label>
               <input name="shipSpeed" value="${options.shipSpeed}" type="number" min="0">
             </div>
             <div class="form-group section-title">
-              <label class="section-title">Journey</label>
+              <label class="section-title">${localize("SEA-WEATHER-GENERATOR.Journey")}</label>
             </div>
             <div class="form-group">
-              <label>Direction:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.Direction")}:</label>
               <select id="shipDirection" name="shipDirection">
                   ${Direction.values.map((e) => `<option value="${e.value}">${e.getName()}</option>`).join("")}
               </select>
             </div>
             <div class="form-group">
-              <label>Distance to Target:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.DistanceToTarget")}:</label>
               <input name="distance" type="number" value="${options.distance}" min="0">
             </div>
             <div class="form-group">
-              <label>Current Day:</label>
+              <label>${localize("SEA-WEATHER-GENERATOR.CurrentDay")}:</label>
               <input id="visibleDate" name="visibleDate" type="text" value="${options.currentDate}" readonly>
               <input id="currentDate" name="currentDate" type="hidden" value="${options.currentDate}" />
               <input id="currentTimestamp" name="currentTimestamp" type="hidden" value="${options.currentTimestamp}" />
             </div>
             <div class="form-group">
-              <button name="updateDate" type="button">Sync with Calendar</button>
+              <button name="updateDate" type="button">${localize("SEA-WEATHER-GENERATOR.SyncWithCalendar")}</button>
             </div>
           </div>
         </div>
@@ -1137,5 +1135,5 @@ new Dialog(
     },
     default: "yes"
   },
-  {width: 650, resizable: false}
+  {width: 750}
 ).render(true);
