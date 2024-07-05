@@ -50,7 +50,7 @@ async function passiveTalentMacro(hideDialogs) {
   let msg = "";
   for (const {skill, talent} of PASSIVE_TALENTS) {
     const targetGroup = game.actors
-      .filter((a) => a.hasPlayerOwner && a.type !== "vehicle" && a._itemTypes.talent.some((i) => i.name === talent))
+      .filter((a) => a.hasPlayerOwner && a.type !== "vehicle" && a.itemTypes.talent.some((i) => i.name === talent))
       .map((g) => g.uuid);
     if (targetGroup.length === 0) {
       continue;

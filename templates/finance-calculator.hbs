@@ -1,0 +1,58 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+  <div class="form-group section-title">
+    <label class="section-title">Region</label>
+  </div>
+  <div class="form-group">
+    <label for="currentRegionName">Current Region:</label>
+    <input style="text-align: center" type="text" id="currentRegionName" value="{{currentRegionName}}" readonly />
+  </div>
+  <div class="form-group">
+    <label for="mainCurrency">Main Currency:</label>
+    <input style="text-align: center" id="mainCurrency" type="text" value="{{currentRegionMainCurrency}}" readonly />
+  </div>
+  <div class="form-group">
+    <button id="changeRegion" type="button">Change Region</button>
+  </div>
+  <div class="form-group">
+    <button id="exchange" type="submit">Exchange Money</button>
+  </div>
+  <div class="form-group section-title">
+    <label class="section-title">Transaction</label>
+  </div>
+  <div class="form-group">
+    <label for="currency">Currency</label>
+    <select id="currency" name="currency" style="text-align: center">
+      <option value="any">Any (Current Region first)</option>
+      {{#each currencies as |currency|}}
+        <option value="{{currency.key}}">{{currency.name}} ({{currency.nation}})</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    {{#if targetCurrencyNames.gold}}
+      <label for="gold" id="goldLabel">{{targetCurrencyNames.gold}}</label>
+    {{/if}}
+    {{#if targetCurrencyNames.silver}}
+      <label for="silver" id="silverLabel">{{targetCurrencyNames.silver}}</label>
+    {{/if}}
+    {{#if targetCurrencyNames.silver}}
+      <label for="bronze" id="bronzeLabel">{{targetCurrencyNames.bronze}}</label>
+    {{/if}}
+  </div>
+  <div class="form-group">
+    {{#if targetCurrencyNames.gold}}
+      <input style="text-align: center" type="number" id="gold" name="gold" value="0" min="0" />
+    {{/if}}
+    {{#if targetCurrencyNames.silver}}
+      <input style="text-align: center" type="number" id="silver" name="silver" value="0" min="0" />
+    {{/if}}
+    {{#if targetCurrencyNames.bronze}}
+      <input style="text-align: center" type="number" id="bronze" name="bronze" value="0" min="0" />
+    {{/if}}
+  </div>
+  <div class="form-group">
+    <button type="submit">Pay</button>
+    <button type="submit">Credit (Each)</button>
+    <button type="submit">Credit (Split)</button>
+  </div>
+</form>

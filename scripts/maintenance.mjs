@@ -1,7 +1,7 @@
 import module from "../module.json" assert {type: "json"};
 
 export default class MaintenanceWrapper extends FormApplication {
-  async render () {
+  async render() {
     let content = [];
     content.macros = await this.#buildLocalizedContent();
 
@@ -20,7 +20,7 @@ export default class MaintenanceWrapper extends FormApplication {
     ).render(true);
   }
 
-  async #buildLocalizedContent () {
+  async #buildLocalizedContent() {
     const existingFolder = game.folders.find((f) => f.name === `Robak's Macros` && f.type === "Macro");
     const existingMacros = game.macros
       .filter((m) => m.folder?.id === existingFolder?.id)
@@ -47,7 +47,7 @@ export default class MaintenanceWrapper extends FormApplication {
     return contentArray;
   }
 
-  async createOrUpdateDocuments () {
+  async createOrUpdateDocuments() {
     let documents = await game.packs.get(`${module.id}.macros`).getDocuments();
     let existingFolder = game.folders.find((f) => f.name === `Robak's Macros` && f.type === "Macro");
     if (!existingFolder) {
@@ -84,7 +84,7 @@ export default class MaintenanceWrapper extends FormApplication {
     );
   }
 
-  updateFolder (documents, folderId) {
+  updateFolder(documents, folderId) {
     return documents.map((d) => {
       if (!d.folder) {
         d.updateSource({folder: folderId});

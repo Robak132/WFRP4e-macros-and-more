@@ -1,16 +1,13 @@
+import effects from "./effects.json" assert {type: "json"};
 import {ItemTransfer} from "./scripts/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./scripts/group-advantage-losing.mjs";
-import {Utility} from "./scripts/utility.mjs";
+import Utility from "./scripts/utility.mjs";
 import MaintenanceWrapper from "./scripts/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./scripts/convert.mjs";
+import {RobakMarketWfrp4e} from "./scripts/robak-market.js";
+import {FinanceCalculator} from "./scripts/finance-calculator.mjs";
 
-Hooks.once("init", function () {
-  game.robakMacros = {
-    transferItem: ItemTransfer,
-    maintenance: MaintenanceWrapper,
-    utils: Utility
-  };
-
+function registerSettings() {
   game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
     name: "Enable Transfer Item",
     hint: "Enables Transfer Item button in character sheets.",
@@ -40,6 +37,29 @@ Hooks.once("init", function () {
     config: false,
     default: []
   });
+  game.settings.register("wfrp4e-macros-and-more", "currentRegion", {
+    scope: "world",
+    config: false,
+    default: "empire"
+  });
+}
+
+Hooks.once("init", function () {
+  game.robakMacros = {
+    financeCalculator: FinanceCalculator,
+    transferItem: ItemTransfer,
+    maintenance: MaintenanceWrapper,
+    utils: Utility
+  };
+
+  // Register settings
+  registerSettings();
+
+  // Load scripts
+  mergeObject(game.wfrp4e.config.effectScripts, effects);
+
+  // Overwrite system market
+  game.wfrp4e.market = RobakMarketWfrp4e;
 });
 
 Hooks.once("ready", function () {

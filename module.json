@@ -19,8 +19,7 @@
     "maximum": "12"
   },
   "esmodules": [
-    "wfrp4e-macros-and-more.mjs",
-    "load-scripts.mjs"
+    "wfrp4e-macros-and-more.mjs"
   ],
   "relationships": {
     "systems": [

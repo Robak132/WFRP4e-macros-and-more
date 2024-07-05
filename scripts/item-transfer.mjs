@@ -1,29 +1,29 @@
-import {Utility} from "./utility.mjs";
+import Utility from "./utility.mjs";
 
 Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => setupItemHandler(sheet, html));
 
-function setupItemHandler (sheet, html) {
+function setupItemHandler(sheet, html) {
   if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) {
     return;
   }
 
-  $("<a class=\"item-control item-transfer\" title=\"Transfer Item\"><i class=\"fas fa-hands-helping\"></i></a>").insertAfter(
+  $('<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>').insertAfter(
     html.find(".inventory .item-post")
   );
   $(
-    "<a class=\"item-control item-transfer\" title=\"Transfer Item\"><i class=\"fas fa-hands-helping\"></i></a>"
+    '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
   ).insertBefore(html.find(".inventory .item-remove"));
   html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
 }
 
 export class ItemTransfer {
-  static transferItemHandler (e) {
+  static transferItemHandler(e) {
     e.preventDefault();
     const item = this.items.find((item) => item.id === e.currentTarget.closest(".item").dataset.itemId);
     ItemTransfer.#createDialog(this, item);
   }
 
-  static async transferItems (transferObjects) {
+  static async transferItems(transferObjects) {
     const groupedObjects = [];
     for (const transferObject of transferObjects) {
       if (
@@ -73,7 +73,7 @@ export class ItemTransfer {
     }
   }
 
-  static async handleTransfer ({item, targetActorId, targetContainerId, sourceActorId, sourceContainerId, quantity}) {
+  static async handleTransfer({item, targetActorId, targetContainerId, sourceActorId, sourceContainerId, quantity}) {
     const sourceActor = game.actors.get(sourceActorId);
     const targetActor = game.actors.get(targetActorId);
     let updatedItem = duplicate(item);
@@ -128,7 +128,7 @@ export class ItemTransfer {
     }
   }
 
-  static async #moveItem (item, actor, containerId) {
+  static async #moveItem(item, actor, containerId) {
     Utility.log(`Updating ${item._id}: changing location to ${containerId}`);
     const update = {
       _id: item._id,
@@ -139,7 +139,7 @@ export class ItemTransfer {
     return (await actor.updateEmbeddedDocuments("Item", [update]))[0];
   }
 
-  static async #updateItem ({item, actor, quantity}) {
+  static async #updateItem({item, actor, quantity}) {
     Utility.log(`Updating ${item._id}: changing quantity to ${quantity}`);
     const update = {
       _id: item._id,
@@ -155,7 +155,7 @@ export class ItemTransfer {
     }
   }
 
-  static #findItems (sourceItem, actor, quantity, containerId) {
+  static #findItems(sourceItem, actor, quantity, containerId) {
     for (const actorItem of actor.items) {
       const dupActorItem = duplicate(actorItem);
       const dupSourceItem = duplicate(sourceItem);
@@ -178,7 +178,7 @@ export class ItemTransfer {
     return null;
   }
 
-  static #createDialog (actor, item) {
+  static #createDialog(actor, item) {
     new Dialog({
       title: "Transfer Item",
       content: `
@@ -207,7 +207,7 @@ export class ItemTransfer {
         </script>`,
       buttons: {
         yes: {
-          icon: "<i class=\"fas fa-check\"></i>",
+          icon: '<i class="fas fa-check"></i>',
           label: "Transfer Item",
           callback: (html) => {
             let quantity = document.getElementById("quantity").value;
@@ -235,7 +235,7 @@ export class ItemTransfer {
           }
         },
         no: {
-          icon: "<i class=\"fas fa-times\"></i>",
+          icon: '<i class="fas fa-times"></i>',
           label: "Cancel"
         }
       },
@@ -243,7 +243,7 @@ export class ItemTransfer {
     }).render(true);
   }
 
-  static createSelectTag (sourceActorId, sourceContainerId) {
+  static createSelectTag(sourceActorId, sourceContainerId) {
     const cleanedSourceContainerId = Utility.clean(sourceContainerId);
     let select = "";
     for (const actor of Utility.getStashableActors().sort((a) => (a.id === sourceActorId ? -1 : 1))) {

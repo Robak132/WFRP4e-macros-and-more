@@ -62,6 +62,8 @@
   "SEA-WEATHER-GENERATOR.WeatherRaport": "Weather Raport",
   "SEA-WEATHER-GENERATOR.WindsRaport": "Winds Raport",
   "SEA-WEATHER-GENERATOR.DistanceRaport": "Distance Raport",
+  "SEA-WEATHER-GENERATOR.SaveSettings": "Save Settings",
+  "SEA-WEATHER-GENERATOR.DefaultSettings": "Default Settings",
 
   "SEA-WEATHER-GENERATOR.Season": "Season",
   "SEA-WEATHER-GENERATOR.Spring": "Spring",

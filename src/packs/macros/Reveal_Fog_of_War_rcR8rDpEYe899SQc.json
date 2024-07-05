@@ -8,7 +8,7 @@
     }
   },
   "folder": null,
-  "img": "modules/wfrp4e-macros-and-more/assets/icons/token-manipulator.svg",
+  "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-hide.svg",
   "name": "Reveal Fog of War",
   "scope": "global",
   "type": "script",

@@ -1,5 +1,5 @@
 /* ==========
-* MACRO: Add XP (Characters and Companions)
+* MACRO: Add XP
 * AUTHOR: Robak132
 * DESCRIPTION: Adds a set amount of XP to all or targeted player character(s). Adds half XP to companion(s). Modified macro from GM Toolkit by Jagusti.
 ========== */

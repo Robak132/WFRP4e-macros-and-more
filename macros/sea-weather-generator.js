@@ -875,13 +875,18 @@ function getJournals() {
   return options;
 }
 
-const localize = (value) => game.i18n.localize(value);
-const getCurrentTimestamp = () => {
+function getCurrentTimestamp() {
   const dateTime = SimpleCalendar.api.currentDateTime();
-  return SimpleCalendar.api.dateToTimestamp({year: dateTime.year, month: dateTime.month, day: dateTime.day});
-};
+  return SimpleCalendar.api.dateToTimestamp({
+    year: dateTime.year,
+    month: dateTime.month,
+    day: dateTime.day
+  });
+}
 
-const options = this.getFlag("world", "sea-weather-generator-options") ?? {};
+const localize = (value) => game.i18n.localize(value);
+
+const options = game.user.getFlag("world", "sea-weather-generator-options") ?? {};
 const DEFAULT_OPTIONS = {
   precipitation: "Random",
   temperature: "Random",
@@ -1110,26 +1115,26 @@ new Dialog(
     buttons: {
       no: {
         icon: `<i class='fas fa-undo'></i>`,
-        label: `Revert to Default`,
+        label: localize("SEA-WEATHER-GENERATOR.DefaultSettings"),
         callback: async () => {
-          await this.setFlag("world", "sea-weather-generator-options", DEFAULT_OPTIONS);
+          await game.user.setFlag("world", "sea-weather-generator-options", DEFAULT_OPTIONS);
         }
       },
       save: {
         icon: `<i class='fas fa-save'></i>`,
-        label: `Save Settings`,
+        label: localize("SEA-WEATHER-GENERATOR.SaveSettings"),
         callback: async (html) => {
           const options = new FormDataExtended(html[0].querySelector("form")).object;
-          await this.setFlag("world", "sea-weather-generator-options", options);
+          await game.user.setFlag("world", "sea-weather-generator-options", options);
         }
       },
       yes: {
         icon: `<i class='fas fa-check'></i>`,
-        label: `Submit`,
+        label: localize("Submit"),
         callback: async (html) => {
           const options = new FormDataExtended(html[0].querySelector("form")).object;
           await submit(options);
-          await this.setFlag("world", "sea-weather-generator-options", options);
+          await game.user.setFlag("world", "sea-weather-generator-options", options);
         }
       }
     },

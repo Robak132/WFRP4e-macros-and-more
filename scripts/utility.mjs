@@ -1,4 +1,4 @@
-export class Utility {
+export default class Utility {
   static #OWNERSHIP_OWNER = 3;
   static #OWNERSHIP_OBSERVER = 2;
   static #OWNERSHIP_LIMITED = 1;

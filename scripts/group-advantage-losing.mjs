@@ -9,7 +9,7 @@ export function handleLosingGroupAdvantage (combatants) {
   for (const combatant of combatants.filter((c) => c.actor.details.size)) {
     const disposition = combatant.token.disposition;
     const sizeValue = Math.pow(2, combatant.actor.sizeNum - 3);
-    const drilled = combatant.actor._itemTypes.talent.some((t) => t.name === game.i18n.localize("NAME.Drilled"));
+    const drilled = combatant.actor.itemTypes.talent.some((t) => t.name === game.i18n.localize("NAME.Drilled"));
     const lst = content[disposition] ?? [];
     lst.push({
       name: combatant.name,
