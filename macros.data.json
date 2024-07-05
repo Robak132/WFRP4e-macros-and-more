@@ -42,13 +42,6 @@
       "name": "Inventory Manager"
     },
     {
-      "_id": "fz90AQ3MpUppcM6o",
-      "codeFile": "pay-credit-helper.js",
-      "version": "1.0.1",
-      "img": "modules/wfrp4e-macros-and-more/assets/icons/pay-credit-helper.svg",
-      "name": "Pay/Credit Money Helper"
-    },
-    {
       "_id": "JNQ2WbcC5IagKBcS",
       "codeFile": "random-vampire-weakness.js",
       "version": "1.0.0",
@@ -74,12 +67,6 @@
       "codeFile": "npc-advancement-tool.js",
       "name": "NPC Advancement Tool",
       "version": "1.0.0"
-    },
-    {
-      "_id": "BcFZlpf41SZBPFlq",
-      "codeFile": "set-default-currency.js",
-      "version": "1.0.0",
-      "name": "Set Default Currency"
     },
     {
       "_id": "luVmQCZiZSUTxBPa",
