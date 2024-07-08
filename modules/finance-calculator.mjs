@@ -1,4 +1,5 @@
 import Utility from "./utility.mjs";
+import {RobakMarketWfrp4e} from "./robak-market.js";
 
 export class FinanceCalculator extends FormApplication {
   REGIONS = {
@@ -111,17 +112,10 @@ export class FinanceCalculator extends FormApplication {
 
   pay(opt) {
     const {gold, silver, bronze} = this.normaliseMoney(opt.gold * 240 + opt.silver * 12 + opt.bronze);
-    if (gold > 0 || silver > 0 || bronze > 0) {
-      new Macro({
-        command:
-          "/pay " +
-          `${gold}${game.i18n.localize("MARKET.Abbrev.GC")}` +
-          `${silver}${game.i18n.localize("MARKET.Abbrev.SS")}` +
-          `${bronze}${game.i18n.localize("MARKET.Abbrev.BP")}`,
-        type: "chat",
-        name: "pay"
-      }).execute();
-    }
+    let amount = `${gold}${game.i18n.localize("MARKET.Abbrev.GC")}
+      ${silver}${game.i18n.localize("MARKET.Abbrev.SS")}
+      ${bronze}${game.i18n.localize("MARKET.Abbrev.BP")}@${this.selectedRegion.key}`;
+    RobakMarketWfrp4e.generatePayCard(amount);
   }
 
   async credit(opt) {
@@ -218,48 +212,6 @@ export class FinanceCalculator extends FormApplication {
     await this.render(true);
   }
 
-  //       style = "overflow-y: scroll;max-height: 500px" >
-  //         '; // // for (const actor of game.actors) { // if (!actor.itemTypes.money.length) { // continue; // } // // let
-  //       moneyContent = ""; // for (const money of actor.itemTypes.money) { // const {location, coinValue, baseCoinValue} =
-  //       this.extractDataFromCoin(money); // const convertedValue =
-  //       Math.round(this.DATA[this.getIdx(location)][currentLocationIdx] * baseCoinValue); // // if
-  //       (money.system.quantity.value === 0 || convertedValue === coinValue);
-  //       { // continue; // } // // moneyContent += `<div
-  //         class
-  //
-  //         = "form-group" > //
-  //           < span;
-  //         style = "flex: 5;text-align: center" >${money.name} < /span>;
-  //         //
-  //         <span style="flex: 3;text-align: center">${this.NATIONS[location].name}</span>;
-  //         //
-  //         <span style="flex: 1;text-align: center">${coinValue}</span>;
-  //         //
-  //         <span style="flex: 1;text-align: center">&#8594;</span>;
-  //         //
-  //         <span style="flex: 1;text-align: center">${convertedValue}</span>;
-  //         //
-  //       </div>
-  //         `; // // coinUpdates.push({ // object: money, // value: convertedValue // }); // } // if (moneyContent !== "") {
-  //   // content += ` < p;
-  //         style = "text-align: center" >${actor.name} < /p>` + moneyContent; /;
-  //         / } /;
-  //         / } /;
-  //         / content += "</div > "; //
-  // // await new Dialog({ // title: `Changing location from ${this.NATIONS[this.currentRegion].name} to ${ //
-  //         this.NATIONS[Object.keys(this.NATIONS)[currentLocationIdx]].name; // }`, // content, // buttons: { // no: { // icon: '<i
-  //         class
-  //
-  //         = "fas fa-times" > < /i>', /;
-  //         / label: "Cancel" /;
-  //         / }, /;
-  //         / yes: { /;
-  //         / icon: '<i class="fas fa-check"></i > ', // label: "Proceed", // callback:
-  //         async () => { // for (const entry of coinUpdates) { // await entry.object.update({"system.coinValue.value":
-  //           entry.value;
-  //         };
-  //       )
-  // } // } // } // }, // default: "yes" // }).render(true); }
   async changeRegionDialog() {
     let obj = await ItemDialog.create(
       Object.entries(this.REGIONS)
@@ -294,6 +246,7 @@ export class FinanceCalculator extends FormApplication {
   }
 
   async _updateObject(event, formData) {
+    console.log(event);
     switch (event.submitter.id) {
       case "pay":
         return this.pay(formData);

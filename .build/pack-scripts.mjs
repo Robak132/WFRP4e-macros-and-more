@@ -1,6 +1,6 @@
 import fs from "fs";
 
-let path = "./effects/";
+let path = "../src/effects/";
 let scripts = fs.readdirSync(path);
 let count = 0;
 let scriptObj = {};

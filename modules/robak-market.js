@@ -1,9 +1,92 @@
+import MarketWfrp4e from "./market.js";
+
+function getMethodsRecursive(x) {
+  return (
+    x &&
+    x !== Object.prototype &&
+    Object.getOwnPropertyNames(x)
+      .filter((name) => (Object.getOwnPropertyDescriptor(x, name) || {}).get || typeof x[name] === "function")
+      .concat(getMethodsRecursive(Object.getPrototypeOf(x)) || [])
+  );
+}
+
+function getMethods(obj) {
+  return Array.from(new Set(getMethodsRecursive(obj))).filter((name) => name !== "constructor" && !~name.indexOf("__"));
+}
+
 export class RobakMarketWfrp4e extends MarketWfrp4e {
-  static type = "custom";
+  static getRegions() {
+    return {
+      empire: {
+        key: "empire",
+        name: "Empire",
+        gc: game.i18n.localize("NAME.GC"),
+        ss: game.i18n.localize("NAME.SS"),
+        bp: game.i18n.localize("NAME.BP")
+      },
+      bretonia: {
+        key: "bretonia",
+        name: "Bretonnia",
+        gc: "Złote ecu",
+        ss: "Srebrny denar",
+        bp: "Bretoński brązowy pens"
+      },
+      estalia: {
+        key: "estalia",
+        name: "Estalia",
+        gc: "Złote excelente",
+        ss: "Srebrny real",
+        bp: "Brązowe duro"
+      },
+      kislev: {
+        key: "kislev",
+        name: "Kislev",
+        gc: "Złoty dukat",
+        ss: "Srebrna denga",
+        bp: "Brązowe pulo"
+      },
+      norsca: {
+        // In Norsca there are no gc coins, only ss and bp.
+        key: "norsca",
+        name: "Norsca",
+        ss: "Srebrna sceatta",
+        bp: "Brązowy fennig"
+      },
+      tilea: {
+        key: "tilea",
+        name: "Tilea",
+        gc: "Tileańska złota korona",
+        ss: "Tileański srebrny szyling",
+        bp: "Tileański brązowy pens"
+      },
+      dwarf: {
+        key: "dwarf",
+        name: "Dwarf Keeps",
+        gc: "Złocisz",
+        ss: "Srebrniak",
+        bp: "Miedziak"
+      },
+      elf: {
+        // Elven kingdoms don't use ss coins in trade with humans.
+        key: "elf",
+        name: "Elf Kingdoms",
+        gc: "Złoty suweren"
+      },
+      araby: {
+        // Names are self-made as there are no official names for Arabyan coins except for rials.
+        key: "araby",
+        name: "Araby",
+        gc: "Złoty rial",
+        ss: "Srebrny dirham",
+        bp: "Brązowy fals"
+      }
+    };
+  }
 
   static consolidateMoney(money) {
     //We sort the money from the highest BP value to the lowest (so gc => ss => bp)
-    //This allow us to deal with custom money too and to not be dependent on the money name (translation errors could break the code otherwise)
+    //This allow us to deal with custom money too and to not be dependent on the money name
+    // (translation errors could break the code otherwise)
     money.sort((a, b) => b.system.coinValue.value - a.system.coinValue.value);
 
     let brass = 0;
@@ -12,7 +95,8 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
 
     //Then we consolidate the coins
     for (let m of money) {
-      //We don't know what players could create as a custom money and we dont want to divide by zero, ever. It would kill a kitten somewhere, probably.
+      //We don't know what players could create as a custom money and we dont want to divide by zero, ever.
+      // It would kill a kitten somewhere, probably.
       if (m.system.coinValue.value <= 0) break;
       m.system.quantity.value = Math.trunc(brass / m.system.coinValue.value);
       brass = brass % m.system.coinValue.value;
@@ -76,15 +160,12 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
     return moneyItemInventory;
   }
 
-  static directPayCommand(amount, actor) {
-    let moneyPaid = this.payCommand(amount, actor);
-    if (moneyPaid) {
-      actor.updateEmbeddedDocuments("Item", moneyPaid);
-    }
-  }
-
   static payCommand(command, actor, options = {}) {
-    //First we parse the command
+    let regionKey = command.split("@")[1] ?? game.settings.get("wfrp4e-macros-and-more", "currentRegion");
+    let region = this.getRegions()[regionKey];
+    command = command.split("@")[0];
+
+    // First we parse the command
     let moneyItemInventory = actor.getItemTypes("money").map((i) => i.toObject());
     let moneyToPay = this.parseMoneyTransactionString(command);
     let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>`;
@@ -95,33 +176,38 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
       msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p><p><i>${game.i18n.localize("MARKET.PayCommandExample")}</i></p>`;
       errorOccured = true;
     } else {
-      // We need to get the character money items for gc, ss and bp. This is a "best effort" lookup method. If it fails, we stop the command to prevent any data loss.
+      // We need to get the character money items for gc, ss and bp.
+      // This is a "best effort" lookup method. If it fails, we stop the command to prevent any data loss.
       let characterMoney = this.getCharacterMoney(moneyItemInventory);
       this.checkCharacterMoneyValidity(moneyItemInventory, characterMoney);
+
+      console.log(moneyItemInventory);
+      console.log(characterMoney);
+
       // If one money is missing, we stop here before doing anything bad
       if (Object.values(characterMoney).includes(false)) {
         msg += `<p>${game.i18n.localize("MARKET.CantFindMoneyItems")}</p>`;
         errorOccured = true;
       } else {
-        //Now its time to check if the actor has enough money to pay
-        //We'll start by trying to pay without consolidating the money
+        // Now its time to check if the actor has enough money to pay
+        // We'll start by trying to pay without consolidating the money
         if (
           moneyToPay.gc <= moneyItemInventory[characterMoney.gc].system.quantity.value &&
           moneyToPay.ss <= moneyItemInventory[characterMoney.ss].system.quantity.value &&
           moneyToPay.bp <= moneyItemInventory[characterMoney.bp].system.quantity.value
         ) {
-          //Great, we can just deduce the quantity for each money
+          // Great, we can just deduce the quantity for each money
           moneyItemInventory[characterMoney.gc].system.quantity.value -= moneyToPay.gc;
           moneyItemInventory[characterMoney.ss].system.quantity.value -= moneyToPay.ss;
           moneyItemInventory[characterMoney.bp].system.quantity.value -= moneyToPay.bp;
-        } //We'll need to calculate the brass value on both the pay command and the actor inventory, and then consolidate
-        else {
+        } else {
+          // We'll need to calculate the brass value on both the pay command and the actor inventory, and then consolidate
           let totalBPAvailable = 0;
           for (let m of moneyItemInventory) totalBPAvailable += m.system.quantity.value * m.system.coinValue.value;
 
           let totalBPPay = moneyToPay.gc * 240 + moneyToPay.ss * 12 + moneyToPay.bp;
 
-          //Does we have enough money in the end?
+          // Does we have enough money in the end?
           if (totalBPAvailable < totalBPPay) {
             // No
             msg += `${game.i18n.localize("MARKET.NotEnoughMoney")}<br>
@@ -135,7 +221,7 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
             moneyItemInventory[characterMoney.ss].system.quantity.value = 0;
             moneyItemInventory[characterMoney.bp].system.quantity.value = totalBPAvailable;
 
-            //Then we consolidate
+            // Then we consolidate
             moneyItemInventory = this.consolidateMoney(moneyItemInventory);
           }
         }
@@ -183,7 +269,7 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
       ss: false,
       bp: false
     };
-    //First we'll try to look at the localized name
+    // First we'll try to look at the localized name
     for (let m = 0; m < moneyItemInventory.length; m++) {
       switch (moneyItemInventory[m].name) {
         case game.i18n.localize("NAME.GC"):
@@ -248,23 +334,29 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   static generatePayCard(payRequest, player) {
+    let regionKey = payRequest.split("@")[1] ?? game.settings.get("wfrp4e-macros-and-more", "currentRegion");
+    let region = this.getRegions()[regionKey];
+    payRequest = payRequest.split("@")[0];
+
     let parsedPayRequest = this.parseMoneyTransactionString(payRequest);
-    //If the /pay command has a syntax error, we display an error message to the gm
+    // If the /pay command has a syntax error, we display an error message to the gm
     if (!parsedPayRequest) {
-      let msg = `<h3><b>${game.i18n.localize("MARKET.PayRequest")}</b></h3>`;
-      msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p><p><i>${game.i18n.localize(
-        "MARKET.PayCommandExample"
-      )}</i></p>`;
+      let msg = `<h3><b>${game.i18n.format("MARKET.PayRequest", {currency: region.gc ?? region.ss})}</b></h3>`;
+      msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p>
+        <p><i>${game.i18n.localize("MARKET.PayCommandExample")}</i></p>`;
       ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "gmroll"));
-    } //generate a card with a summary and a pay button
-    else {
+    } else {
+      // generate a card with a summary and a pay button
       let cardData = {
         payRequest: payRequest,
-        QtGC: parsedPayRequest.gc,
-        QtSS: parsedPayRequest.ss,
-        QtBP: parsedPayRequest.bp
+        quantityGold: parsedPayRequest.gc,
+        labelGold: region.gc,
+        quantitySilver: parsedPayRequest.ss,
+        labelSilver: region.ss,
+        quantityBronze: parsedPayRequest.bp,
+        labelBronze: region.bp
       };
-      renderTemplate("systems/wfrp4e/templates/chat/market/market-pay.hbs", cardData).then((html) => {
+      renderTemplate("modules/wfrp4e-macros-and-more/templates/market-pay.hbs", cardData).then((html) => {
         let chatData = WFRP_Utility.chatDataSetup(html, "roll", false, {forceWhisper: player});
         ChatMessage.create(chatData);
       });
@@ -272,9 +364,9 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   static makeSomeChange(amount, bpRemainder) {
-    let gc = 0,
-      ss = 0,
-      bp = 0;
+    let gc = 0;
+    let ss = 0;
+    let bp = 0;
     if (amount >= 0) {
       gc = Math.floor(amount / 240);
       amount = amount % 240;
@@ -375,11 +467,34 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
         QtSS: amount.ss,
         QtBP: amount.bp
       };
-      renderTemplate("systems/wfrp4e/templates/chat/market/market-credit.hbs", cardData).then((html) => {
+      renderTemplate("modules/wfrp4e-macros-and-more/templates/market-credit.hbs", cardData).then((html) => {
         let chatData = WFRP_Utility.chatDataSetup(html, "roll", false, {forceWhisper});
         foundry.utils.setProperty(chatData, "flags.wfrp4e.instances", nbActivePlayers);
         ChatMessage.create(chatData);
       });
     }
   }
+
+  static addGold(actor, region) {
+    return {
+      img: "modules/wfrp4e-core/icons/currency/goldcrown.png",
+      name: region.gc,
+      "system.quantity.value": 1,
+      "system.encumbrance.value": 0.005,
+      "system.coinValue.value": 240,
+      type: "money"
+    };
+  }
 }
+
+Hooks.once("ready", function () {
+  let market = game.wfrp4e.market;
+
+  for (let method of getMethods(RobakMarketWfrp4e)) {
+    try {
+      market[method] = RobakMarketWfrp4e[method] ?? market[method];
+    } catch (e) {
+      console.log(`Setting ${method} failed`);
+    }
+  }
+});

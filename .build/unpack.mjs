@@ -2,9 +2,9 @@ import {extractPack} from "@foundryvtt/foundryvtt-cli";
 import fs from "fs";
 import path from "path";
 
-const input_path = "macros";
-const json_path = "src/packs/macros";
-const output_path = "packs/macros";
+const input_path = "../src/src/macros";
+const json_path = "../src/packs/macros";
+const output_path = "../packs/macros";
 const macrosData = JSON.parse(fs.readFileSync("macros.data.json"));
 
 // await extractPack(output_path, json_path, {log: false})

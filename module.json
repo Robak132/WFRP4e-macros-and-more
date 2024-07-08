@@ -19,7 +19,8 @@
     "maximum": "12"
   },
   "esmodules": [
-    "wfrp4e-macros-and-more.mjs"
+    "wfrp4e-macros-and-more.mjs",
+    "modules/robak-market.js"
   ],
   "relationships": {
     "systems": [

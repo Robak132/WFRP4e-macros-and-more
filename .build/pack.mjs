@@ -3,9 +3,9 @@ import fs from "fs";
 import {compilePack} from "@foundryvtt/foundryvtt-cli";
 
 export function pack() {
-  const inputPath = "macros";
-  const jsonPath = "src/packs/macros";
-  const outputPath = "packs/macros";
+  const inputPath = "../src/macros";
+  const jsonPath = "../src/packs/macros";
+  const outputPath = "../packs/macros";
   const macrosData = JSON.parse(fs.readFileSync("macros.data.json"));
 
   function transformData(macro) {

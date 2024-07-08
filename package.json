@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "pack": "node pack.mjs",
-    "pack-effect": "node pack-scripts.mjs",
-    "unpack": "node unpack.mjs"
+    "pack": "node build/pack.mjs",
+    "pack-effect": "node build/pack-scripts.mjs",
+    "unpack": "node .build/unpack.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.0.3",

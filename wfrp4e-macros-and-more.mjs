@@ -1,10 +1,9 @@
-import effects from "./effects.json" assert {type: "json"};
+import effects from "./build/effects.json" assert {type: "json"};
 import {ItemTransfer} from "./scripts/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./scripts/group-advantage-losing.mjs";
 import Utility from "./scripts/utility.mjs";
 import MaintenanceWrapper from "./scripts/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./scripts/convert.mjs";
-import {RobakMarketWfrp4e} from "./scripts/robak-market.js";
 import {FinanceCalculator} from "./scripts/finance-calculator.mjs";
 
 function registerSettings() {
@@ -57,9 +56,6 @@ Hooks.once("init", function () {
 
   // Load scripts
   mergeObject(game.wfrp4e.config.effectScripts, effects);
-
-  // Overwrite system market
-  game.wfrp4e.market = RobakMarketWfrp4e;
 });
 
 Hooks.once("ready", function () {
