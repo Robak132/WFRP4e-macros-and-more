@@ -124,5 +124,7 @@
   "SEA-WEATHER-GENERATOR.Visibility.Foggy": "Foggy",
   "SEA-WEATHER-GENERATOR.Visibility.FoggyDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –2 SL penalty if the target is more than 10 yards away.",
   "SEA-WEATHER-GENERATOR.Visibility.ThickFog": "Thick Fog",
-  "SEA-WEATHER-GENERATOR.Visibility.ThickFogDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –3 SL penalty if the target is more than 5 yards away."
+  "SEA-WEATHER-GENERATOR.Visibility.ThickFogDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –3 SL penalty if the target is more than 5 yards away.",
+
+  "MARKET.OtherMoneyAvailable": "Converted (Sum):"
 }

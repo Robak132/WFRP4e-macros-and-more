@@ -34,7 +34,7 @@ export class ItemTransfer {
       } else if (!game.users.find((u) => u.active && u.isGM)) {
         return ui.notifications.error("You cannot offer item to other player's actor when is GM not present");
       } else {
-        await game.socket.emit("module.wfrp4e-macros-and-more", transferObject);
+        await Utility.sendMessage("transferItems", transferObject);
       }
 
       if (transferObject.sourceActorId === transferObject.targetActorId) {

@@ -1055,7 +1055,7 @@ new Dialog(
               <label>${localize("SEA-WEATHER-GENERATOR.FlyingJib")}:</label>
               <select id="flyingJib" name="flyingJib">
                 <option value="true">${localize("SEA-WEATHER-GENERATOR.True")}</option>
-                <option value="false">${localize("SEA-WEATHER-GENERATOR.False")}False</option>
+                <option value="false">${localize("SEA-WEATHER-GENERATOR.False")}</option>
               </select>
             </div>
             <div class="form-group">

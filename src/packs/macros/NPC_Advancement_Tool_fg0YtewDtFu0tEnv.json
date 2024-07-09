@@ -8,7 +8,7 @@
     }
   },
   "folder": null,
-  "img": "modules/wfrp4e-macros-and-more/assets/icons/sea-weather-generator.svg",
+  "img": "icons/svg/dice-target.svg",
   "name": "NPC Advancement Tool",
   "scope": "global",
   "type": "script",

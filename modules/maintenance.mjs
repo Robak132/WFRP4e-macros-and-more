@@ -1,7 +1,7 @@
-import module from "../module.json" assert {type: "json"};
-
 export default class MaintenanceWrapper extends FormApplication {
-  async render() {
+  async render(force, options) {
+    this.module = await fetch("modules/wfrp4e-macros-and-more/module.json").then((r) => r.json());
+
     let content = [];
     content.macros = await this.#buildLocalizedContent();
 
@@ -48,7 +48,7 @@ export default class MaintenanceWrapper extends FormApplication {
   }
 
   async createOrUpdateDocuments() {
-    let documents = await game.packs.get(`${module.id}.macros`).getDocuments();
+    let documents = await game.packs.get(`${this.module.id}.macros`).getDocuments();
     let existingFolder = game.folders.find((f) => f.name === `Robak's Macros` && f.type === "Macro");
     if (!existingFolder) {
       existingFolder = await Folder.create({
@@ -78,8 +78,8 @@ export default class MaintenanceWrapper extends FormApplication {
       `${game.i18n.format("UPDATER.Notification", {
         created: newDocuments.length,
         updated: toUpdate.length,
-        name: module.id,
-        version: module.version
+        name: this.module.id,
+        version: this.module.version
       })}`
     );
   }

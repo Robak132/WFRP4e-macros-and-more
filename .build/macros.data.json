@@ -65,6 +65,7 @@
     {
       "_id": "fg0YtewDtFu0tEnv",
       "codeFile": "npc-advancement-tool.js",
+      "img": "icons/svg/dice-target.svg",
       "name": "NPC Advancement Tool",
       "version": "1.0.0"
     },
@@ -76,35 +77,31 @@
       "name": "Token Manipulator"
     },
     {
-      "_id": "gHpAH6Ozz5DVGpRP",
-      "codeFile": "show-weapons.js",
-      "version": "1.1.0",
-      "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-show.svg",
-      "name": "Show Weapons"
-    },
-    {
-      "_id": "4BGQJ4AjNqRqJOlI",
-      "codeFile": "show-weapons-remove.js",
-      "version": "1.1.0",
-      "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-hide.svg",
-      "name": "Show Weapons (Remove)"
-    },
-    {
       "name": "Random Books Generator",
       "version": "1.0.0",
+      "img": "icons/svg/dice-target.svg",
       "_id": "yNsZXRtK59KMVH9E",
       "codeFile": "random-book-generator.js"
     },
     {
       "name": "Rescale Map",
       "_id": "tVEB7ArgxwZbszvX",
+      "img": "icons/svg/dice-target.svg",
       "codeFile": "rescale-map.js",
       "version": "1.0.0"
     },
     {
       "name": "Reveal Fog of War",
       "_id": "rcR8rDpEYe899SQc",
+      "img": "icons/svg/dice-target.svg",
       "codeFile": "reveal-fow.js",
+      "version": "1.0.0"
+    },
+    {
+      "name": "Dark Whispers",
+      "_id": "JWLG2NaYAkxoX2W8",
+      "img": "icons/svg/dice-target.svg",
+      "codeFile": "dark-whispers.js",
       "version": "1.0.0"
     }
   ]

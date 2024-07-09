@@ -1,6 +1,10 @@
 <div>
   <h3><b>{{localize "MARKET.PayRequest" }}</b></h3>
-  <p>{{quantityGold}} {{labelGold}}, {{quantitySilver}} {{labelSilver}}, {{quantityBronze}} {{labelBronze}}</p>
+  <ul>
+    <li>{{quantityGold}} {{labelGold}}</li>
+    <li>{{quantitySilver}} {{labelSilver}}</li>
+    <li>{{quantityBronze}} {{labelBronze}}</li>
+  </ul>
 </div>
 <span class="chat-card-button-area">
     <a class='chat-card-button market-button' data-button='payItem' data-pay="{{payRequest}}">{{localize "MARKET.PayForItem"}}</a>

@@ -94,6 +94,85 @@ export default class Utility {
     }
   };
 
+  static async sendMessage(type, data) {
+    return game.socket.emit("module.wfrp4e-macros-and-more", {type, data});
+  }
+
+  static async darkWhispersDialog(data) {
+    await new Dialog({
+      title: `New Whisper from Dark Gods`,
+      content: `
+            <div class="form-group">
+              <label><strong>${data.currentUser.name} pragnie:</strong></label>
+            </div>
+            <div class="form-group">
+              <blockquote>${data.message}</blockquote>
+            </div>
+            <div class="form-group">
+              <label><strong>od:</strong></label>
+            </div>
+            <div class="form-group">
+              <ul>
+                ${data.characters.map((c) => `<li>${c.name}</li>`).join("")}
+              </ul>
+            </div>`,
+      buttons: {
+        no: {
+          label: "Block",
+          callback: async () => Utility.blockDarkWhispersRequest(data)
+        },
+        yes: {
+          label: "Allow",
+          callback: async () => Utility.acceptDarkWhispersRequest(data)
+        }
+      }
+    }).render(true);
+  }
+
+  static async blockDarkWhispersRequest({currentUser, message, characters, sendToOwners}) {
+    await ChatMessage.create({
+      content: `
+          <p><strong>Bogowie Prawości zablokowali Mroczny Podszept</strong></p>
+          <blockquote>${message}</blockquote>
+          <p>Spróbuj czegoś innego lub poczekaj na moment, gdy odwrócą wzrok.</p>`,
+      whisper: [currentUser._id, ...ChatMessage.getWhisperRecipients("GM")]
+    });
+  }
+
+  static async acceptDarkWhispersRequest({currentUser, message, characters, sendToOwners}) {
+    const playerRecipients = characters.reduce((recipients, character) => {
+      const ids = sendToOwners ? character.owners.map((m) => m._id) : [character.assignedUser?._id];
+      recipients.push(...ids.filter((id) => id !== undefined));
+      return recipients;
+    }, []);
+
+    let charactersId = JSON.stringify(characters.map((c) => c.actorId));
+    await ChatMessage.create({
+      content: `
+        ${game.i18n.format(
+          `GMTOOLKIT.Settings.DarkWhispers.message.${game.settings.get("wfrp4e-gm-toolkit", "messageDarkWhispers")}`,
+          {message}
+        )}
+        <span class="chat-card-button-area">
+          <a class="chat-card-button robak-darkwhisper-button" 
+            data-button="actOnWhisper" 
+            data-author='${currentUser._id}'
+            data-characters='${charactersId}'
+            data-ask="${game.i18n.format(message)}">
+            ${game.i18n.localize("GMTOOLKIT.Message.DarkWhispers.Accept")}
+          </a>
+          <a class="chat-card-button robak-darkwhisper-button" 
+            data-button="denyDarkGods"
+            data-author='${currentUser._id}'
+            data-characters='${charactersId}'
+            data-ask="${game.i18n.format(message)}">
+            ${game.i18n.localize("GMTOOLKIT.Message.DarkWhispers.Reject")}
+          </a>
+        </span>`,
+      whisper: [currentUser._id, ...playerRecipients]
+    });
+  }
+
   static log(message, level = "info") {
     switch (level) {
       case "warn":
@@ -134,6 +213,22 @@ export default class Utility {
     } else {
       return false;
     }
+  }
+
+  static getMethods(obj) {
+    return Array.from(new Set(Utility.getMethodsRecursive(obj))).filter(
+      (name) => name !== "constructor" && !~name.indexOf("__")
+    );
+  }
+
+  static getMethodsRecursive(x) {
+    return (
+      x &&
+      x !== Object.prototype &&
+      Object.getOwnPropertyNames(x)
+        .filter((name) => (Object.getOwnPropertyDescriptor(x, name) || {}).get || typeof x[name] === "function")
+        .concat(Utility.getMethodsRecursive(Object.getPrototypeOf(x)) || [])
+    );
   }
 
   static round(num, spaces) {

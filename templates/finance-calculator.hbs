@@ -22,31 +22,30 @@
   <div class="form-group">
     <label for="currency">Currency</label>
     <select id="currency" name="currency" style="text-align: center">
-      <option value="any">Any (Current Region first)</option>
-      {{#each currencies as |currency|}}
+      {{#each currencyList as |currency|}}
         <option value="{{currency.key}}">{{currency.name}} ({{currency.region}})</option>
       {{/each}}
     </select>
   </div>
   <div class="form-group">
-    {{#if targetCurrencyNames.gold}}
-      <label for="gold" id="goldLabel">{{targetCurrencyNames.gold}}</label>
+    {{#if selectedRegionCurrency.gc}}
+      <label for="gold" id="goldLabel">{{selectedRegionCurrency.gc}}</label>
     {{/if}}
-    {{#if targetCurrencyNames.silver}}
-      <label for="silver" id="silverLabel">{{targetCurrencyNames.silver}}</label>
+    {{#if selectedRegionCurrency.ss}}
+      <label for="silver" id="silverLabel">{{selectedRegionCurrency.ss}}</label>
     {{/if}}
-    {{#if targetCurrencyNames.silver}}
-      <label for="bronze" id="bronzeLabel">{{targetCurrencyNames.bronze}}</label>
+    {{#if selectedRegionCurrency.ss}}
+      <label for="bronze" id="bronzeLabel">{{selectedRegionCurrency.bp}}</label>
     {{/if}}
   </div>
   <div class="form-group">
-    {{#if targetCurrencyNames.gold}}
+    {{#if selectedRegionCurrency.gc}}
       <input style="text-align: center" type="number" id="gold" name="gold" value="0" min="0" />
     {{/if}}
-    {{#if targetCurrencyNames.silver}}
+    {{#if selectedRegionCurrency.ss}}
       <input style="text-align: center" type="number" id="silver" name="silver" value="0" min="0" />
     {{/if}}
-    {{#if targetCurrencyNames.bronze}}
+    {{#if selectedRegionCurrency.bp}}
       <input style="text-align: center" type="number" id="bronze" name="bronze" value="0" min="0" />
     {{/if}}
   </div>

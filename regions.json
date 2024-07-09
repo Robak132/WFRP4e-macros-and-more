@@ -1,0 +1,169 @@
+{
+  "empire": {
+    "key": "empire",
+    "name": "Empire",
+    "currency": {
+      "gc": "NAME.GC",
+      "ss": "NAME.SS",
+      "bp": "NAME.BP"
+    },
+    "exchangeRates": {
+      "bretonia": 0.95,
+      "estalia": 0.9,
+      "kislev": 0.9,
+      "norsca": 0.7,
+      "tilea": 0.5,
+      "dwarf": 1.2,
+      "elf": 0.95,
+      "araby": 0.9
+    }
+  },
+  "bretonia": {
+    "key": "bretonia",
+    "name": "Bretonnia",
+    "currency": {
+      "gc": "Złote ecu",
+      "ss": "Srebrny denar",
+      "bp": "Bretoński brązowy pens"
+    },
+    "exchangeRates": {
+      "empire": 1.05,
+      "estalia": 0.95,
+      "kislev": 0.95,
+      "norsca": 0.8,
+      "tilea": 0.7,
+      "dwarf": 1.3,
+      "elf": 1.0,
+      "araby": 0.95
+    }
+  },
+  "estalia": {
+    "key": "estalia",
+    "name": "Estalia",
+    "currency": {
+      "gc": "Złote excelente",
+      "ss": "Srebrny real",
+      "bp": "Brązowe duro"
+    },
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.05,
+      "kislev": 1.1,
+      "norsca": 0.9,
+      "tilea": 0.8,
+      "dwarf": 1.4,
+      "elf": 1.05,
+      "araby": 1.0
+    }
+  },
+  "kislev": {
+    "key": "kislev",
+    "name": "Kislev",
+    "currency": {
+      "gc": "Złoty dukat",
+      "ss": "Srebrna denga",
+      "bp": "Brązowe pulo"
+    },
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.1,
+      "estalia": 0.9,
+      "norsca": 0.95,
+      "tilea": 0.9,
+      "dwarf": 1.4,
+      "elf": 1.05,
+      "araby": 1.1
+    }
+  },
+  "norsca": {
+    "key": "norsca",
+    "name": "Norsca",
+    "currency": {
+      "ss": "Srebrna sceatta",
+      "bp": "Brązowy fennig"
+    },
+    "exchangeRates": {
+      "empire": 1.0,
+      "bretonia": 1.0,
+      "estalia": 1.0,
+      "kislev": 1.0,
+      "tilea": 1.0,
+      "dwarf": 1.0,
+      "elf": 1.0,
+      "araby": 1.0
+    }
+  },
+  "tilea": {
+    "key": "tilea",
+    "name": "Tilea",
+    "currency": {
+      "gc": "Tileańska złota korona",
+      "ss": "Tileański srebrny szyling",
+      "bp": "Tileański brązowy pens"
+    },
+    "exchangeRates": {
+      "empire": 0.8,
+      "bretonia": 0.85,
+      "estalia": 0.9,
+      "kislev": 1.0,
+      "norsca": 0.95,
+      "dwarf": 1.5,
+      "elf": 1.2,
+      "araby": 0.9
+    }
+  },
+  "dwarf": {
+    "key": "dwarf",
+    "name": "Dwarf Keeps",
+    "currency": {
+      "gc": "Złocisz",
+      "ss": "Srebrniak",
+      "bp": "Miedziak"
+    },
+    "exchangeRates": {
+      "empire": 0.9,
+      "bretonia": 0.85,
+      "estalia": 0.8,
+      "kislev": 0.9,
+      "norsca": 0.8,
+      "elf": 1.0,
+      "araby": 0.8
+    }
+  },
+  "elf": {
+    "key": "elf",
+    "name": "Elf Kingdoms",
+    "currency": {
+      "gc": "Złoty suweren"
+    },
+    "exchangeRates": {
+      "empire": 1.05,
+      "bretonia": 1.0,
+      "estalia": 1.0,
+      "kislev": 0.95,
+      "norsca": 0.9,
+      "tilea": 0.8,
+      "dwarf": 1.0,
+      "araby": 0.95
+    }
+  },
+  "araby": {
+    "key": "araby",
+    "name": "Araby",
+    "currency": {
+      "gc": "Złoty rial",
+      "ss": "Srebrny dirham",
+      "bp": "Brązowy fals"
+    },
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.05,
+      "estalia": 1.0,
+      "kislev": 0.9,
+      "norsca": 1.0,
+      "tilea": 0.9,
+      "dwarf": 1.2,
+      "elf": 1.05
+    }
+  }
+}

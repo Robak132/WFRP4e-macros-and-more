@@ -1,10 +1,11 @@
-import effects from "./build/effects.json" assert {type: "json"};
-import {ItemTransfer} from "./scripts/item-transfer.mjs";
-import {handleLosingGroupAdvantage} from "./scripts/group-advantage-losing.mjs";
-import Utility from "./scripts/utility.mjs";
-import MaintenanceWrapper from "./scripts/maintenance.mjs";
-import {addActorContextOptions, addItemContextOptions} from "./scripts/convert.mjs";
-import {FinanceCalculator} from "./scripts/finance-calculator.mjs";
+import {ItemTransfer} from "./modules/item-transfer.mjs";
+import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
+import Utility from "./modules/utility.mjs";
+import MaintenanceWrapper from "./modules/maintenance.mjs";
+import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
+import {RobakMarketWfrp4e} from "./modules/robak-market.js";
+
+// import {FinanceCalculator} from "./modules/finance-calculator.mjs";
 
 function registerSettings() {
   game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -44,8 +45,9 @@ function registerSettings() {
 }
 
 Hooks.once("init", function () {
+  console.log("wfrp4e-macros-and-more | Initializing wfrp4e-macros-and-more");
   game.robakMacros = {
-    financeCalculator: FinanceCalculator,
+    // financeCalculator: FinanceCalculator,
     transferItem: ItemTransfer,
     maintenance: MaintenanceWrapper,
     utils: Utility
@@ -55,16 +57,38 @@ Hooks.once("init", function () {
   registerSettings();
 
   // Load scripts
-  mergeObject(game.wfrp4e.config.effectScripts, effects);
+  fetch("modules/wfrp4e-macros-and-more/effects.json")
+    .then((r) => r.json())
+    .then(async (effects) => {
+      mergeObject(game.wfrp4e.config.effectScripts, effects);
+    });
 });
 
-Hooks.once("ready", function () {
-  game.socket.on("module.wfrp4e-macros-and-more", async (transferObject) => {
+Hooks.once("ready", async function () {
+  game.socket.on("module.wfrp4e-macros-and-more", async ({type, data}) => {
+    console.log("Received transfer object", data);
     if (!game.user.isUniqueGM) {
       return;
     }
-    await ItemTransfer.handleTransfer(transferObject);
+    switch (type) {
+      case "transferItem":
+        return ItemTransfer.handleTransfer(data);
+      case "darkWhispers":
+        await Utility.darkWhispersDialog(data);
+    }
   });
+
+  if (false) {
+    let market = game.wfrp4e.market;
+    for (let method of Utility.getMethods(RobakMarketWfrp4e)) {
+      try {
+        market[method] = RobakMarketWfrp4e[method] ?? market[method];
+      } catch (e) {
+        console.log(`Setting ${method} failed`);
+      }
+    }
+    await RobakMarketWfrp4e.loadRegions();
+  }
 });
 
 Hooks.on("updateCombat", (combat, updates, _, __) => {
@@ -98,3 +122,38 @@ Hooks.on("wfrp4e:rollTest", async function (testData, _) {
 Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
 
 Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
+
+Hooks.on("renderChatLog", (log, html, _) => {
+  html.on("click", ".robak-darkwhisper-button", async (event) => {
+    event.preventDefault();
+    if (!game.user.isGM) {
+      let actor = game.user.character;
+      let characters = JSON.parse($(event.currentTarget).attr("data-characters"));
+      let authorId = $(event.currentTarget).attr("data-author");
+      if (actor && characters.includes(actor._id)) {
+        let response = "";
+        switch ($(event.currentTarget).attr("data-button")) {
+          case "actOnWhisper":
+            response = `${game.i18n.format("GMTOOLKIT.Message.DarkWhispers.Accepted", {currentUser: actor.name})}`;
+            break;
+          case "denyDarkGods":
+            response = `${game.i18n.format("GMTOOLKIT.Message.DarkWhispers.Rejected", {currentUser: actor.name})}`;
+            break;
+        }
+        response += `<blockquote>${$(event.currentTarget).attr("data-ask")}</blockquote>`;
+
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({actor: game.user.character}),
+          content: response,
+          whisper: [authorId, ...ChatMessage.getWhisperRecipients("GM")]
+        });
+      } else {
+        ui.notifications.notify(game.i18n.format("GMTOOLKIT.Notification.NoActor", {currentUser: game.user.name}));
+      }
+    } else {
+      ui.notifications.notify(
+        game.i18n.format("GMTOOLKIT.Notification.UserMustBePlayer", {action: event.currentTarget.text})
+      );
+    }
+  });
+});

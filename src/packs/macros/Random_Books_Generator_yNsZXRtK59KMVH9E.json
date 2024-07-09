@@ -8,7 +8,7 @@
     }
   },
   "folder": null,
-  "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-hide.svg",
+  "img": "icons/svg/dice-target.svg",
   "name": "Random Books Generator",
   "scope": "global",
   "type": "script",
