@@ -4,7 +4,8 @@
   "command": "let scale = 2;\n\nawait canvas.scene.update({\"grid.distance\": canvas.scene.grid.distance / scale});\nawait canvas.scene.update({height: canvas.scene.height * scale, width: canvas.scene.width * scale});\nawait canvas.scene.updateEmbeddedDocuments(\"Wall\", canvas.scene.walls.map(w => {\n  return {_id: w.id, c: w.c.map(i => i * scale)};\n}));\nawait canvas.scene.updateEmbeddedDocuments(\"AmbientLight\", canvas.scene.lights.map(light => {\n  return {\n    _id: light.id,\n    \"config.dim\": light.config.dim * scale,\n    \"config.bright\": light.config.bright * scale,\n    x: light.x * scale,\n    y: light.y * scale\n  };\n}));\nawait canvas.scene.updateEmbeddedDocuments(\"Token\", canvas.scene.tokens.map(token => {\n  return {_id: token.id, x: token.x * scale, y: token.y * scale};\n}));\nawait canvas.scene.updateEmbeddedDocuments(\"Note\", canvas.scene.notes.map(note => {\n  return {_id: note.id, x: note.x * scale, y: note.y * scale};\n}));\nawait canvas.scene.updateEmbeddedDocuments(\"Tile\", canvas.scene.tiles.map(tile => {\n  return {_id: tile.id, x: tile.x * scale, y: tile.y * scale};\n}));",
   "flags": {
     "wfrp4e-macros-and-more": {
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "sourceId": "tVEB7ArgxwZbszvX"
     }
   },
   "folder": null,

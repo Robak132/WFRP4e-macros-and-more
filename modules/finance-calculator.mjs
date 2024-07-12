@@ -4,7 +4,7 @@ export class FinanceCalculator extends FormApplication {
   constructor(object = {}, options = {}) {
     super(object, options);
     this.regions = RobakMarketWfrp4e.regions;
-    this.currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "currentRegion")];
+    this.currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "current-region")];
     this.selectedRegion = this.regions[this.currentRegion.key];
     this.selectedRegionCurrency = this.selectedRegion.currency;
   }
@@ -93,7 +93,7 @@ export class FinanceCalculator extends FormApplication {
 
   async changeRegion(targetLocation) {
     this.currentRegion = this.regions[targetLocation];
-    await game.settings.set("wfrp4e-macros-and-more", "currentRegion", this.currentRegion.key);
+    await game.settings.set("wfrp4e-macros-and-more", "current-region", this.currentRegion.key);
     this.selectedRegion = this.currentRegion;
   }
 

@@ -1,11 +1,43 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
-  <p>{{{localize "MACROS-AND-MORE.DialogMaintenanceHint"}}}</p>
-  {{#each macros as |macro id|}}
-    <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.thumbnail}}" title="{{macro.name}}" />
-    {{localize macro.name}}
-    <span style="color: #006188;font-weight: bold;">{{macro.existingVersion}}
-      ->
-      {{macro.compendiumVersion}}</span>
-    <span style="color: #cbee8b75;">({{macro.id}})</span><br />
-  {{/each}}
+  <div class="dialog-content">
+    <div>
+      {{#if added}}
+        <div class="form-group section-title">
+          <label class="section-title">Added</label>
+        </div>
+      {{/if}}
+      {{#each added as |macro id|}}
+        <input style="vertical-align: bottom;" type="checkbox" name="added" id="{{macro.compendium._id}}" checked>
+        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
+        <span style="color: yellowgreen;font-weight: bold;">{{macro.name}}</span>
+        <span style="color: yellowgreen;">({{macro.hash}})</span>
+        <span style="color: yellowgreen;">(v{{macro.compendium.version}})</span><br>
+      {{/each}}
+      {{#if updated}}
+        <div class="form-group section-title">
+          <label class="section-title">Updated</label>
+        </div>
+      {{/if}}
+      {{#each updated as |macro id|}}
+        <input style="vertical-align: bottom;" type="checkbox" name="updated" id="{{macro.compendium._id}}" checked>
+        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
+        <span style="color: royalblue;font-weight: bold;">{{macro.name}}</span>
+        <span style="color: royalblue">{{macro.hash}}</span>
+        <span style="color: royalblue;">(v{{macro.existing.version}}) -> (v{{macro.compendium.version}})</span><br>
+      {{/each}}
+      {{#if removed}}
+        <div class="form-group section-title">
+          <label class="section-title">Removed</label>
+        </div>
+      {{/if}}
+      {{#each removed as |macro id|}}
+        <input style="vertical-align: bottom;" type="checkbox" name="removed" id="{{macro.existing._id}}" checked>
+        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
+        <span style="color: red;font-weight: bold;">{{macro.name}}</span>
+        <span style="color: red;">({{macro.hash}})</span>
+        <span style="color: red;">(v{{macro.existing.version}})</span><br>
+      {{/each}}
+      <button type="submit">Update Selected</button>
+    </div>
+  </div>
 </form>

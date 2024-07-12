@@ -1,22 +1,18 @@
 import Utility from "./utility.mjs";
 
-Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => setupItemHandler(sheet, html));
+export default class ItemTransfer {
+  static setupItemHandler(sheet, html) {
+    if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return;
 
-function setupItemHandler(sheet, html) {
-  if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) {
-    return;
+    $(
+      '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
+    ).insertAfter(html.find(".inventory .item-post"));
+    $(
+      '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
+    ).insertBefore(html.find(".inventory .item-remove"));
+    html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
   }
 
-  $('<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>').insertAfter(
-    html.find(".inventory .item-post")
-  );
-  $(
-    '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
-  ).insertBefore(html.find(".inventory .item-remove"));
-  html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
-}
-
-export class ItemTransfer {
   static transferItemHandler(e) {
     e.preventDefault();
     const item = this.items.find((item) => item.id === e.currentTarget.closest(".item").dataset.itemId);

@@ -156,7 +156,7 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   static payCommand(cmd, actor, options = {}) {
-    const currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "currentRegion")];
+    const currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "current-region")];
     const moneyItemInventory = actor.getItemTypes("money").map((i) => i.toObject());
 
     let [command, regionKey, strictMode] = cmd.split("@");
@@ -207,7 +207,7 @@ export class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   static generatePayCard(cmd, player) {
-    const currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "currentRegion")];
+    const currentRegion = this.regions[game.settings.get("wfrp4e-macros-and-more", "current-region")];
 
     let [payRequest, regionKey, strictMode] = cmd.split("@");
     let requestedRegion = regionKey == null ? currentRegion : this.regions[regionKey];
