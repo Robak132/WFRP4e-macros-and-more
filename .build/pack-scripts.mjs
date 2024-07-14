@@ -10,4 +10,4 @@ for (let file of scripts) {
 }
 
 fs.writeFileSync("../effects.json", JSON.stringify(scriptObj, null, 2), {encoding: "utf8"});
-console.log(`Packed ${count} scripts`);
+Utility.log(`Packed ${count} scripts`);

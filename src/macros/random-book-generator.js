@@ -26,25 +26,25 @@ async function generate_book() {
 
   // Quality
   let bookQuality = await rollFromTableCode(BOOK_QUALITY);
-  console.log(bookQuality);
+  game.robakMacros.utility.log(bookQuality);
   worthModifier += bookQuality.result.worth;
 
   // Topic
   let bookTopic = await rollFromTableCode(BOOK_TOPIC);
-  console.log(bookTopic);
+  game.robakMacros.utility.log(bookTopic);
 
   // Pages
   let bookPages = (await new Roll(`1d10`).roll()).total * 50;
-  console.log(bookPages);
+  game.robakMacros.utility.log(bookPages);
 
   // Type
   let bookType = await game.wfrp4e.tables.rollTable("books-type", {hideDSN: true});
-  console.log(bookType);
+  game.robakMacros.utility.log(bookType);
 
   // Age
   let bookAge = await game.wfrp4e.tables.rollTable("books-age", {hideDSN: true});
   let bookAgeDetailed = (await new Roll(`1d10`).roll()).total * bookAge.object.flags.age.modifier;
-  console.log(bookAge);
+  game.robakMacros.utility.log(bookAge);
 
   // Condition
   let bookCondition = await game.wfrp4e.tables.rollTable("books-condition", {
@@ -59,11 +59,11 @@ async function generate_book() {
       bookConditionResult += obj[1];
     }
   }
-  console.log(bookCondition);
+  game.robakMacros.utility.log(bookCondition);
 
   // Features
   let bookFeatures = await game.wfrp4e.tables.rollTable("books-features", {hideDSN: true});
-  console.log(bookFeatures);
+  game.robakMacros.utility.log(bookFeatures);
 
   // Features
   let bookLanguage = await game.wfrp4e.tables.rollTable("books-language", {hideDSN: true});
@@ -72,7 +72,7 @@ async function generate_book() {
     let originalBookLanguage = await game.wfrp4e.tables.rollTable("books-original-language", {hideDSN: true});
     bookLanguageResult = `${bookLanguageResult} (Translated from ${originalBookLanguage.result})`;
   }
-  console.log(bookLanguage);
+  game.robakMacros.utility.log(bookLanguage);
 
   // Name
   let topic = bookTopic.result.value.toLowerCase();

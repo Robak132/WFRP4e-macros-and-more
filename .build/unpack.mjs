@@ -31,8 +31,8 @@ function hash(str) {
 }
 
 await extractPack(output_path, json_path, {log: false})
-  .then(() => console.log("Pack extraction complete."))
-  .catch((err) => console.log(err.message));
+  .then(() => Utility.log("Pack extraction complete."))
+  .catch((err) => Utility.log(err.message));
 
 for (let filepath of fs.readdirSync(json_path)) {
   let json = JSON.parse(fs.readFileSync(path.join(json_path, filepath), "utf8"));

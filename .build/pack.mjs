@@ -38,7 +38,7 @@ for (let filepath of fs.readdirSync(inputPath, {recursive: true, withFileTypes: 
   filepath = filepath.name;
   let macro = macrosData.macros.find((m) => m.codeFile === filepath);
   if (!macro) {
-    console.error(`No entry for ${filepath}`);
+    Utility.error(`No entry for ${filepath}`);
     continue;
   }
 
@@ -49,5 +49,5 @@ for (let filepath of fs.readdirSync(inputPath, {recursive: true, withFileTypes: 
   fs.writeFileSync(path.join(jsonPath, fileName), JSON.stringify(fileData, null, 2) + "\n", "utf8");
 }
 compilePack(jsonPath, outputPath, {log: false})
-  .then(() => console.log("Pack compilation complete."))
-  .catch((err) => console.log(err.message));
+  .then(() => Utility.log("Pack compilation complete."))
+  .catch((err) => Utility.log(err.message));

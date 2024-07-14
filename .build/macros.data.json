@@ -50,9 +50,10 @@
     },
     {
       "_id": "igrp0A9gr5qXXnbK",
-      "codeFile": "update.js",
-      "version": "1.0.1",
-      "name": "Module Update"
+      "codeFile": "maintenance.js",
+      "version": "1.0.0",
+      "img": "modules/wfrp4e-macros-and-more/assets/icons/maintenance.svg",
+      "name": "Module Maintenance"
     },
     {
       "_id": "JNQ2WbcC5IagKBcS",

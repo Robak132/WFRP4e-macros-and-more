@@ -173,25 +173,22 @@ export default class Utility {
     });
   }
 
-  static log(message, level = "info") {
-    switch (level) {
-      case "warn":
-        console.warn("Robak's macros | " + message);
-        break;
-      case "debug":
-        console.debug("Robak's macros | " + message);
-        break;
-      case "info":
-      default:
-        console.log("Robak's macros | " + message);
-        break;
-    }
+  static log(...data) {
+    console.log("Robak's macros | ", ...data);
+  }
+
+  static warn(...data) {
+    console.warn("Robak's macros | ", ...data);
+  }
+
+  static debug(...data) {
+    console.debug("Robak's macros | ", ...data);
   }
 
   static isObjectEqual(x, y, ignore, path = []) {
     const result = this.#isObjectEqualRaw(x, y, ignore, path);
     if (!result) {
-      this.log(`${JSON.stringify(x)} vs ${JSON.stringify(y)}: false`, "debug");
+      this.debug(`${JSON.stringify(x)} vs ${JSON.stringify(y)}: false`);
     }
     return result;
   }

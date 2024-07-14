@@ -219,7 +219,7 @@ class InventoryManager {
       })
       .get()
       .filter((s) => s.targetContainerId != null && s.targetActorId != null);
-    console.log(itemTransfers);
+    game.robakMacros.utility.log(itemTransfers);
     await game.robakMacros.transferItem.transferItems(itemTransfers);
   }
 }

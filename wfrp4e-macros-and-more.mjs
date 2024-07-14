@@ -5,6 +5,7 @@ import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
 import {RobakMarketWfrp4e} from "./modules/robak-market.js";
 import {FinanceCalculator} from "./modules/finance-calculator.mjs";
+import MarketWfrp4e from "./modules/market.js";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -54,7 +55,7 @@ async function registerSettings() {
 
 // Hooks
 Hooks.once("init", async function () {
-  console.log("wfrp4e-macros-and-more | Initializing wfrp4e-macros-and-more");
+  Utility.log("Initializing");
   game.robakMacros = {
     financeCalculator: FinanceCalculator,
     transferItem: ItemTransfer,
@@ -66,7 +67,7 @@ Hooks.once("init", async function () {
   await registerSettings();
 
   // Load scripts
-  fetch("modules/wfrp4e-macros-and-more/effects.json")
+  fetch("modules/wfrp4e-macros-and-more/data/effects.json")
     .then((r) => r.json())
     .then(async (effects) => {
       mergeObject(game.wfrp4e.config.effectScripts, effects);
@@ -75,7 +76,7 @@ Hooks.once("init", async function () {
 
 Hooks.once("ready", async function () {
   game.socket.on("module.wfrp4e-macros-and-more", async ({type, data}) => {
-    console.log("Received transfer object", data);
+    Utility.log("Received transfer object", data);
     if (!game.user.isUniqueGM) {
       return;
     }
@@ -91,12 +92,15 @@ Hooks.once("ready", async function () {
     let market = game.wfrp4e.market;
     for (let method of Utility.getMethods(RobakMarketWfrp4e)) {
       try {
+        Utility.log(`Setting ${method} succeeded`);
         market[method] = RobakMarketWfrp4e[method] ?? market[method];
       } catch (e) {
-        console.log(`Setting ${method} failed`);
+        Utility.warn(`Setting ${method} failed`);
       }
     }
+    Utility.log("Market override succeeded");
     await RobakMarketWfrp4e.loadRegions();
+    Utility.log("Regions loaded");
   }
 });
 

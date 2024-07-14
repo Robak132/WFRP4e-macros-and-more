@@ -25,11 +25,11 @@ async function submit(html) {
 
   if (game.combat !== null) {
     const enemy = game.combat.combatants.find((combatant) => combatant.token.disposition === -1);
-    console.log(enemy);
+    game.robakMacros.utility.log(enemy);
     await update(enemy, enemiesAdvantage);
 
     const players = game.combat.combatants.find((combatant) => combatant.token.disposition === 1);
-    console.log(players);
+    game.robakMacros.utility.log(players);
     await update(players, playersAdvantage);
   }
 

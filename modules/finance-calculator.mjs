@@ -1,4 +1,5 @@
 import {RobakMarketWfrp4e} from "./robak-market.js";
+import Utility from "./utility.mjs";
 
 export class FinanceCalculator extends FormApplication {
   constructor(object = {}, options = {}) {
@@ -165,12 +166,12 @@ export class FinanceCalculator extends FormApplication {
     let currentCurrencyModifier = 240;
     if (currentCurrency.gc != null) currentCurrencyModifier = 1;
     else if (currentCurrency.ss != null) currentCurrencyModifier = 20;
-    else if (currentCurrency.bp == null) console.error("No base currency found");
+    else if (currentCurrency.bp == null) Utility.error("No base currency found");
 
     let targetCurrencyModifier = 240;
     if (targetCurrency.gc != null) targetCurrencyModifier = 1;
     else if (targetCurrency.ss != null) targetCurrencyModifier = 20;
-    else if (targetCurrency.bp == null) console.error("No base currency found");
+    else if (targetCurrency.bp == null) Utility.error("No base currency found");
 
     return targetCurrencyModifier / currentCurrencyModifier;
   }
