@@ -19,6 +19,10 @@ class Direction {
     this.icon = icon;
   }
 
+  static from(direction) {
+    return Direction.fromValue(direction.value);
+  }
+
   static fromValue(value) {
     return Direction.values.find((e) => e.value === value);
   }
@@ -132,6 +136,10 @@ class WindStrength {
     this.key = key;
     this.value = value;
     this.icon = icon;
+  }
+
+  static from(windStrength) {
+    return WindStrength.fromValue(windStrength.value);
   }
 
   static fromValue(value) {
@@ -273,7 +281,16 @@ class Wind {
     this.windStrength = windStrength;
     this.windDirection = windDirection;
     this.shipDirection = shipDirection;
-    this.changeRoll = changeRoll
+    this.changeRoll = changeRoll;
+  }
+
+  static from(wind) {
+    return new Wind(
+      WindStrength.from(wind.windStrength),
+      Direction.from(wind.windDirection),
+      Direction.from(wind.shipDirection),
+      wind.changeRoll
+    );
   }
 
   static getRelativeName(shipDirection, windDirection) {
@@ -292,18 +309,22 @@ class Wind {
     return WIND_EFFECT_TABLE[options.shipPropulsion][relativeName];
   }
 
-  async randomChange() {
-    let changeRoll = Math.ceil(CONFIG.Dice.randomUniform() * 10);
-    if (this.changeRoll > 10) return new Wind(this.windStrength, this.windDirection, this.shipDirection, changeRoll);
+  randomChange() {
+    this.changeRoll = Math.ceil(CONFIG.Dice.randomUniform() * 10);
+    let newWind = Wind.from(this);
+    if (this.changeRoll > 1) return newWind;
 
-    const strengthIncrease = Math.ceil(CONFIG.Dice.randomUniform() * 2) === 2
-    if (this.windStrength === WindStrength.DOLDRUMS || (strengthIncrease && this.windStrength !== WindStrength.VIOLENT_STORM)) {
-      this.windStrength = this.windStrength.increase();
+    const strengthIncrease = Math.ceil(CONFIG.Dice.randomUniform() * 2) === 2;
+    if (
+      this.windStrength === WindStrength.DOLDRUMS ||
+      (strengthIncrease && this.windStrength !== WindStrength.VIOLENT_STORM)
+    ) {
+      newWind.windStrength = this.windStrength.increase();
     } else {
-      this.windStrength = this.windStrength.decrease();
+      newWind.windStrength = this.windStrength.decrease();
     }
 
-    return new Wind(this.windStrength, this.windDirection, this.shipDirection, changeRoll);
+    return newWind;
   }
 
   getFullName() {
@@ -324,7 +345,8 @@ class Wind {
         return {
           normal: 0,
           tack: 0,
-          drift: 0,
+          favorableDrift: 0,
+          harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> 0 mi (0%)</p>`
         };
       case "TACK":
@@ -332,26 +354,34 @@ class Wind {
         return {
           normal: shiftDistance,
           tack,
-          drift: 0,
+          favorableDrift: 0,
+          harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> ${shiftDistance} mi (100%)</p><p><b>Distance Travelled (Tack):</b> +${tack} mi (+${modifier}%)</p>`
         };
       case "BATTEN_DOWN":
-        const drift = game.robakMacros.utils.round(
-          (Wind.getRelativeName(this.shipDirection, this.windDirection) === "Tailwind" ? 1 : -1) * shiftDistance * 0.25,
-          2
-        );
+        const relativeName = Wind.getRelativeName(this.shipDirection, this.windDirection);
+        const driftDistance = game.robakMacros.utils.round(shiftDistance * 0.25, 2);
+        let favorableDrift = 0;
+        let harmfulDrift = 0;
+        if (relativeName === "Tailwind") {
+          favorableDrift = driftDistance;
+        } else {
+          harmfulDrift = -driftDistance;
+        }
         return {
           normal: 0,
           tack: 0,
-          drift,
-          description: `<p><b>Distance Travelled:</b> 0 mi (0%)</p><p><b>Distance Travelled (Drift):</b> ${drift} mi (25%)</p>`
+          favorableDrift,
+          harmfulDrift,
+          description: `<p><b>Distance Travelled:</b> 0 mi (0%)</p><p><b>Distance Travelled (Drift):</b> ${favorableDrift} mi (25%)</p>`
         };
       default:
         const normal = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
         return {
           normal,
           tack: 0,
-          drift: 0,
+          favorableDrift: 0,
+          harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> ${normal} mi (${modifier}%)</p>`
         };
     }
@@ -686,8 +716,9 @@ function getDistanceReport(totalDistance, options) {
   return `
     <h1>Distance Travelled</h1>
     <p><b>Base:</b> ${totalDistance.normal} mi</p>
-    ${totalDistance.tack === 0 ? "" : `<p><b>Additional Tack Distance:</b> ${totalDistance.tack} mi</p>`}
-    ${totalDistance.drift === 0 ? "" : `<p><b>Drift Distance:</b> ${totalDistance.drift} mi</p>`}
+    ${totalDistance.tack === 0 ? "" : `<p><b>Tack Distance:</b> ${totalDistance.tack} mi</p>`}
+    ${totalDistance.favorableDrift === 0 ? "" : `<p><b>Favorable Drift Distance:</b> ${totalDistance.favorableDrift} mi</p>`}
+    ${totalDistance.harmfulDrift === 0 ? "" : `<p><b>Harmful Drift Distance:</b> ${totalDistance.harmfulDrift} mi</p>`}
     <hr>
     <p><b>Remaining distance:</b> ${options.distance} mi</p>
     <p><b>Estimated time to arrival:</b> ${estTime} day(s)</p>`;
@@ -697,14 +728,16 @@ function getWindsRaport(winds, options) {
   const totalDistance = {
     normal: 0,
     tack: 0,
-    drift: 0
+    favorableDrift: 0,
+    harmfulDrift: 0
   };
   let windsReport = "<h1>Wind Report</h1>";
   for (let i = 0; i < TIMES_OF_DAY.length; i++) {
     const data = winds[i].getRaport(options);
     totalDistance.normal += data.normal;
     totalDistance.tack += data.tack;
-    totalDistance.drift += data.drift;
+    totalDistance.favorableDrift += data.favorableDrift;
+    totalDistance.harmfulDrift += data.harmfulDrift;
     windsReport += `<h2>${TIMES_OF_DAY[i]}</h2>${data.description}`;
   }
   return {
@@ -751,9 +784,10 @@ async function fillJournal(options, weather, winds, totalDistance) {
     return;
   }
 
-  let distance = `${totalDistance.normal}`;
-  if (totalDistance.tack !== 0) distance += ` (+${totalDistance.tack})`;
-  if (totalDistance.drift !== 0) distance += ` (${totalDistance.drift > 0 ? "+" : ""}${totalDistance.drift})`;
+  let title = `Base: ${totalDistance.normal} mi`;
+  title += totalDistance.tack !== 0 ? `\nTack: +${totalDistance.tack} mi` : ``;
+  title += totalDistance.favorableDrift !== 0 ? `\nFavorable Drift: +${totalDistance.favorableDrift} mi` : ``;
+  title += totalDistance.harmfulDrift !== 0 ? `\nHarmful Drift: -${totalDistance.harmfulDrift} mi` : ``;
 
   const table = TableHTML.parse(content);
   table.content.push(
@@ -779,7 +813,7 @@ async function fillJournal(options, weather, winds, totalDistance) {
           });
         })
         .join(""),
-      new CellHTML(`<p>${distance}</p>`, {style: STYLE_MIDDLE})
+      new CellHTML(`<p>${options.distance}</p>`, {style: STYLE_MIDDLE, title})
     ])
   );
 
@@ -795,7 +829,7 @@ function calculateRemainingDistance(totalDistance, options) {
   let distance;
   switch (options.distanceCalculation) {
     case "Optimal":
-      distance = totalDistance.normal + totalDistance.tack + Math.max(totalDistance.drift, 0);
+      distance = totalDistance.normal + totalDistance.tack + Math.max(totalDistance.favorableDrift, 0);
       break;
     case "Standard":
       distance = options.distance - totalDistance.normal;
@@ -815,29 +849,31 @@ async function submit(options) {
 
   let winds = [];
   let wind = await Wind.generate(options);
-  if (options.windStrength === "Random" && options.lastWindStrength === "Random") {
-    wind = await wind.randomChange();
-    options.lastWindStrength = wind.windStrength.value;
-  }
-  winds.push(wind);
-
-  for (let i = 0; i < TIMES_OF_DAY.length - 1; i++) {
-    wind = await wind.randomChange();
-    options.lastWindStrength = wind.windStrength.value;
+  for (let i = 0; i < TIMES_OF_DAY.length; i++) {
+    if (i === 0 && options.lastWindStrength !== "Random") {
+      wind = wind.randomChange();
+    }
     winds.push(wind);
+    wind = wind.randomChange();
+    options.lastWindStrength = wind.windStrength.value;
   }
 
   const {totalDistance, windsReport} = getWindsRaport(winds, options);
 
   options.distance = calculateRemainingDistance(totalDistance, options);
 
-  if (options.weatherRaport !== "Disabled") await createMessage(weather.getReport(), options.weatherRaport);
-  if (options.windsRaport !== "Disabled") await createMessage(windsReport, options.windsRaport);
+  if (options.weatherRaport !== "Disabled") {
+    await createMessage(weather.getReport(), options.weatherRaport);
+  }
+  if (options.windsRaport !== "Disabled") {
+    await createMessage(windsReport, options.windsRaport);
+  }
   if (options.distanceReport !== "Disabled") {
     await createMessage(getDistanceReport(totalDistance, options), options.distanceReport);
   }
-
-  if (options.logbookJournal !== "Disabled") await fillJournal(options, weather, winds, totalDistance);
+  if (options.logbookJournal !== "Disabled") {
+    await fillJournal(options, weather, winds, totalDistance);
+  }
 }
 
 function getJournalWithFolders() {

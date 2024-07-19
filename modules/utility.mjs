@@ -229,7 +229,8 @@ export default class Utility {
   }
 
   static round(num, spaces) {
-    return +(Math.round(num + `e+${spaces}`) + `e-${spaces}`);
+    const factor = Math.pow(10, spaces);
+    return Math.round(num * factor) / factor;
   }
 
   static isOwner(actor) {
