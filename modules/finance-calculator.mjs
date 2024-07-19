@@ -1,4 +1,4 @@
-import {RobakMarketWfrp4e} from "./robak-market.js";
+import RobakMarketWfrp4e from "./robak-market.js";
 import Utility from "./utility.mjs";
 
 export class FinanceCalculator extends FormApplication {

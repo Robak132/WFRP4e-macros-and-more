@@ -119,20 +119,15 @@ class InventoryManager {
     return `
       <div class="form-group">
         <h2 style="max-width: 10%;text-align: center;font-family: CaslonAntique,serif;">${this.formatItemEnc(container.value)}</h2>
-        <h2 style="max-width: 60%;text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold;">
+        <h2 style="max-width: 90%;text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold;">
           ${container.name} (${containerItemsEnc}/${container.value.carries.value ?? "-"})
         </h2>
-        <span style="max-width: 5%;text-align: center">&#8594;</span>
-        <select style="max-width: 25%">
-          <option selected label=""></option>
-            ${game.robakMacros.transferItem.createSelectTag(actorId, container.id)}
-        </select>
       </div>`;
   }
 
   getHTMLItemList(containerItems, containerId, actorId) {
     let form = "";
-    for (const [categoryName, categoryList] of Object.entries(containerItems)) {
+    for (const [_, categoryList] of Object.entries(containerItems)) {
       if (categoryList.length > 0) {
         let categoryEnc = Number(categoryList.reduce((acc, x) => acc + Number(x.encumbrance.value), 0));
         if (categoryEnc % 1 !== 0) {
@@ -219,7 +214,7 @@ class InventoryManager {
       })
       .get()
       .filter((s) => s.targetContainerId != null && s.targetActorId != null);
-    game.robakMacros.utility.log(itemTransfers);
+    game.robakMacros.utils.log(itemTransfers);
     await game.robakMacros.transferItem.transferItems(itemTransfers);
   }
 }

@@ -3,9 +3,8 @@ import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
-import {RobakMarketWfrp4e} from "./modules/robak-market.js";
+import RobakMarketWfrp4e from "./modules/robak-market.js";
 import {FinanceCalculator} from "./modules/finance-calculator.mjs";
-import MarketWfrp4e from "./modules/market.js";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {

@@ -269,10 +269,11 @@ class Wind {
     }
   };
 
-  constructor(windStrength, windDirection, shipDirection) {
+  constructor(windStrength, windDirection, shipDirection, changeRoll) {
     this.windStrength = windStrength;
     this.windDirection = windDirection;
     this.shipDirection = shipDirection;
+    this.changeRoll = changeRoll
   }
 
   static getRelativeName(shipDirection, windDirection) {
@@ -292,20 +293,17 @@ class Wind {
   }
 
   async randomChange() {
-    this.changeRoll = Math.ceil(CONFIG.Dice.randomUniform() * 10);
-    if (this.changeRoll !== 1) return new Wind(this.windStrength, this.windDirection, this.shipDirection);
+    let changeRoll = Math.ceil(CONFIG.Dice.randomUniform() * 10);
+    if (this.changeRoll > 10) return new Wind(this.windStrength, this.windDirection, this.shipDirection, changeRoll);
 
-    if (this.windStrength === WindStrength.VIOLENT_STORM) {
-      this.windStrength = this.windStrength.decrease();
-    } else if (this.windStrength === WindStrength.DOLDRUMS) {
+    const strengthIncrease = Math.ceil(CONFIG.Dice.randomUniform() * 2) === 2
+    if (this.windStrength === WindStrength.DOLDRUMS || (strengthIncrease && this.windStrength !== WindStrength.VIOLENT_STORM)) {
       this.windStrength = this.windStrength.increase();
-    }
-    if (Math.ceil(CONFIG.Dice.randomUniform() * 2) === 2) {
-      this.windStrength = this.windStrength.decrease();
     } else {
-      this.windStrength = this.windStrength.increase();
+      this.windStrength = this.windStrength.decrease();
     }
-    return new Wind(this.windStrength, this.windDirection, this.shipDirection);
+
+    return new Wind(this.windStrength, this.windDirection, this.shipDirection, changeRoll);
   }
 
   getFullName() {
@@ -777,7 +775,7 @@ async function fillJournal(options, weather, winds, totalDistance) {
         .map((w) => {
           return new CellHTML(`<p>${w.getIcon()}</p>`, {
             style: STYLE_MIDDLE,
-            title: w.getFullName()
+            title: w.changeRoll ? `${w.getFullName()} (Change roll: ${w.changeRoll})` : w.getFullName()
           });
         })
         .join(""),

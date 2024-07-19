@@ -1,6 +1,8 @@
 import Utility from "./utility.mjs";
+import CurrencyDialog from "./currency-dialog.mjs";
+import CurrencyApp from "./currency-dialog.mjs";
 
-export class RobakMarketWfrp4e {
+export default class RobakMarketWfrp4e {
   static async loadRegions() {
     let regions = await fetch("modules/wfrp4e-macros-and-more/data/regions.json").then((r) => r.json());
     let currentRegion = regions[game.settings.get("wfrp4e-macros-and-more", "current-region")];
@@ -109,7 +111,7 @@ export class RobakMarketWfrp4e {
 
   static exchange(value, currentRegion, targetMoneyRegion, sourceMoneyRegion) {
     let modifier = 1;
-    if (sourceMoneyRegion === targetMoneyRegion) return {value, modifier};
+    if (sourceMoneyRegion === targetMoneyRegion) return {converted: value, modifier};
     if (currentRegion !== sourceMoneyRegion) {
       modifier *= 1 / RobakMarketWfrp4e.regions[currentRegion].exchangeRates[sourceMoneyRegion];
     }
@@ -120,8 +122,8 @@ export class RobakMarketWfrp4e {
     return {converted, modifier: Utility.round(modifier, 2)};
   }
 
-  static consolidate(moneyToPay) {
-    let total = moneyToPay.gc * 240 + moneyToPay.ss * 12 + moneyToPay.bp;
+  static consolidate(moneyObject) {
+    let total = (moneyObject?.gc ?? 0) * 240 + (moneyObject?.ss ?? 0) * 12 + (moneyObject?.bp ?? 0);
     let temp = total;
     let gc = Math.floor(temp / 240);
     temp = temp % 240;
@@ -136,53 +138,45 @@ export class RobakMarketWfrp4e {
     if (moneyToPay.gc === 0 && moneyToPay.ss === 0 && moneyToPay.bp === 0) return "0";
     if (moneyToPay.gc > 0) result += `${moneyToPay.gc} `;
     if (moneyToPay.ss === 0 && moneyToPay.bp === 0) return result.trim();
-
     let bp = moneyToPay.bp > 0 ? moneyToPay.bp : "-";
-    if (moneyToPay.bp > 0 && moneyToPay.ss === 0) result += `${moneyToPay.bp}p`;
-    else result += `${moneyToPay.ss}/${bp}`;
+    let ss = moneyToPay.ss > 0 ? moneyToPay.ss : "-";
+    result += `${ss}/${bp}`;
     return result.trim();
   }
 
-  static groupMoney(actor, requestedRegion) {
+  static groupMoney(actor, reqRegion) {
     const moneyItemInventory = actor.getItemTypes("money").map((i) => i.toObject());
 
-    let requestedMoney = {gc: [], ss: [], bp: [], total: 0};
-    let otherMoney = {};
+    let moneyGroups = {};
+    let total = 0;
     for (let money of moneyItemInventory) {
-      if (money.name === requestedRegion.currency.gc) {
-        requestedMoney.gc.push(money);
-        requestedMoney.total += money.system.quantity.value * money.system.coinValue.value;
-      } else if (money.name === requestedRegion.currency.ss) {
-        requestedMoney.ss.push(money);
-        requestedMoney.total += money.system.quantity.value * money.system.coinValue.value;
-      } else if (money.name === requestedRegion.currency.bp) {
-        requestedMoney.bp.push(money);
-        requestedMoney.total += money.system.quantity.value * money.system.coinValue.value;
-      } else {
-        let otherMoneyRegion = RobakMarketWfrp4e.regionLookupTable[money.name];
-        Utility.log(otherMoneyRegion);
-        if (otherMoneyRegion) {
-          let value = otherMoney[otherMoneyRegion] || {gc: [], ss: [], bp: [], total: 0};
-          if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.gc) {
-            value.gc.push(money);
-            value.total += money.system.quantity.value * money.system.coinValue.value;
-          } else if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.ss) {
-            value.ss.push(money);
-            value.total += money.system.quantity.value * money.system.coinValue.value;
-          } else if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.bp) {
-            value.bp.push(money);
-            value.total += money.system.quantity.value * money.system.coinValue.value;
-          }
-          otherMoney[otherMoneyRegion] = value;
+      let otherMoneyRegion = RobakMarketWfrp4e.regionLookupTable[money.name];
+      if (otherMoneyRegion) {
+        let value = moneyGroups[otherMoneyRegion] || {gc: [], ss: [], bp: [], total: 0};
+        if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.gc) {
+          value.gc.push(money);
+          value.total += money.system.quantity.value * money.system.coinValue.value;
+          total += money.system.quantity.value * money.system.coinValue.value;
+        } else if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.ss) {
+          value.ss.push(money);
+          value.total += money.system.quantity.value * money.system.coinValue.value;
+          total += money.system.quantity.value * money.system.coinValue.value;
+        } else if (money.name === RobakMarketWfrp4e.regions[otherMoneyRegion].currency.bp) {
+          value.bp.push(money);
+          value.total += money.system.quantity.value * money.system.coinValue.value;
+          total += money.system.quantity.value * money.system.coinValue.value;
         }
+        moneyGroups[otherMoneyRegion] = value;
       }
     }
-    for (let [key, {total}] of Object.entries(otherMoney)) {
-      let {converted, modifier} = this.exchange(total, RobakMarketWfrp4e.currentRegion.key, requestedRegion.key, key);
-      otherMoney[key].converted = converted;
-      otherMoney[key].modifier = modifier;
+    for (let [key, value] of Object.entries(moneyGroups)) {
+      const {converted, modifier} = this.exchange(value.total, RobakMarketWfrp4e.currentRegion.key, reqRegion.key, key);
+      moneyGroups[key].converted = converted;
+      moneyGroups[key].modifier = modifier;
+      total += converted;
     }
-    return {requestedMoney, otherMoney};
+    Utility.log(moneyGroups);
+    return {moneyGroups, total};
   }
 
   static async validateMoney(actor, requestedRegion) {
@@ -229,15 +223,11 @@ export class RobakMarketWfrp4e {
     strictMode ??= false;
 
     let moneyToPay = this.parseMoneyTransactionString(command);
-    let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>`;
-    if (!moneyToPay) {
-      msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p>
-        <p><i>${game.i18n.localize("MARKET.PayCommandExample")}</i></p>`;
-      return this.printMessageToChat(msg, options);
-    }
+    if (!moneyToPay) return this.printPayWrongCommand(options);
+
     moneyToPay = this.consolidate(moneyToPay);
-    let {requestedMoney, otherMoney} = this.groupMoney(actor, requestedRegion);
-    Utility.log(requestedMoney, otherMoney);
+    let {moneyGroups, total} = this.groupMoney(actor, requestedRegion);
+    let requestedMoney = moneyGroups[requestedRegion.key];
 
     let updates;
     if (requestedMoney.total >= moneyToPay.total) {
@@ -245,28 +235,31 @@ export class RobakMarketWfrp4e {
       let moneyChange = duplicate(moneyToPay);
       await this.validateMoney(actor, requestedRegion);
       updates = await this.changeWithRequestedMoney(requestedMoney, moneyChange);
-    } else if (!strictMode && requestedMoney.total + otherMoney.total >= moneyToPay.total) {
+    } else if (!strictMode && total >= moneyToPay.total) {
       // We can pay with requested and other money
       let moneyChange = duplicate(moneyToPay);
-      await this.validateMoney(actor, requestedRegion);
-      updates = await this.changeWithRequestedMoney(requestedMoney, moneyChange);
+
+      const data = Object.entries(moneyGroups)
+        .filter(([_, region]) => region.converted !== 0)
+        .map(([key, region]) => {
+          const selectedRegion = RobakMarketWfrp4e.regions[key];
+          return {
+            id: key,
+            active: "",
+            regionName: selectedRegion.name,
+            converted: region.converted,
+            name: `${this.format({bp: region.total})} ${selectedRegion.currency.gc} 
+                  (${this.format({bp: region.converted})} ${requestedRegion.currency.gc})`,
+            img: region?.gc[0]?.img ?? "modules/wfrp4e-core/icons/currency/goldcrown.png"
+          };
+        });
+      new CurrencyApp(data, moneyToPay.total, requestedRegion.currency.gc).render(true);
     } else {
-      // We can't pay
-      msg += `${game.i18n.localize("MARKET.NotEnoughMoney")}<br>
-            <b>Local money needed:</b> ${this.format(moneyToPay)} ${requestedRegion.currency.gc}<br>
-            <b>Local money available:</b> ${this.format(requestedMoney)} ${requestedRegion.currency.gc}<br>`;
-      let otherCurrencyMsg = "";
-      for (let [key, value] of Object.entries(otherMoney).filter(([key, _]) => key !== "total")) {
-        let region = RobakMarketWfrp4e.regions[key];
-        otherCurrencyMsg += `<li><strong>${region.name}:</strong> ${value.converted} ${requestedRegion.currency.bp} (x${value.modifier})</li>`;
-      }
-      if (otherCurrencyMsg !== "") {
-        msg += `<b>Other (converted):</b><ul>${otherCurrencyMsg}<li><strong>Total:</strong> ${otherMoney.total} ${requestedRegion.currency.bp}</li></ul>`;
-      }
-      return this.printMessageToChat(msg, options);
+      return this.printNotEnoughMoney(moneyToPay, requestedRegion, moneyGroups, requestedMoney, options);
     }
     await actor.updateEmbeddedDocuments("Item", updates);
 
+    let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>`;
     msg += game.i18n.format("MARKET.Paid", {
       number1: moneyToPay.gc,
       number2: moneyToPay.ss,
@@ -274,6 +267,32 @@ export class RobakMarketWfrp4e {
     });
     msg += `<br><b>${game.i18n.localize("MARKET.PaidBy")}</b> ${actor.name}`;
     this.throwMoney(moneyToPay);
+    return this.printMessageToChat(msg, options);
+  }
+
+  static printNotEnoughMoney(moneyToPay, requestedRegion, moneyGroups, requestedMoney, options) {
+    let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>
+      ${game.i18n.localize("MARKET.NotEnoughMoney")}<br>
+      <b>Local money needed:</b> ${this.format(moneyToPay)} ${requestedRegion.currency.gc}<br>
+      <b>Local money available:</b> ${this.format(requestedMoney)} ${requestedRegion.currency.gc}<br>`;
+    let otherCurrencyMsg = "";
+    for (let [key, value] of Object.entries(moneyGroups)) {
+      let region = RobakMarketWfrp4e.regions[key];
+      if (value.converted === 0) {
+        continue;
+      }
+      otherCurrencyMsg += `<li><strong>${region.name}:</strong> ${value.converted} ${requestedRegion.currency.bp} (x${value.modifier})</li>`;
+    }
+    if (otherCurrencyMsg !== "") {
+      msg += `<b>Other (converted):</b><ul>${otherCurrencyMsg}<li><strong>Total:</strong> ${otherMoney.total} ${requestedRegion.currency.bp}</li></ul>`;
+    }
+    return this.printMessageToChat(msg, options);
+  }
+
+  static printPayWrongCommand(options) {
+    let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>
+      <p>${game.i18n.localize("MARKET.MoneyPayCommandWrongCommand")}</p>
+      <p><i>${game.i18n.localize("MARKET.PayCommandExample")}</i></p>`;
     return this.printMessageToChat(msg, options);
   }
 
@@ -476,16 +495,5 @@ export class RobakMarketWfrp4e {
         ChatMessage.create(chatData);
       });
     }
-  }
-
-  static addGold(actor, region) {
-    return {
-      img: "modules/wfrp4e-core/icons/currency/goldcrown.png",
-      name: region.gc,
-      "system.quantity.value": 1,
-      "system.encumbrance.value": 0.005,
-      "system.coinValue.value": 240,
-      type: "money"
-    };
   }
 }
