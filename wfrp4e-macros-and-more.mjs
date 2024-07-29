@@ -5,6 +5,7 @@ import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
 import RobakMarketWfrp4e from "./modules/robak-market.js";
 import {FinanceCalculator} from "./modules/finance-calculator.mjs";
+import ExperienceVerificator from "./modules/experience_verificator.js";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -59,6 +60,7 @@ Hooks.once("init", async function () {
     financeCalculator: FinanceCalculator,
     transferItem: ItemTransfer,
     maintenance: MaintenanceWrapper,
+    experienceVerificator: ExperienceVerificator,
     utils: Utility
   };
 
