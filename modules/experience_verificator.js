@@ -1,6 +1,8 @@
 class LogEntryGroup {
-  constructor(name, value, entries) {
+  constructor(name, type, expType, value = 0, entries = []) {
     this.name = name;
+    this.type = type;
+    this.expType = expType;
     this.value = value;
     this.entries = entries;
   }
@@ -11,38 +13,77 @@ class LogEntryGroup {
   }
 
   get color() {
-    return this.entries.every((entry) => entry.link) ? "white" : "red";
+    if (this.type === "spent") {
+      let count = this.entries.reduce((acc, entry) => acc + Math.sign(entry.value), 0);
+      let color = this.entries[0].link?.system?.advances?.value !== count ? "yellow" : "white";
+      return this.entries.every((entry) => entry.link) ? color : "red";
+    } else {
+      return "white";
+    }
+  }
+
+  get entriesStr() {
+    return this.entries.map((entry) => entry.value).join(", ");
+  }
+
+  get length() {
+    return this.entries.reduce((acc, entry) => acc + Math.sign(entry.value), 0);
   }
 }
 
 class LogEntry {
-  constructor(name, value, type, index, actor, spent = 0, total = 0) {
+  constructor(name, value, type, index, actor) {
     this.value = Number(value);
     this.type = type;
-    this.spent = spent;
     this.actor = actor;
     this.index = index;
-    this.total = total;
+    this.spent = 0;
+    this.total = 0;
 
     this.setName(name);
   }
 
+  fillTemplate(template, str) {
+    const regex = new RegExp(`^${template}$`);
+    const match = str.match(regex);
+    return match ? match[1] : undefined;
+  }
+
   setName(name) {
     this.name = name;
-    this.link = this.actor.items.find((i) => i.name === this.name);
+    this.link = this.actor.itemTypes.skill.find((i) => i.name === this.name);
     if (this.link) {
-      this.linkType = "item";
-    } else {
-      let entry = Object.entries(game.wfrp4e.config.characteristics).find(([_, value]) => value === this.name);
-      if (entry) {
-        this.link = this.actor.system.characteristics[entry[0]];
-        this.linkType = "characteristic";
-      }
+      this.expType = "Skill";
+      return;
     }
+    this.link = this.actor.itemTypes.talent.find((i) => i.name === this.name);
+    if (this.link) {
+      this.expType = "Talent";
+      return;
+    }
+    let template = this.fillTemplate(game.i18n.localize("LOG.CareerChange").replace("{career}", "(.*)"), name);
+    this.link = this.actor.itemTypes.career.find((i) => i.name === template);
+    if (this.link) {
+      this.expType = "Career Change";
+      return;
+    }
+    template = this.fillTemplate(game.i18n.localize("LOG.MemorizedSpell").replace("{name}", "(.*)"), name);
+    this.link = this.actor.itemTypes.spell.find((i) => i.name === template);
+    if (this.link) {
+      this.expType = "Spell/Miracle";
+      return;
+    }
+    let entry = Object.entries(game.wfrp4e.config.characteristics).find(([_, value]) => value === this.name);
+    if (entry) {
+      this.link = this.actor.system.characteristics[entry[0]];
+      this.expType = "Characteristic";
+      return;
+    }
+    this.expType = "Other";
   }
 
   static fromLog(obj, actor) {
-    return new LogEntry(obj.reason, obj.amount, obj.type, obj.index, actor, obj.spent, obj.total);
+    return new LogEntry(obj.reason, obj.amount, obj.type, obj.index, actor);
   }
 }
 
@@ -53,88 +94,50 @@ function sign(x) {
 export default class ExperienceVerificator extends FormApplication {
   constructor(actor, object = {}, options = {}) {
     super(object, options);
-    this.actor = foundry.utils.duplicate(actor);
+    const actors = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character");
+    this.actor = actor ?? actors[0];
     this.experience = foundry.utils.duplicate(this.actor.system.details.experience);
+    this.groupModes = ["Group by Time", "Group by Value", "Group by Type"];
+    this.currentMode = 0;
+    this.nextModeDesc = this.groupModes[(this.currentMode + 1) % this.groupModes.length];
     this.parseLog();
   }
 
-  splitExp(sum, length) {
-    const x = (i) => 10 + 5 * Math.ceil(i / 5);
-
-    let seq = [];
-    let testSum = 0;
-    let i = 0;
-    while (testSum < sum) {
-      let val = x(i);
-      seq.push(val);
-      testSum += val;
-
-      if (i >= length) testSum -= seq.shift();
-      i++;
-    }
-    return testSum === sum ? seq : undefined;
-  }
-
-  mapExpGained(log) {
-    let sum = 0;
-    return log.map((data) => {
-      sum += data.amount;
-      return `<tr>
-      <td style="text-align: center">${data.amount} / ${sum}</td>
-      <td style="text-align: center">${data.reason}</td>
-    </tr>`;
+  static get defaultOptions() {
+    return mergeObject(super.defaultOptions, {
+      id: "macro-and-more-verificator",
+      template: "modules/wfrp4e-macros-and-more/templates/experience-verificator.hbs",
+      title: "Experience Verificator",
+      width: 800,
+      height: 660
     });
   }
 
-  mapExpSpent(log) {
-    return Object.entries(log)
-      .filter(([_, data]) => data.amount !== 0)
-      .sort(([_, a], [__, b]) => b.value - a.value)
-      .map(([reason, data]) => {
-        let colorStyle;
-        if (data.notInData) {
-          colorStyle = `yellow`;
-        } else if (
-          (data.linkType === "item" && data.link.system?.advances?.value === data.amount) ||
-          (data.linkType === "characteristic" && data.link.advances === data.amount)
-        ) {
-          colorStyle = "greenyellow";
-        } else if (data.link) {
-          colorStyle = "yellow";
-        } else {
-          colorStyle = `red`;
-          brokenEntries.push(data);
-        }
-        return `<tr>
-      <td style="text-align: center; color: ${colorStyle}" title="${data.data.map((v) => v.amount).join(", ")}">${data.value}</td>
-      <td style="text-align: center; color: ${colorStyle}"><span></span>${reason} (+${data.amount})</td>
-    </tr>`;
-      });
-  }
+  splitExp(sum, length, baseExp) {
+    const x = (i) => baseExp + 5 * Math.ceil(i / 5);
+    const negX = (i) => -baseExp - 5 * Math.ceil(i / 5);
+    let seq = [];
+    let testSum = 0;
+    let i = 1;
 
-  group(expList) {
-    return expList.reduce(function (acc, exp) {
-      let data = acc[exp.reason] ?? {
-        value: 0,
-        amount: 0,
-        link,
-        linkType,
-        notInData: false,
-        data: []
-      };
-      data.notInData = exp.noInData;
-      data.value += Number(exp.amount);
-      data.amount += exp.advances;
-      data.data.push(exp);
-      acc[exp.reason] = data;
-      return acc;
-    }, {});
+    const updateSeq = (val) => {
+      seq.push(val);
+      testSum += val;
+      if (i >= Math.abs(length)) testSum -= seq.shift();
+      i++;
+    };
+
+    if (sum > 0) {
+      while (testSum < sum) updateSeq(x(i));
+    } else {
+      while (testSum > sum) updateSeq(negX(i));
+    }
+
+    return testSum === sum ? seq : undefined;
   }
 
   parseLog() {
     this.log = [];
-    this.spentLog = [];
-    this.gainedLog = [];
     this.calcSpendExp = 0;
     this.calcGainedExp = 0;
     for (let entry of this.experience.log) {
@@ -145,29 +148,26 @@ export default class ExperienceVerificator extends FormApplication {
         this.log.push(...ungrouped.map((u) => LogEntry.fromLog(u, this.actor)));
       }
     }
-    this.log.sort((a, b) => a.index - b.index);
     this.log.forEach((entry, index) => {
       entry.index = index;
       if (entry.type === "spent") {
         this.calcSpendExp += entry.value;
-        this.spentLog.push(entry);
       } else {
         this.calcGainedExp += entry.value;
-        this.gainedLog.push(entry);
       }
       entry.spent = this.calcSpendExp;
       entry.total = this.calcGainedExp;
     });
   }
 
-  groupLogBy(log, condition) {
+  groupLogBy(log, nameFunc, condition) {
     if (log.length === 0) return [];
     let groupLog = [];
-    let group = new LogEntryGroup(log[0].name, 0, []);
+    let group = new LogEntryGroup(nameFunc(log[0]), log[0].type, log[0].expType);
     for (let entry of log) {
       if (condition(entry, group)) {
         groupLog.push(group);
-        group = new LogEntryGroup(entry.name, 0, []);
+        group = new LogEntryGroup(nameFunc(entry), entry.type, entry.expType);
       }
       group.value += entry.value;
       group.entries.push(entry);
@@ -184,7 +184,8 @@ export default class ExperienceVerificator extends FormApplication {
         let j = stack.pop();
         let length = Number(entry.reason.substring(i + 1, j));
         if (!length) return [entry];
-        let ungrouped = this.splitExp(entry.amount, length);
+        let baseExp = Object.values(game.wfrp4e.config.characteristics).find((value) => value === this.name) ? 20 : 5;
+        let ungrouped = this.splitExp(entry.amount, length, baseExp);
         if (!ungrouped) return [entry];
         return ungrouped.map((v) => {
           let duplicatedEntry = foundry.utils.duplicate(entry);
@@ -197,45 +198,75 @@ export default class ExperienceVerificator extends FormApplication {
     return [entry];
   }
 
-  fix() {
-    for (let entry of brokenEntries) {
+  createGroupLog() {
+    switch (this.currentMode) {
+      case 0:
+        this.log.sort((a, b) => a.index - b.index);
+        this.spentGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type === "spent"),
+          (obj) => obj.name,
+          (a, b) => a.name !== b.name || sign(a.value) !== sign(b.value)
+        ).toReversed();
+        this.gainedGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type !== "spent"),
+          (obj) => obj.name,
+          (a, b) => a.name !== b.name || sign(a.value) !== sign(b.value)
+        ).toReversed();
+        break;
+      case 1:
+        this.log.sort((a, b) => a.name.localeCompare(b.name));
+        this.spentGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type === "spent"),
+          (obj) => obj.name,
+          (a, b) => a.name !== b.name
+        ).toSorted((a, b) => b.value - a.value);
+        this.gainedGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type !== "spent"),
+          (obj) => obj.name,
+          (a, b) => a.name !== b.name
+        ).toSorted((a, b) => b.value - a.value);
+        break;
+      case 2:
+        this.log.sort((a, b) => a.expType.localeCompare(b.expType));
+        this.spentGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type === "spent"),
+          (obj) => obj.expType,
+          (a, b) => a.expType !== b.expType
+        ).toSorted((a, b) => b.value - a.value);
+        this.gainedGroupLog = this.groupLogBy(
+          this.log.filter((entry) => entry.type !== "spent"),
+          (obj) => obj.expType,
+          (a, b) => a.expType !== b.expType
+        ).toSorted((a, b) => b.value - a.value);
+        break;
     }
   }
 
   activateListeners(html) {
     super.activateListeners(html);
-    // html.on("click", ".exp-row", async (ev) => {
-    //   let index = Number($(ev.currentTarget).attr("name"));
-    //   let name = this.spentGroupLog[index].name;
-    //   let newName = await ValueDialog.create("Insert new name for the entry", "Change Entry's Name", name);
-    //   if (newName && newName !== name) {
-    //     this.spentGroupLog[index].setName(newName);
-    //     this.render(true);
-    //   }
-    // });
-  }
-
-  static get defaultOptions() {
-    return mergeObject(super.defaultOptions, {
-      id: "macro-and-more-verificator",
-      template: "modules/wfrp4e-macros-and-more/templates/experience-verificator.hbs",
-      width: 800,
-      height: 660
+    html.on("click", `button[id="group"]`, () => {
+      this.currentMode = (this.currentMode + 1) % this.groupModes.length;
+      this.nextModeDesc = this.groupModes[(this.currentMode + 1) % this.groupModes.length];
+      this.render(true);
+    });
+    html.on("click", ".exp-row", async (ev) => {
+      let index = Number($(ev.currentTarget).attr("name"));
+      let name = this.spentGroupLog[index].name;
+      let newName = await ValueDialog.create("Insert new name for the entry", "Change Entry's Name", name);
+      if (newName && newName !== name) {
+        this.spentGroupLog[index].setName(newName);
+        this.render(true);
+      }
     });
   }
 
   async getData(options = {}) {
     const data = super.getData();
-    this.spentGroupLog = this.groupLogBy(
-      this.spentLog,
-      (a, b) => a.name !== b?.name || sign(a.value) !== sign(b.value)
-    );
-    this.gainedGroupLog = this.groupLogBy(
-      this.gainedLog,
-      (a, b) => a.name !== b?.name || sign(a.value) !== sign(b.value)
-    );
-    data.gainedLog = this.gainedGroupLog.toReversed();
-    data.spentLog = this.spentGroupLog.toReversed();
+    this.createGroupLog();
+
+    data.nextModeDesc = this.nextModeDesc;
+    data.gainedLog = this.gainedGroupLog;
+    data.spentLog = this.spentGroupLog;
     data.experienceSpentCalculated = this.calcSpendExp;
     data.experienceGainedCalculated = this.calcGainedExp;
     data.experienceSpent = this.experience.spent;
@@ -245,11 +276,21 @@ export default class ExperienceVerificator extends FormApplication {
 
   async _updateObject(event, formData) {
     switch (event.submitter.id) {
-      case "fix":
-        return this.fix();
-      case "next":
-        break;
-      default:
+      case "close":
+        return;
+      case "confirm":
+        let newExperienceLog = this.log
+          .toSorted((a, b) => a.index - b.index)
+          .map((entry) => {
+            return {
+              amount: entry.value,
+              reason: entry.name,
+              spent: entry.spent,
+              total: entry.total,
+              type: entry.type
+            };
+          });
+        this.actor.update({"system.details.experience.log": newExperienceLog});
         return;
     }
   }

@@ -1,43 +1,65 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
   <div style="display: flex;justify-content: space-between;">
     <div style="flex: 1;padding: 5px">
-      <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">Spent: {{experienceSpent}} ({{experienceSpentCalculated}})</h2>
+      <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
+        Spent: {{experienceSpent}} ({{experienceSpentCalculated}})
+      </h2>
       <div style="height: 500px;overflow-y: scroll">
         <table>
           <tr>
-            <th style="text-align: center">Experience</th>
-            <th style="text-align: center">Reason</th>
+            <th style="position: relative; z-index: 1; padding: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                <span style="flex: 1;text-align:center">Experience</span>
+                <span style="flex: 4;text-align:center">Reason</span>
+              </div>
+            </th>
           </tr>
           {{#each spentLog as |entry id|}}
-            <tr class="exp-row" name="{{id}}">
-              <td style="text-align: center;color: {{entry.color}}">{{entry.value}}</td>
-              <td style="text-align: center;color: {{entry.color}}">{{entry.name}}{{#if (gt entry.entries.length 1)}} ({{entry.entries.length}}){{/if}}</td>
+            <tr class="exp-row" name="{{id}}" style="position: relative;">
+              <td style="position: relative; z-index: 1; padding: 0;">
+                <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                  <span title="{{entry.entriesStr}}" style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.value}}</span>
+                  <span style="flex: 4;text-align:center;color: {{entry.color}}">{{entry.name}}{{#if (not (or (eq entry.length -1) (or (eq entry.length 0) (eq entry.length 1))))}} ({{entry.length}}){{/if}}</span>
+                </div>
+              </td>
             </tr>
           {{/each}}
         </table>
       </div>
     </div>
     <div style="flex: 1;padding: 5px">
-      <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">Gained: {{ experienceGained }} ({{experienceGainedCalculated}})</h2>
+      <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
+        Gained: {{experienceGained}} ({{experienceGainedCalculated}})
+      </h2>
       <div style="height: 500px;overflow-y: scroll">
         <table>
           <tr>
-            <th style="text-align: center">Experience</th>
-            <th style="text-align: center">Reason</th>
+            <th style="position: relative; z-index: 1; padding: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                <span style="flex: 1;text-align:center">Experience</span>
+                <span style="flex: 4;text-align:center">Reason</span>
+              </div>
+            </th>
           </tr>
           {{#each gainedLog as |entry id|}}
-            <tr class="exp-row" name="{{id}}">
-              <td style="text-align: center">{{entry.value}}</td>
-              <td style="text-align: center">{{entry.name}}{{#if (gt entry.entries.length 1)}} ({{entry.entries.length}}){{/if}}</td>
-            </tr>
+          <tr class="exp-row" name="{{id}}" style="position: relative;">
+            <td style="position: relative; z-index: 1; padding: 0;">
+              <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                <span title="{{entry.entriesStr}}" style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.value}}</span>
+                <span style="flex: 4;text-align:center;color: {{entry.color}}">{{entry.name}}{{#if (not (or (eq entry.length -1) (or (eq entry.length 0) (eq entry.length 1))))}} ({{entry.length}}){{/if}}</span>
+              </div>
+            </td>
+          </tr>
           {{/each}}
         </table>
       </div>
     </div>
   </div>
   <div class="form-group">
-    <button type="submit">Fix</button>
-    <button type="button">Sort by Value</button>
-    <button type="submit" id="next">Next</button>
+    <button type="submit" id="close">Close</button>
+    <button type="button" id="group">{{nextModeDesc}}</button>
+    <button type="submit" id="confirm">Confirm</button>
   </div>
 </form>
