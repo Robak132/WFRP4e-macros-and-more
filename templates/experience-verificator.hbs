@@ -9,18 +9,20 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">Experience</span>
-                <span style="flex: 4;text-align:center">Reason</span>
+                <span style="flex: 1;text-align:center">Idx</span>
+                <span style="flex: 5;text-align:center">Reason</span>
+                <span style="flex: 1;text-align:center">Exp</span>
               </div>
             </th>
           </tr>
-          {{#each spentLog as |entry id|}}
-            <tr class="exp-row" name="{{id}}" style="position: relative;">
+          {{#each spentLog as |entry|}}
+            <tr class="exp-row" name="{{entry.index}}" style="position: relative;">
               <td style="position: relative; z-index: 1; padding: 0;">
                 <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                  <span title="{{entry.entriesStr}}" style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.value}}</span>
-                  <span style="flex: 4;text-align:center;color: {{entry.color}}">{{entry.name}}{{#if (not (or (eq entry.length -1) (or (eq entry.length 0) (eq entry.length 1))))}} ({{entry.length}}){{/if}}</span>
+                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
+                  <span style="flex: 5;text-align:center;color: {{entry.color}}">{{entry.name}}{{#if (not (or (eq entry.length -1) (or (eq entry.length 0) (eq entry.length 1))))}} ({{entry.length}}){{/if}}</span>
+                  <span style="flex: 1;text-align:center;color: {{entry.color}}" title="{{entry.entriesStr}}" >{{entry.value}}</span>
                 </div>
               </td>
             </tr>
@@ -37,18 +39,20 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">Experience</span>
-                <span style="flex: 4;text-align:center">Reason</span>
+                <span style="flex: 1;text-align:center">Idx</span>
+                <span style="flex: 5;text-align:center">Reason</span>
+                <span style="flex: 1;text-align:center">Exp</span>
               </div>
             </th>
           </tr>
-          {{#each gainedLog as |entry id|}}
-          <tr class="exp-row" name="{{id}}" style="position: relative;">
+          {{#each gainedLog as |entry|}}
+          <tr class="exp-row" name="{{entry.index}}" style="position: relative;">
             <td style="position: relative; z-index: 1; padding: 0;">
               <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span title="{{entry.entriesStr}}" style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.value}}</span>
+                <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
                 <span style="flex: 4;text-align:center;color: {{entry.color}}">{{entry.name}}{{#if (not (or (eq entry.length -1) (or (eq entry.length 0) (eq entry.length 1))))}} ({{entry.length}}){{/if}}</span>
+                <span style="flex: 1;text-align:center;color: {{entry.color}}" title="{{entry.entriesStr}}">{{entry.value}}</span>
               </div>
             </td>
           </tr>
@@ -59,7 +63,9 @@
   </div>
   <div class="form-group">
     <button type="submit" id="close">Close</button>
-    <button type="button" id="group">{{nextModeDesc}}</button>
+    <button type="button" id="compact">Compact Mode</button>
+    <button type="button" id="group">{{modeDesc}}</button>
+    <button type="button" id="edit">Edit Mode</button>
     <button type="submit" id="confirm">Confirm</button>
   </div>
 </form>
