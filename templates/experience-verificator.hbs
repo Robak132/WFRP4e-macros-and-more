@@ -2,7 +2,7 @@
   <div style="display: flex;justify-content: space-between;">
     <div style="flex: 1;padding: 5px">
       <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
-        Spent: {{experienceSpent}} ({{experienceSpentCalculated}})
+        Spent: {{experienceSpent}} {{#if (not (eq experienceSpent experienceSpentCalculated))}}({{experienceSpentCalculated}}){{/if}}
       </h2>
       <div style="height: 500px;overflow-y: scroll">
         <table>
@@ -32,7 +32,7 @@
     </div>
     <div style="flex: 1;padding: 5px">
       <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
-        Gained: {{experienceGained}} ({{experienceGainedCalculated}})
+        Gained: {{experienceGained}} {{#if (not (eq experienceGained experienceGainedCalculated))}}({{experienceGainedCalculated}}):{{/if}}
       </h2>
       <div style="height: 500px;overflow-y: scroll">
         <table>
@@ -63,8 +63,8 @@
   </div>
   <div class="form-group">
     <button type="button" style="max-width: 10%" id="prev"><</button>
-    <button type="button" id="compact">{{compactModeDesc}}</button>
-    <button type="button" id="group">{{groupModeDesc}}</button>
+    <button type="button" id="compact">{{groupModeDesc}}</button>
+    <button type="button" id="group">{{sortModeDesc}}</button>
     <button type="button" id="edit">{{editModeDesc}}</button>
     <button type="button" id="confirm">Save</button>
     <button type="button" style="max-width: 10%" id="next">></button>
