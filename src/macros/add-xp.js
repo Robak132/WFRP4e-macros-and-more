@@ -42,37 +42,57 @@ async function addXP() {
   }
 
   if (game.settings.get("wfrp4e-gm-toolkit", "addXPPrompt")) {
-    let awardeeList = "<p>Full Experience will be awarded to:</p><ul>";
-    awardeeList += awardees.map((pc) => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
-    awardeeList += "</ul>";
-    let halfAwardeeList = "<p>Half Experience will be awarded to:</p><ul>";
-    halfAwardeeList += halfAwardees.map((pc) => `<li>${pc?.actor?.name || pc.name}</li>`).join("");
-    halfAwardeeList += "</ul>";
+    let awardeeList = `
+      <div class="form-group">
+        <label style="font-variant: small-caps;font-weight: bold;">Full Experience will be awarded to:</label>
+      </div>`;
+    awardeeList += awardees
+      .map((pc) => {
+        return `<div class="form-group">
+            <input type="checkbox" checked/>
+            <label>${pc?.actor?.name || pc.name}</label>
+          </div>`;
+      })
+      .join("");
+    let halfAwardeeList = `
+      <div class="form-group">
+        <label style="font-variant: small-caps;font-weight: bold;">Half Experience will be awarded to:</label>
+      </div>`;
+    halfAwardeeList += halfAwardees
+      .map((pc) => {
+        return `<div class="form-group">
+            <input type="checkbox" checked />
+            <label>${pc?.actor?.name || pc.name}</label>
+          </div>`;
+      })
+      .join("");
     await new Dialog({
       title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
       content: `<form>
-              ${awardeeList}
-              ${halfAwardees.length > 0 ? halfAwardeeList : ""}
-              <div class="form-group">
-                <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")}</label> 
-                <input type="text" id="add-xp" name="add-xp" value="${XP}" />
-              </div>
-              <div class="form-group">
-                <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")}</label> 
-                <input type="text" id="xp-reason" name="xp-reason" value="${reason}" />
-              </div>
-          </form>`,
+          <div>
+            ${awardeeList}
+            ${halfAwardees.length ? halfAwardeeList : ""}
+          </div>
+          <div class="form-group">
+            <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")}</label>
+            <input type="text" id="add-xp" name="add-xp" value="${XP}" />
+          </div>
+          <div class="form-group">
+            <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")}</label>
+            <input type="text" id="xp-reason" name="xp-reason" value="${reason}" />
+          </div>
+        </form>`,
       buttons: {
         yes: {
           icon: "<i class='fas fa-check'></i>",
           label: game.i18n.localize("GMTOOLKIT.Dialog.Apply"),
-          callback: (html) => {
+          callback: async (html) => {
             const XP = Math.round(html.find("#add-xp").val());
             if (isNaN(XP)) {
               return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Dialog.AddXP.InvalidXP"));
             }
             const reason = html.find("#xp-reason").val();
-            updateXP(awardees, halfAwardees, XP, reason);
+            await updateXP(awardees, halfAwardees, XP, reason);
           }
         },
         no: {
@@ -83,7 +103,7 @@ async function addXP() {
       default: "yes"
     }).render(true);
   } else {
-    updateXP(awardees, halfAwardees, XP, reason);
+    await updateXP(awardees, halfAwardees, XP, reason);
   }
 }
 
@@ -105,7 +125,7 @@ function updateActorXP(pc, XP, reason) {
   });
 }
 
-function updateXP(awardees, halfAwardees = [], XP, reason) {
+async function updateXP(awardees, halfAwardees = [], XP, reason) {
   const halfXP = Math.round(XP / 2);
   let chatContent = "";
 
@@ -116,9 +136,6 @@ function updateXP(awardees, halfAwardees = [], XP, reason) {
     chatContent += updateActorXP(pc, halfXP, reason);
   });
   const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "gmroll", false);
-  chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {
-    XP,
-    reason
-  });
-  ChatMessage.create(chatData, {});
+  chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {XP, reason});
+  await ChatMessage.create(chatData, {});
 }
