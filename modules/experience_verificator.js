@@ -1,11 +1,10 @@
 class LogEntryGroup {
-  constructor(parent, name, type, category, index = undefined, entries = []) {
+  constructor(parent, name, type, category, entries = []) {
     this.parent = parent;
     this.name = name;
     this.type = type;
     this.category = category;
     this.entries = entries;
-    this.index = index;
   }
 
   setName(name) {
@@ -19,7 +18,7 @@ class LogEntryGroup {
 
     let color = this.getColorFromCategory(this.category);
     if (this.parent.groupMode === 1 && this.parent.sortMode !== 0) {
-      color = this.entryValueCount === this.count ? color : "#ffff00";
+      color = this.entryCount === this.count ? color : "#ffff00";
     }
     return color;
   }
@@ -50,7 +49,12 @@ class LogEntryGroup {
     return this.entries.reduce((acc, entry) => acc + sign(entry.value), 0);
   }
 
-  get entryValueCount() {
+  get index() {
+    if (!this.entries.length) return undefined;
+    return this.entries.reduce((prev, curr) => (prev < curr.index ? prev : curr.index), Infinity);
+  }
+
+  get entryCount() {
     switch (this.category) {
       case "Skill":
         return this.parent.actor.itemTypes.skill.find((i) => i.name === this.name)?.system?.advances?.value;
@@ -70,13 +74,15 @@ class LogEntryGroup {
   }
 
   get tooltip() {
-    let entryCount = this.entryValueCount;
+    let entryCount = this.entryCount;
     if (this.parent.groupMode === 1 && this.parent.sortMode !== 0 && entryCount !== this.count) {
       return `Warning: Entry count does not match the expected value.\nRequired: ${entryCount}\nFound: ${this.count}`;
     }
 
     const uniqueNames = new Set(this.entries.map((entry) => entry.name));
-    return Array.from(uniqueNames).join("\n");
+    return Array.from(uniqueNames)
+      .sort((a, b) => a.localeCompare(b))
+      .join("\n");
   }
 }
 
@@ -246,8 +252,7 @@ export default class ExperienceVerificator extends FormApplication {
           this,
           groupCondition ? groupCondition(entry) : entry.name,
           entry.type,
-          entry.category,
-          entry.index
+          entry.category
         );
       }
       group.entries.push(entry);
@@ -371,39 +376,8 @@ export default class ExperienceVerificator extends FormApplication {
 
   async getData(options = {}) {
     const data = super.getData();
-    let gainedLog = this.log.filter((entry) => entry.type !== "spent");
-    let spentLog = this.log.filter((entry) => entry.type === "spent");
-
-    this.gainedGroupLog = this.groupLog(gainedLog, this.groupMode, this.sortMode);
-    this.spentGroupLog = this.groupLog(spentLog, this.groupMode, this.sortMode);
-    for (let skill of this.actor.itemTypes.skill) {
-      if (skill.system.advances.value !== 0 && !this.spentGroupLog.some((entry) => entry.name === skill.name)) {
-        this.spentGroupLog.push(new LogEntryGroup(this, skill.name, "spent", "Skill"));
-      }
-    }
-    for (let talent of this.actor.itemTypes.talent) {
-      if (!this.spentGroupLog.some((entry) => entry.name === talent.name)) {
-        this.spentGroupLog.push(new LogEntryGroup(this, talent.name, "spent", "Talent"));
-      }
-    }
-    for (let spell of this.actor.itemTypes.spell) {
-      let formattedName = game.i18n.format("LOG.MemorizedSpell", {name: spell.name});
-      if (
-        (spell.system.memorized.value || spell.system.lore.value === "petty") &&
-        !this.spentGroupLog.some((entry) => entry.name === formattedName)
-      ) {
-        this.spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Spell/Miracle"));
-      }
-    }
-    for (let career of this.actor.itemTypes.career) {
-      let formattedName = game.i18n.format("LOG.CareerChange", {career: career.name});
-      if (!this.spentGroupLog.some((entry) => entry.name === formattedName)) {
-        this.spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Career Change"));
-      }
-    }
-    if (this.groupMode === 2 || this.sortMode === 0) {
-      this.spentGroupLog = this.spentGroupLog.filter((entry) => entry.value != null);
-    }
+    this.gainedGroupLog = this.getGainedGroupLog(this.groupMode, this.sortMode);
+    this.spentGroupLog = this.getSpentGroupLog(this.groupMode, this.sortMode);
 
     options.title = `Experience Verificator: ${this.actor.name}`;
     data.sortModeDesc = ExperienceVerificator.SORT_MODES[this.sortMode];
@@ -416,6 +390,51 @@ export default class ExperienceVerificator extends FormApplication {
     data.experienceSpent = this.experience.spent;
     data.experienceGained = this.experience.total;
     return data;
+  }
+
+  getSpentGroupLog(groupMode, sortMode) {
+    let spentGroupLog = this.groupLog(
+      this.log.filter((entry) => entry.type === "spent"),
+      groupMode,
+      sortMode
+    );
+    for (let skill of this.actor.itemTypes.skill) {
+      if (skill.system.advances.value !== 0 && !spentGroupLog.some((entry) => entry.name === skill.name)) {
+        spentGroupLog.push(new LogEntryGroup(this, skill.name, "spent", "Skill"));
+      }
+    }
+    for (let talent of this.actor.itemTypes.talent) {
+      if (!spentGroupLog.some((entry) => entry.name === talent.name)) {
+        spentGroupLog.push(new LogEntryGroup(this, talent.name, "spent", "Talent"));
+      }
+    }
+    for (let spell of this.actor.itemTypes.spell) {
+      let formattedName = game.i18n.format("LOG.MemorizedSpell", {name: spell.name});
+      if (
+        (spell.system.memorized.value || spell.system.lore.value === "petty") &&
+        !spentGroupLog.some((entry) => entry.name === formattedName)
+      ) {
+        spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Spell/Miracle"));
+      }
+    }
+    for (let career of this.actor.itemTypes.career) {
+      let formattedName = game.i18n.format("LOG.CareerChange", {career: career.name});
+      if (!spentGroupLog.some((entry) => entry.name === formattedName)) {
+        spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Career Change"));
+      }
+    }
+    if (groupMode === 2 || sortMode === 0) {
+      spentGroupLog = spentGroupLog.filter((entry) => entry.value != null);
+    }
+    return spentGroupLog;
+  }
+
+  getGainedGroupLog(groupMode, sortMode) {
+    return this.groupLog(
+      this.log.filter((entry) => entry.type !== "spent"),
+      groupMode,
+      sortMode
+    );
   }
 
   async save() {
@@ -450,61 +469,71 @@ export default class ExperienceVerificator extends FormApplication {
     if (raceEntry && professionEntry && attributesEntry && starSignEntry) return;
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
 
-    let result = await ExpValidatorDialog.create({
+    let result = await ConfigurableDialog.create({
       title: "Verification Error: Character Creation EXP",
       confirmLabel: "Add",
       data: [
-        {
-          label: `No player character creation info. Do you want to add one? Found unknown exp: <strong>${this.experience.total - this.calcGainedExp}</strong>`
-        },
-        {
-          id: "race",
-          label: "Race Selection:",
-          type: "select",
-          selected: raceEntry?.value,
-          values: [
-            {name: "Chosen [0]", value: 0},
-            {name: "Random [20]", value: 20}
-          ]
-        },
-        {
-          id: "profession",
-          label: "Profession Selection:",
-          type: "select",
-          selected: professionEntry?.value,
-          values: [
-            {name: "Chosen [0]", value: 0},
-            {name: "Random (Choice from 3) [25]", value: 25},
-            {name: "Random (First Choice) [50]", value: 50}
-          ]
-        },
-        {
-          id: "attributes",
-          label: "Attribute Selection:",
-          type: "select",
-          selected: attributesEntry?.value,
-          values: [
-            {name: "Re-roll or Point-Buy [0]", value: 0},
-            {name: "Random (Reordered) [25]", value: 25},
-            {name: "Random [50]", value: 50}
-          ]
-        },
-        {
-          label: "Star Sign Selection:",
-          id: "starSign",
-          type: "select",
-          selected: starSignEntry?.value,
-          values: [
-            {name: "Chosen [0]", value: 0},
-            {name: "Random [25]", value: 25}
-          ]
-        }
+        [
+          {
+            value: `No player character creation info. Do you want to add one? Found unknown exp: <strong>${this.experience.total - this.calcGainedExp}</strong>`
+          }
+        ],
+        [
+          {value: "Race Selection:"},
+          {
+            id: "race",
+            type: "select",
+            selected: raceEntry?.value,
+            values: [
+              {name: "Chosen [0]", value: 0},
+              {name: "Random [20]", value: 20}
+            ]
+          }
+        ],
+        [
+          {value: "Profession Selection:"},
+          {
+            id: "profession",
+            type: "select",
+            selected: professionEntry?.value,
+            values: [
+              {name: "Chosen [0]", value: 0},
+              {name: "Random (Choice from 3) [25]", value: 25},
+              {name: "Random (First Choice) [50]", value: 50}
+            ]
+          }
+        ],
+        [
+          {value: "Attribute Selection:"},
+          {
+            id: "attributes",
+            type: "select",
+            selected: attributesEntry?.value,
+            values: [
+              {name: "Re-roll or Point-Buy [0]", value: 0},
+              {name: "Random (Reordered) [25]", value: 25},
+              {name: "Random [50]", value: 50}
+            ]
+          }
+        ],
+        [
+          {value: "Star Sign Selection:"},
+          {
+            id: "starSign",
+            type: "select",
+            selected: starSignEntry?.value,
+            values: [
+              {name: "Chosen [0]", value: 0},
+              {name: "Random [25]", value: 25}
+            ]
+          }
+        ]
       ]
     });
     if (!result) return;
     this.calcGainedExp += raceEntry + professionEntry + attributesEntry + starSignEntry;
     this.log = this.log.filter((entry) => !entry.id || !entry.id.startsWith("char-gen-exp"));
-    this.log.unshift(
+    this.log.unshift([
       new LogEntry(
         this,
         "Character Creation: Star Sign",
@@ -512,9 +541,7 @@ export default class ExperienceVerificator extends FormApplication {
         "total",
         "Character Creation",
         "char-gen-exp-star-sign"
-      )
-    );
-    this.log.unshift(
+      ),
       new LogEntry(
         this,
         "Character Creation: Attributes",
@@ -522,9 +549,7 @@ export default class ExperienceVerificator extends FormApplication {
         "total",
         "Character Creation",
         "char-gen-exp-attributes"
-      )
-    );
-    this.log.unshift(
+      ),
       new LogEntry(
         this,
         "Character Creation: Profession",
@@ -532,9 +557,7 @@ export default class ExperienceVerificator extends FormApplication {
         "total",
         "Character Creation",
         "char-gen-exp-profession"
-      )
-    );
-    this.log.unshift(
+      ),
       new LogEntry(
         this,
         "Character Creation: Race",
@@ -543,7 +566,7 @@ export default class ExperienceVerificator extends FormApplication {
         "Character Creation",
         "char-gen-exp-race"
       )
-    );
+    ]);
     this.log.forEach((entry, index) => (entry.index = index));
   }
 
@@ -557,57 +580,54 @@ export default class ExperienceVerificator extends FormApplication {
     skills ??= [];
 
     let careerSkills = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0].system.skills ?? [];
-
-    let spentLog = this.log.filter((e) => e.type === "spent");
-    let logSkills = this.groupLog(spentLog, 1, 1).filter(
-      (e) => e.category === "Skill" && e.entryValueCount !== e.count
-    );
-    this.actor.itemTypes.skill
-      .filter((s) => s.system.advances.value !== 0)
-      .forEach((skill) => {
-        if (!this.log.find((s) => s.name === skill.name)) {
-          logSkills.push(new LogEntryGroup(this, skill.name, "spent", "Skill"));
-        }
-      });
+    let logSkills = this.getSpentGroupLog(1, 1).filter((e) => e.category === "Skill" && e.entryCount !== e.count);
     logSkills = logSkills
       .toSorted((a, b) => a.name.localeCompare(b.name))
-      .toSorted((a, b) => a.entryValueCount - a.count - b.entryValueCount + b.count);
-    let formattedLogSkills = logSkills.map((s) => {
-      let text = `${s.name} (${s.entryValueCount - s.count})`;
-      if (careerSkills.includes(s.name)) return `<span style="color: yellow">${text}</span>`;
-      if (skills.some((s) => s.includes(s.name))) return `<span style="color: limegreen">${text}</span>`;
+      .toSorted((a, b) => a.entryCount - a.count - b.entryCount + b.count);
+    let formattedLogSkills = logSkills.map((skill) => {
+      let text = `${skill.name} (${skill.entryCount - skill.count})`;
+      if (careerSkills.includes(skill.name)) return `<span style="color: yellow">${text}</span>`;
+      if (skills.some((s) => s.includes(skill.name))) return `<span style="color: limegreen">${text}</span>`;
       return text;
     });
 
     const data = [
-      {label: `No race skills info. Do you want to add one?`},
-      {label: `<strong>Experience log contains unmatched skills:</strong><br>${formattedLogSkills.join(", ")}`},
+      [{value: `No race skills info. Do you want to add one?`}],
+      [{value: `<strong>Experience log contains unmatched skills:</strong><br>${formattedLogSkills.join(", ")}`}],
       ...(skills.length
         ? [
-            {
-              label: `<span style="color: limegreen"><strong>Your race has those skills as racial:</strong></span><br>${skills.join(", ")}`
-            }
+            [
+              {
+                value: `<span style="color: limegreen"><strong>Your race has those skills as racial:</strong></span><br>${skills.join(", ")}`
+              }
+            ]
           ]
         : []),
-      {
-        label: `<span style="color: yellow"><strong>Your first career has those skills:</strong></span><br>${careerSkills.join(", ")}`
-      },
+      [
+        {
+          value: `<span style="color: yellow"><strong>Your first career has those skills:</strong></span><br>${careerSkills.join(", ")}`
+        }
+      ],
       ...Array(3)
         .fill()
-        .map(() => ({
-          label: "Race Skill (3):",
-          type: "select",
-          values: logSkills.map((s) => ({name: `${s.name} (${s.entryValueCount - s.count})`, value: s.name}))
-        })),
+        .map(() => [
+          {value: "Race Skill (3):"},
+          {
+            type: "select",
+            values: logSkills.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
+          }
+        ]),
       ...Array(3)
         .fill()
-        .map(() => ({
-          label: "Race Skill (5):",
-          type: "select",
-          values: logSkills.map((s) => ({name: `${s.name} (${s.entryValueCount - s.count})`, value: s.name}))
-        }))
+        .map(() => [
+          {value: "Race Skill (5):"},
+          {
+            type: "select",
+            values: logSkills.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
+          }
+        ])
     ];
-    let result = await ExpValidatorDialog.create({
+    let result = await ConfigurableDialog.create({
       title: "Verification Error: Race Skills",
       confirmLabel: "Add",
       data
@@ -654,22 +674,14 @@ export default class ExperienceVerificator extends FormApplication {
     this.log = this.log.filter((entry) => entry.id !== "char-gen-race-talent");
 
     let careerTalents = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0].system.talents ?? [];
-    let spentLog = this.log.filter((e) => e.type === "spent");
-    let logTalents = this.groupLog(spentLog, 1, 1).filter(
-      (e) => e.category === "Talent" && e.entryValueCount !== e.count
-    );
-    this.actor.itemTypes.talent.forEach((talent) => {
-      if (!this.log.find((t) => t.name === talent.name)) {
-        logTalents.push(new LogEntryGroup(this, talent.name, "spent", "Talent"));
-      }
-    });
+    let logTalents = this.getSpentGroupLog(1, 1).filter((e) => e.category === "Talent" && e.entryCount !== e.count);
     logTalents = logTalents
       .toSorted((a, b) => a.name.localeCompare(b.name))
-      .toSorted((a, b) => a.entryValueCount - a.count - b.entryValueCount + b.count);
-    let formattedLogTalents = logTalents.map((s) => {
-      let text = `${s.name} (${s.entryValueCount - s.count})`;
-      if (careerTalents.includes(s.name)) return `<span style="color: yellow">${text}</span>`;
-      if (raceTalents.some((t) => t.includes(s.name))) return `<span style="color: limegreen">${text}</span>`;
+      .toSorted((a, b) => a.entryCount - a.count - b.entryCount + b.count);
+    let formattedLogTalents = logTalents.map((talent) => {
+      let text = `${talent.name} (${talent.entryCount - talent.count})`;
+      if (careerTalents.includes(talent.name)) return `<span style="color: yellow">${text}</span>`;
+      if (raceTalents.some((t) => t.includes(talent.name))) return `<span style="color: limegreen">${text}</span>`;
       return text;
     });
 
@@ -701,7 +713,7 @@ export default class ExperienceVerificator extends FormApplication {
               type: "select",
               values: [
                 {name: ``, value: ""},
-                ...logTalents.map((s) => ({name: `${s.name} (${s.entryValueCount - s.count})`, value: s.name}))
+                ...logTalents.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
               ],
               style: `style="align-items: center;max-width: 50%"`
             }
@@ -709,7 +721,7 @@ export default class ExperienceVerificator extends FormApplication {
         })
     ]);
 
-    let result = await ExpValidatorDualDialog.create({
+    let result = await ConfigurableDialog.create({
       title: "Verification Error: Race Talents",
       confirmLabel: "Add",
       data
@@ -728,15 +740,15 @@ export default class ExperienceVerificator extends FormApplication {
 
     let data = [];
     if (totalExp !== this.calcGainedExp) {
-      data.push({label: `Total EXP: ${totalExp} (Calculated: ${this.calcGainedExp})`});
+      data.push([{label: `Total EXP: ${totalExp} (Calculated: ${this.calcGainedExp})`}]);
     }
     if (spentExp !== this.calcSpendExp) {
-      data.push({label: `Spent EXP: ${spentExp} (Calculated: ${this.calcSpendExp})`});
+      data.push([{label: `Spent EXP: ${spentExp} (Calculated: ${this.calcSpendExp})`}]);
     }
     if (!data.length) return;
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
 
-    return await ExpValidatorDialog.create({
+    return await ConfigurableDialog.create({
       title: "Verification Error: Final Experience",
       confirmLabel: "Fix",
       data
@@ -758,65 +770,18 @@ export default class ExperienceVerificator extends FormApplication {
   }
 }
 
-export class ExpValidatorDialog extends Dialog {
-  static createInput(index, field) {
-    let style = field.type !== "label" ? `style="width: 50%"` : "";
-    let content = `<div class="form-group"><label ${style}>${field.label}</label>`;
-    const fieldId = field?.id ?? "field-" + index;
-    switch (field.type) {
-      case "input":
-        let type = field.inputType ?? "text";
-        content += `<input ${style} id="${fieldId}" name="${fieldId}" type="${type}" value="${field.value}" />`;
-        break;
-      case "select":
-        let options = field.values.map((e) => {
-          let selected = field.selected === e.value ? "selected" : "";
-          return `<option value="${e.value ?? e.name}" ${selected}>${e.name}</option>`;
-        });
-        content += `<select ${style} id="${fieldId}" name="${fieldId}">${options.join("")}</select>`;
-        break;
-    }
-    content += `</div>`;
-    return content;
-  }
-
-  static create({title, data = [], confirmLabel = "Fix", cancelLabel = "Ignore"}) {
-    return Dialog.wait({
-      title: title,
-      content: `<form>${data.map((field, index) => this.createInput(index, field)).join("")}</form>`,
-      buttons: {
-        confirm: {
-          label: confirmLabel,
-          callback: (html) => {
-            let dataObject = new FormDataExtended(html.find("form")[0]).object;
-            return Object.fromEntries(
-              Object.entries(dataObject).map(([key, value]) => [key, Number.isNumeric(value) ? Number(value) : value])
-            );
-          }
-        },
-        ignore: {
-          label: cancelLabel,
-          callback: () => null
-        }
-      },
-      default: "confirm",
-      close: () => null
-    });
-  }
-}
-
-export class ExpValidatorDualDialog extends Dialog {
-  static createDialogRow(rowIndex, fields) {
+export class ConfigurableDialog extends Dialog {
+  static createRow(rowIndex, fields) {
     let style = `style: "max-width: calc(100 / ${fields.length})%"`;
     let content = `<div class="form-group">`;
     content += fields
-      .map((field, columnIndex) => this.createDialogCell(field, rowIndex, columnIndex, field.style ?? style))
+      .map((field, columnIndex) => this.createCell(field, rowIndex, columnIndex, field.style ?? style))
       .join("");
     content += `</div>`;
     return content;
   }
 
-  static createDialogCell(field, rowIndex, columnIndex, style) {
+  static createCell(field, rowIndex, columnIndex, style) {
     const fieldId = field?.id ?? `field-${rowIndex}-${columnIndex}`;
     switch (field.type ?? "label") {
       case "label":
@@ -833,25 +798,26 @@ export class ExpValidatorDualDialog extends Dialog {
     }
   }
 
-  static create({title, data = [], confirmLabel = "Fix", cancelLabel = "Ignore"}) {
-    return Dialog.wait({
-      title: title,
-      content: `<form>${data.map((fields, index) => this.createDialogRow(index, fields)).join("")}</form>`,
-      buttons: {
-        confirm: {
-          label: confirmLabel,
-          callback: (html) => {
-            let dataObject = new FormDataExtended(html.find("form")[0]).object;
-            return Object.fromEntries(
-              Object.entries(dataObject).map(([key, value]) => [key, Number.isNumeric(value) ? Number(value) : value])
-            );
-          }
-        },
-        ignore: {
-          label: cancelLabel,
-          callback: () => null
+  static create({title, data = [], buttons, confirmLabel = "Fix", cancelLabel = "Ignore"}) {
+    buttons ??= {
+      confirm: {
+        label: confirmLabel,
+        callback: (html) => {
+          let dataObject = new FormDataExtended(html.find("form")[0]).object;
+          return Object.fromEntries(
+            Object.entries(dataObject).map(([key, value]) => [key, Number.isNumeric(value) ? Number(value) : value])
+          );
         }
       },
+      ignore: {
+        label: cancelLabel,
+        callback: () => null
+      }
+    };
+    return Dialog.wait({
+      title: title,
+      content: `<form>${data.map((fields, index) => this.createRow(index, fields)).join("")}</form>`,
+      buttons,
       default: "confirm",
       close: () => null
     });
