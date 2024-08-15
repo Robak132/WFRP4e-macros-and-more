@@ -9,8 +9,8 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">Idx</span>
                 <span style="flex: 5;text-align:center">Reason</span>
+                <span style="flex: 3;text-align:center">Category</span>
                 <span style="flex: 1;text-align:center">Exp</span>
               </div>
             </th>
@@ -20,9 +20,9 @@
               <td style="position: relative; z-index: 1; padding: 0;">
                 <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
                   <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}}{{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
-                  <span style="flex: 1;text-align:center;color: {{entry.color}}" title="{{entry.entriesStr}}">{{entry.value}}</span>
+                  <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
+                  <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
                 </div>
               </td>
             </tr>
@@ -39,8 +39,8 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">Idx</span>
                 <span style="flex: 5;text-align:center">Reason</span>
+                <span style="flex: 3;text-align:center">Category</span>
                 <span style="flex: 1;text-align:center">Exp</span>
               </div>
             </th>
@@ -50,9 +50,9 @@
             <td style="position: relative; z-index: 1; padding: 0;">
               <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
-                <span style="flex: 4;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}} {{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
-                <span style="flex: 1;text-align:center;color: {{entry.color}}" title="{{entry.entriesStr}}">{{entry.value}}</span>
+                <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}} {{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
+                <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
+                <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
               </div>
             </td>
           </tr>
@@ -62,11 +62,12 @@
     </div>
   </div>
   <div class="form-group">
-    <button type="button" style="max-width: 10%" id="prev"><</button>
+    <button type="button" style="max-width: 5%" id="prev"><</button>
     <button type="button" id="compact">{{groupModeDesc}}</button>
     <button type="button" id="group">{{sortModeDesc}}</button>
     <button type="button" id="edit">{{editModeDesc}}</button>
+    <button type="button" id="verify">Verify</button>
     <button type="button" id="confirm">Save</button>
-    <button type="button" style="max-width: 10%" id="next">></button>
+    <button type="button" style="max-width: 5%" id="next">></button>
   </div>
 </form>

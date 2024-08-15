@@ -1,30 +1,13 @@
 /* ==========
 * MACRO: Reveal Fog of War
-* AUTHORS: Originally by @coletain, modified by @Robak132
+* AUTHORS: Originally by @mxzf, modified by @Robak132
 * DESCRIPTION: Reveal Fog of War for all players.
 ========== */
 
-const opacity = 0x999999;
-
-// Get fog obj
-const fog = canvas.sight.fog;
-
-// Create a new render texture
-const revealed = PIXI.RenderTexture.create({
-  width: canvas.dimensions.width,
-  height: canvas.dimensions.height,
-  scale: 1,
-  resolution: canvas.sight._fogResolution
-});
-// Fill render texture with desired opacity
-const fill = new PIXI.Graphics();
-fill.beginFill(opacity);
-fill.drawRect(0, 0, canvas.dimensions.width, canvas.dimensions.height);
-fill.endFill();
-
-// Render fill to the texture
-canvas.app.renderer.render(fill, revealed);
-
-// Swap the staging texture to the rendered texture
-fog.rendered.texture.destroy(true);
-fog.rendered.texture = revealed;
+const dimensions = canvas.scene.dimensions;
+let [created_light] = await canvas.scene.createEmbeddedDocuments("AmbientLight", [
+  {dim: dimensions.maxR, vision: true, walls: false, x: dimensions.width / 2, y: dimensions.height / 2}
+]);
+await new Promise((r) => setTimeout(r, 100));
+await created_light.update({hidden: true});
+await created_light.delete();

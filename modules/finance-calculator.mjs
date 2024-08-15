@@ -1,7 +1,7 @@
 import RobakMarketWfrp4e from "./robak-market.js";
 import Utility from "./utility.mjs";
 
-export class FinanceCalculator extends FormApplication {
+export default class FinanceCalculator extends FormApplication {
   constructor(object = {}, options = {}) {
     super(object, options);
     this.regions = RobakMarketWfrp4e.regions;

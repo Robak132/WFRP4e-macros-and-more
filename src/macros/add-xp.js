@@ -4,7 +4,8 @@
 * DESCRIPTION: Adds a set amount of XP to all or targeted player character(s). Adds half XP to companion(s). Modified macro from GM Toolkit by Jagusti.
 ========== */
 
-addXP();
+const Utility = game.robakMacros.utils;
+const ConfigurableDialog = game.robakMacros.configurableDialog;
 
 function getCurrentDate() {
   const currentDate = new Date();
@@ -12,99 +13,6 @@ function getCurrentDate() {
   const month = ("0" + (currentDate.getMonth() + 1)).slice(-2);
   const day = ("0" + currentDate.getDate()).slice(-2);
   return year + "-" + month + "-" + day;
-}
-
-async function addXP() {
-  let awardees = [];
-  let halfAwardees = [];
-  if (game.user.targets.size < 1) {
-    awardees = game.users.filter((u) => u.character).map((g) => g.character);
-    halfAwardees = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character" && !awardees.includes(a));
-  } else {
-    const group = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character");
-    const targeted = game.canvas.tokens.placeables.filter((t) => t.isTargeted).map((t) => t.actor);
-    awardees = group.filter((a) => targeted.includes(a));
-  }
-  if (awardees.length < 1) {
-    return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Token.TargetPCs"), {});
-  }
-
-  const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
-  let reason =
-    game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") === "null"
-      ? ""
-      : game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
-  if (reason) {
-    reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
-    const session = game.gmtoolkit.utility.getSession();
-    reason = reason.replace("(%date%)", `(${getCurrentDate()})`);
-    reason = session.id !== "null" ? reason.replace("%session%", session.id) : reason.replace("%session%", "");
-  }
-
-  if (game.settings.get("wfrp4e-gm-toolkit", "addXPPrompt")) {
-    let awardeeList = `
-      <div class="form-group">
-        <label style="font-variant: small-caps;font-weight: bold;">Full Experience will be awarded to:</label>
-      </div>`;
-    awardeeList += awardees
-      .map((pc) => {
-        return `<div class="form-group">
-            <input type="checkbox" checked/>
-            <label>${pc?.actor?.name || pc.name}</label>
-          </div>`;
-      })
-      .join("");
-    let halfAwardeeList = `
-      <div class="form-group">
-        <label style="font-variant: small-caps;font-weight: bold;">Half Experience will be awarded to:</label>
-      </div>`;
-    halfAwardeeList += halfAwardees
-      .map((pc) => {
-        return `<div class="form-group">
-            <input type="checkbox" checked />
-            <label>${pc?.actor?.name || pc.name}</label>
-          </div>`;
-      })
-      .join("");
-    await new Dialog({
-      title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
-      content: `<form>
-          <div>
-            ${awardeeList}
-            ${halfAwardees.length ? halfAwardeeList : ""}
-          </div>
-          <div class="form-group">
-            <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")}</label>
-            <input type="text" id="add-xp" name="add-xp" value="${XP}" />
-          </div>
-          <div class="form-group">
-            <label>${game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")}</label>
-            <input type="text" id="xp-reason" name="xp-reason" value="${reason}" />
-          </div>
-        </form>`,
-      buttons: {
-        yes: {
-          icon: "<i class='fas fa-check'></i>",
-          label: game.i18n.localize("GMTOOLKIT.Dialog.Apply"),
-          callback: async (html) => {
-            const XP = Math.round(html.find("#add-xp").val());
-            if (isNaN(XP)) {
-              return ui.notifications.error(game.i18n.localize("GMTOOLKIT.Dialog.AddXP.InvalidXP"));
-            }
-            const reason = html.find("#xp-reason").val();
-            await updateXP(awardees, halfAwardees, XP, reason);
-          }
-        },
-        no: {
-          icon: "<i class='fas fa-times'></i>",
-          label: game.i18n.localize("GMTOOLKIT.Dialog.Cancel")
-        }
-      },
-      default: "yes"
-    }).render(true);
-  } else {
-    await updateXP(awardees, halfAwardees, XP, reason);
-  }
 }
 
 function updateActorXP(pc, XP, reason) {
@@ -125,17 +33,96 @@ function updateActorXP(pc, XP, reason) {
   });
 }
 
-async function updateXP(awardees, halfAwardees = [], XP, reason) {
-  const halfXP = Math.round(XP / 2);
-  let chatContent = "";
+let characterActors = game.users.filter((u) => u.character).map((u) => u.character);
+let otherActors = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character" && !characterActors.includes(a));
 
-  awardees.forEach((pc) => {
-    chatContent += updateActorXP(pc, XP, reason);
-  });
-  halfAwardees.forEach((pc) => {
-    chatContent += updateActorXP(pc, halfXP, reason);
-  });
-  const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "gmroll", false);
+const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
+let reason =
+  game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") !== "null"
+    ? game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason")
+    : "";
+if (reason) {
+  reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
+  const session = game.gmtoolkit.utility.getSession();
+  reason = session.date ? reason.replace("(%date%)", `(${getCurrentDate()})`) : reason.replace(" (%date%)", "");
+  reason = session.id !== "null" ? reason.replace("%session%", session.id) : (reason = reason.replace("%session%", ""));
+}
+
+const options = game.user.getFlag("world", "add-exp-options") ?? {};
+let data = [
+  [{value: "Players' Characters"}],
+  ...game.users
+    .filter((u) => u.character)
+    .sort((a, b) => a.character.name.localeCompare(b.character.name))
+    .map((u, i) => {
+      return [
+        {id: "charactersEnabled", type: "checkbox", value: options.charactersEnabled[i] !== 0},
+        {value: `${u.character.name}<br>(${u.name})`},
+        {
+          id: "charactersMod",
+          type: "select",
+          style: "style='max-width: 40%'",
+          selected: options.charactersMod[i] ?? 1,
+          value: [
+            {name: "Character (Full Exp)", value: 1},
+            {name: "Companion (Half Exp)", value: 0.5}
+          ]
+        }
+      ];
+    })
+];
+if (otherActors.length) {
+  data = data.concat([
+    [{value: "Other Actors"}],
+    ...otherActors
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((a, i) => {
+        return [
+          {id: "othersEnabled", type: "checkbox", value: options.othersEnabled[i] !== 0},
+          {value: a.name},
+          {
+            id: "othersMod",
+            type: "select",
+            style: "style='max-width: 40%'",
+            selected: options.othersMod[i] ?? 0.5,
+            value: [
+              {name: "Companion (Half Exp)", value: 0.5},
+              {name: "Character (Full Exp)", value: 1}
+            ]
+          }
+        ];
+      })
+  ]);
+}
+data = data.concat([
+  [{value: "Options"}],
+  [
+    {value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")},
+    {id: "xpNumber", type: "input", value: XP, inputType: "number"}
+  ],
+  [
+    {value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")},
+    {id: "xpReason", type: "input", value: reason, inputType: "text"}
+  ]
+]);
+
+let result = await ConfigurableDialog.create({
+  title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
+  data,
+  options: {width: 450}
+});
+if (result) {
+  await game.user.setFlag("world", "add-exp-options", result);
+  let chatContent = characterActors.reduce((acc, actor, i) => {
+    if (!result.charactersEnabled[i]) return acc;
+    return acc + updateActorXP(actor, Utility.round(result.xpNumber * result.charactersMod[i], 0), result.xpReason);
+  }, "");
+  chatContent = otherActors.reduce((acc, actor, i) => {
+    if (!result.othersEnabled[i]) return acc;
+    return acc + updateActorXP(actor, Utility.round(result.xpNumber * result.othersMod[i], 0), result.xpReason);
+  }, chatContent);
+
+  const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "selfroll", false);
   chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {XP, reason});
   await ChatMessage.create(chatData, {});
 }

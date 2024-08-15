@@ -1,0 +1,394 @@
+<form>
+    <div>
+        <h1 class="roll-tracker-comparison-card-heading">{{localize "MACROS-AND-MORE.comparison-card.title"}}</h1>
+        <h3 class="roll-tracker-comparison-card-stat-heading">{{localize "MACROS-AND-MORE.comparison-card.headers.mean"}}</h3>
+        <ul class="roll-tracker-comparison-card-ul">
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-goodstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.highest"}}: </span>
+                {{#if (isOne mean.highest.length)}} {{!-- If the highest mean is held by just one person --}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{mean.highest.[0].value}}.
+                {{/if}}
+                {{#if (isTwo mean.highest.length)}} {{!-- If the highest mean is held by exactly two people --}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{mean.highest.[0].value}}.
+                {{/if}}
+                {{#if (isThreePlus mean.highest.length)}} {{!-- If the highest mean is held by three or more people --}}
+                    {{#each mean.highest}}
+                    {{!-- mean.highest is an array that contains all users who share the highest mean. 
+                    We iterate over them to construct the string displayed in the Comparison Chat Card --}}
+                        <span class="roll-tracker-comparison-card-strong">{{this.name}}</span> {{!-- We begin by adding the name to the string --}}
+                        {{~#if (isSecondLast @index ../mean.highest.length)~}}
+                        {{!-- @index refers to the current item in the array being iterated over. We must use ../ to access properties of the parent
+                        array while within the iteration. Here we're checking to see if the current item is the second last in the array. If so, we
+                        add the word 'and' to the string.
+                        
+                        The squiggly lines just remove whitespace at that end of the expression--}}
+                            , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            {{~else~}}
+                            {{#if (isLast @index ../mean.highest.length)}}
+                            {{!-- If this is the last item in the array, end the string with "with (highest mean)" and a full stop. --}}
+                                {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                {{~else~}}
+                                , {{!-- If this is isn't the last item in the array, add a comma and keep going --}}
+                            {{/if}}
+                        {{/if}}
+                    {{/each}}
+                {{/if}}
+            </li>
+            {{!-- As above, so below --}}
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-badstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.lowest"}}: </span>
+                {{#if (isOne mean.lowest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{mean.lowest.[0].value}}.
+                {{/if}}
+                {{#if (isTwo mean.lowest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                    <span class="roll-tracker-comparison-card-strong">{{mean.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{mean.lowest.[0].value}}.
+                {{/if}}
+                {{#if (isThreePlus mean.lowest.length)}}
+                    {{#each mean.lowest}}
+                        <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                        {{~#if (isSecondLast @index ../mean.lowest.length)~}}
+                            , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            {{~else~}}
+                            {{#if (isLast @index ../mean.lowest.length)}}
+                                {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                {{~else~}}
+                                ,
+                            {{/if}}
+                        {{/if}}
+                    {{/each}}
+                {{/if}}
+            </li>
+        </ul>
+
+        {{!--
+        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        --}}
+
+        {{!-- MEDIAN --}}
+        <h3 class="roll-tracker-comparison-card-stat-heading">{{localize "MACROS-AND-MORE.comparison-card.headers.median"}}</h3>
+        <ul class="roll-tracker-comparison-card-ul">
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-goodstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.highest"}}: </span>
+                {{#if (isOne median.highest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{median.highest.[0].value}}.
+                {{/if}}
+                {{#if (isTwo median.highest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{median.highest.[0].value}}.
+                {{/if}}
+                {{#if (isThreePlus median.highest.length)}}
+                    {{#each median.highest}}
+                        <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                        {{~#if (isSecondLast @index ../median.highest.length)~}}
+                            , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            {{~else~}}
+                            {{#if (isLast @index ../median.highest.length)}}
+                                {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                {{~else~}}
+                                ,
+                            {{/if}}
+                        {{/if}}
+                    {{/each}}
+                {{/if}}
+            </li>
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-badstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.lowest"}}: </span>
+                {{#if (isOne median.lowest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{median.lowest.[0].value}}.
+                {{/if}}
+                {{#if (isTwo median.lowest.length)}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                    <span class="roll-tracker-comparison-card-strong">{{median.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{median.lowest.[0].value}}.
+                {{/if}}
+                {{#if (isThreePlus median.lowest.length)}}
+                    {{#each median.lowest}}
+                        <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                        {{~#if (isSecondLast @index ../median.lowest.length)~}}
+                            , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            {{~else~}}
+                            {{#if (isLast @index ../median.lowest.length)}}
+                                {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                {{~else~}}
+                                ,
+                            {{/if}}
+                        {{/if}}
+                    {{/each}}
+                {{/if}}
+            </li>
+        </ul>
+
+        {{!--
+        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        --}}
+
+        {{!-- MODE --}}
+        {{!-- The mode is computed differently from the other stats and it currently does not support displaying ties --}}
+        <h3 class="roll-tracker-comparison-card-stat-heading">{{localize "MACROS-AND-MORE.comparison-card.headers.mode"}}</h3>
+        <ul class="roll-tracker-comparison-card-ul">
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.raw"}}</span>:
+                <span class="roll-tracker-comparison-card-strong">{{comparator.highest.name}}</span> {{localize "MACROS-AND-MORE.comparison-card.mode.most-frequent"}}
+                {{comparator.highest.value}} {{localize "MACROS-AND-MORE.comparison-card.mode.instances-of"}} {{comparator.highest.mode}}.
+            </li>
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.percentage"}}</span>:
+                <span class="roll-tracker-comparison-card-strong">{{comparator.highestPercentage.name}}</span> {{localize "MACROS-AND-MORE.comparison-card.mode.most-frequent"}}
+                {{comparator.highestPercentage.percentage}}% ({{comparator.highestPercentage.value}}) {{localize "MACROS-AND-MORE.comparison-card.mode.of-their-rolls"}} {{comparator.highestPercentage.mode}}.
+            </li>
+        </ul>
+
+        {{!--
+        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        --}}
+
+        {{!-- autoSuccess --}}
+        {{!-- autoSuccess and autoFailure are shown in both their raw number and percentage formats, for the most and fewest of each category --}}
+        <h3 class="roll-tracker-comparison-card-stat-heading">{{localize "MACROS-AND-MORE.comparison-card.headers.autoSuccess"}}</h3>
+        <ul class="roll-tracker-comparison-card-ul">
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-badstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.most"}}: </span>
+                <ul class="roll-tracker-comparison-card-ul">
+                    {{!-- MOST BY NUMBERS--}}
+                    <li class="roll-tracker-comparison-card-subli">
+                        <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.raw"}}</span>:
+                        {{#if (isOne autoSuccess.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccess.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccess.highest.[0].value}}.
+                        {{/if}}
+                        {{#if (isTwo autoSuccess.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccess.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccess.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccess.highest.[0].value}}.
+                        {{/if}}
+                        {{#if (isThreePlus autoSuccess.highest.length)}}
+                            {{#each autoSuccess.highest}}
+                                <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                                {{~#if (isSecondLast @index ../autoSuccess.highest.length)~}}
+                                    , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                    {{~else~}}
+                                    {{#if (isLast @index ../autoSuccess.highest.length)}}
+                                        {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                        {{~else~}}
+                                        ,
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
+                    </li>
+
+                    {{!-- MOST BY PERCENTAGE--}}
+                    <li class="roll-tracker-comparison-card-subli">
+                        <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.percentage"}}</span>:
+                        {{#if (isOne autoSuccessPercentage.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccessPercentage.highest.[0].value}}%.
+                        {{/if}}
+                        {{#if (isTwo autoSuccessPercentage.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccessPercentage.highest.[0].value}}%.
+                        {{/if}}
+                        {{#if (isThreePlus autoSuccessPercentage.highest.length)}}
+                            {{#each autoSuccessPercentage.highest}}
+                                <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                                {{~#if (isSecondLast @index ../autoSuccessPercentage.highest.length)~}}
+                                    , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                    {{~else~}}
+                                    {{#if (isLast @index ../autoSuccessPercentage.highest.length)}}
+                                        {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}%.
+                                        {{~else~}}
+                                        ,
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
+                    </li>
+            </li>
+        </ul>
+        </li>
+
+        <li class="roll-tracker-comparison-card-li">
+            <span class="roll-tracker-comparison-card-goodstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.fewest"}}: </span>
+            <ul class="roll-tracker-comparison-card-ul">
+                {{!-- FEWEST BY NUMBERS--}}
+                <li class="roll-tracker-comparison-card-subli">
+                    <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.raw"}}</span>:
+                    {{#if (isOne autoSuccess.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccess.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccess.lowest.[0].value}}.
+                    {{/if}}
+                    {{#if (isTwo autoSuccess.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccess.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccess.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccess.lowest.[0].value}}.
+                    {{/if}}
+                    {{#if (isThreePlus autoSuccess.lowest.length)}}
+                        {{#each autoSuccess.lowest}}
+                            <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                            {{~#if (isSecondLast @index ../autoSuccess.lowest.length)~}}
+                                , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                {{~else~}}
+                                {{#if (isLast @index ../autoSuccess.lowest.length)}}
+                                    {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                    {{~else~}}
+                                    ,
+                                {{/if}}
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </li>
+
+                {{!-- FEWEST BY PERCENTAGE--}}
+                <li class="roll-tracker-comparison-card-subli">
+                    <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.percentage"}}</span>:
+                    {{#if (isOne autoSuccessPercentage.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccessPercentage.lowest.[0].value}}%.
+                    {{/if}}
+                    {{#if (isTwo autoSuccessPercentage.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoSuccessPercentage.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoSuccessPercentage.lowest.[0].value}}%.
+                    {{/if}}
+                    {{#if (isThreePlus autoSuccessPercentage.lowest.length)}}
+                        {{#each autoSuccessPercentage.lowest}}
+                            <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                            {{~#if (isSecondLast @index ../autoSuccessPercentage.lowest.length)~}}
+                                , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                {{~else~}}
+                                {{#if (isLast @index ../autoSuccessPercentage.lowest.length)}}
+                                    {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}%.
+                                    {{~else~}}
+                                    ,
+                                {{/if}}
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </li>
+        </li>
+        </ul>
+        </li>
+
+        </ul>
+
+        {{!--
+        * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        --}}
+
+        {{!-- autoFailure --}}
+        <h3 class="roll-tracker-comparison-card-stat-heading">{{localize "MACROS-AND-MORE.comparison-card.headers.autoFailure"}}</h3>
+        <ul class="roll-tracker-comparison-card-ul">
+            <li class="roll-tracker-comparison-card-li">
+                <span class="roll-tracker-comparison-card-goodstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.most"}}: </span>
+                <ul class="roll-tracker-comparison-card-ul">
+                    {{!-- MOST BY NUMBERS--}}
+                    <li class="roll-tracker-comparison-card-subli">
+                        <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.raw"}}</span>:
+                        {{#if (isOne autoFailure.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailure.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailure.highest.[0].value}}.
+                        {{/if}}
+                        {{#if (isTwo autoFailure.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailure.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailure.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailure.highest.[0].value}}.
+                        {{/if}}
+                        {{#if (isThreePlus autoFailure.highest.length)}}
+                            {{#each autoFailure.highest}}
+                                <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                                {{~#if (isSecondLast @index ../autoFailure.highest.length)~}}
+                                    , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                    {{~else~}}
+                                    {{#if (isLast @index ../autoFailure.highest.length)}}
+                                        {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                        {{~else~}}
+                                        ,
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
+                    </li>
+
+                    {{!-- MOST BY PERCENTAGE--}}
+                    <li class="roll-tracker-comparison-card-subli">
+                        <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.percentage"}}</span>:
+                        {{#if (isOne autoFailurePercentage.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailurePercentage.highest.[0].value}}%.
+                        {{/if}}
+                        {{#if (isTwo autoFailurePercentage.highest.length)}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.highest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                            <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.highest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailurePercentage.highest.[0].value}}%.
+                        {{/if}}
+                        {{#if (isThreePlus autoFailurePercentage.highest.length)}}
+                            {{#each autoFailurePercentage.highest}}
+                                <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                                {{~#if (isSecondLast @index ../autoFailurePercentage.highest.length)~}}
+                                    , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                    {{~else~}}
+                                    {{#if (isLast @index ../autoFailurePercentage.highest.length)}}
+                                        {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}%.
+                                        {{~else~}}
+                                        ,
+                                    {{/if}}
+                                {{/if}}
+                            {{/each}}
+                        {{/if}}
+                    </li>
+            </li>
+        </ul>
+        </li>
+
+        <li class="roll-tracker-comparison-card-li">
+            <span class="roll-tracker-comparison-card-badstat">{{localize "MACROS-AND-MORE.comparison-card.descriptors.fewest"}}: </span>
+            <ul class="roll-tracker-comparison-card-ul">
+                {{!-- FEWEST BY NUMBERS--}}
+                <li class="roll-tracker-comparison-card-subli">
+                    <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.raw"}}</span>:
+                    {{#if (isOne autoFailure.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailure.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailure.lowest.[0].value}}.
+                    {{/if}}
+                    {{#if (isTwo autoFailure.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailure.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailure.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailure.lowest.[0].value}}.
+                    {{/if}}
+                    {{#if (isThreePlus autoFailure.lowest.length)}}
+                        {{#each autoFailure.lowest}}
+                            <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                            {{~#if (isSecondLast @index ../autoFailure.lowest.length)~}}
+                                , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                {{~else~}}
+                                {{#if (isLast @index ../autoFailure.lowest.length)}}
+                                    {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}.
+                                    {{~else~}}
+                                    ,
+                                {{/if}}
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </li>
+
+                {{!-- FEWEST BY NUMBERS--}}
+                <li class="roll-tracker-comparison-card-subli">
+                    <span class="roll-tracker-comparison-card-italics">{{localize "MACROS-AND-MORE.comparison-card.descriptors.percentage"}}</span>:
+                    {{#if (isOne autoFailurePercentage.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailurePercentage.lowest.[0].value}}%.
+                    {{/if}}
+                    {{#if (isTwo autoFailurePercentage.lowest.length)}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.lowest.[0].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                        <span class="roll-tracker-comparison-card-strong">{{autoFailurePercentage.lowest.[1].name}}</span> {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{autoFailurePercentage.lowest.[0].value}}%.
+                    {{/if}}
+                    {{#if (isThreePlus autoFailurePercentage.lowest.length)}}
+                        {{#each autoFailurePercentage.lowest}}
+                            <span class="roll-tracker-comparison-card-strong">{{this.name}}</span>
+                            {{~#if (isSecondLast @index ../autoFailurePercentage.lowest.length)~}}
+                                , {{localize "MACROS-AND-MORE.comparison-card.misc.and"}}
+                                {{~else~}}
+                                {{#if (isLast @index ../autoFailurePercentage.lowest.length)}}
+                                    {{localize "MACROS-AND-MORE.comparison-card.misc.with"}} {{this.value}}%.
+                                    {{~else~}}
+                                    ,
+                                {{/if}}
+                            {{/if}}
+                        {{/each}}
+                    {{/if}}
+                </li>
+        </li>
+        </ul>
+        </li>
+
+        </ul>
+
+    </div>
+</form>

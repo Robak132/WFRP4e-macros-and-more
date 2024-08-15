@@ -1,15 +1,24 @@
+import ConfigurableDialog from "./configurable-dialog.mjs";
+
 class LogEntryGroup {
-  constructor(parent, name, type, category, entries = []) {
+  constructor(parent, type, category, customName = "") {
     this.parent = parent;
-    this.name = name;
+    this.customName = customName;
     this.type = type;
     this.category = category;
-    this.entries = entries;
+    this.entries = [];
   }
 
   setName(name) {
     this.name = name;
     this.entries.forEach((entry) => entry.setName(name));
+  }
+
+  get name() {
+    if (!this.entries.length) return this.customName;
+    return this.entries.every((entry) => entry.name === this.entries[0]?.name)
+      ? this.entries[0]?.name
+      : this.customName;
   }
 
   get color() {
@@ -28,9 +37,9 @@ class LogEntryGroup {
       case "Skill":
         return "#32cd32";
       case "Talent":
-        return "#40E0D0";
+        return "hotpink";
       case "Characteristic":
-        return "lime";
+        return "#40E0D0";
       case "Spell/Miracle":
         return "#b2beb5";
       case "Career Change":
@@ -165,7 +174,7 @@ export default class ExperienceVerificator extends FormApplication {
     return mergeObject(super.defaultOptions, {
       id: "macro-and-more-verificator",
       template: "modules/wfrp4e-macros-and-more/templates/experience-verificator.hbs",
-      width: 800,
+      width: 900,
       height: 660
     });
   }
@@ -173,8 +182,6 @@ export default class ExperienceVerificator extends FormApplication {
   init(actor) {
     this.actor = actor;
     this.experience = foundry.utils.duplicate(this.actor.system.details.experience);
-    this.ignoreIssues = false;
-    this.fixingIssues = false;
     this.parseLog();
   }
 
@@ -216,24 +223,23 @@ export default class ExperienceVerificator extends FormApplication {
   }
 
   refreshCalculatedStats() {
-    this.calcSpendExp = 0;
+    this.calcSpentExp = 0;
     this.calcGainedExp = 0;
     this.log.forEach((entry, index) => {
       entry.index = index;
       if (entry.type === "spent") {
-        this.calcSpendExp += entry.value;
+        this.calcSpentExp += entry.value;
       } else {
         this.calcGainedExp += entry.value;
       }
-      entry.spent = this.calcSpendExp;
-      entry.total = this.calcGainedExp;
+      entry.calcSpent = this.calcSpentExp;
+      entry.calcTotal = this.calcGainedExp;
     });
   }
 
   groupLog(log, groupMode, sortMode) {
     if (log.length === 0) return [];
     const groupCondition = this.getGroupCondition(groupMode);
-    const sortCondition = this.getSortCondition(sortMode);
     if (groupCondition && sortMode !== 0) {
       log = log.toSorted((a, b) => groupCondition(a).localeCompare(groupCondition(b)));
     }
@@ -248,17 +254,12 @@ export default class ExperienceVerificator extends FormApplication {
         groupCondition(entry) !== groupCondition(group)
       ) {
         if (group) groupLog.push(group);
-        group = new LogEntryGroup(
-          this,
-          groupCondition ? groupCondition(entry) : entry.name,
-          entry.type,
-          entry.category
-        );
+        group = new LogEntryGroup(this, entry.type, entry.category);
       }
       group.entries.push(entry);
     }
     if (group) groupLog.push(group);
-    return sortCondition(groupLog);
+    return groupLog;
   }
 
   ungroupEntry(entry) {
@@ -332,6 +333,10 @@ export default class ExperienceVerificator extends FormApplication {
       await this.save();
       await this.close();
     });
+    html.on("click", `button[id="verify"]`, async () => {
+      await this.save();
+      this.render(true);
+    });
     html.on("click", `button[id="group"]`, () => {
       this.sortMode = (this.sortMode + 1) % ExperienceVerificator.SORT_MODES.length;
       this.render(true);
@@ -385,7 +390,7 @@ export default class ExperienceVerificator extends FormApplication {
     data.editModeDesc = this.editMode ? ExperienceVerificator.VIEW_MODES[1] : ExperienceVerificator.VIEW_MODES[0];
     data.gainedLog = this.gainedGroupLog;
     data.spentLog = this.spentGroupLog;
-    data.experienceSpentCalculated = this.calcSpendExp;
+    data.experienceSpentCalculated = this.calcSpentExp;
     data.experienceGainedCalculated = this.calcGainedExp;
     data.experienceSpent = this.experience.spent;
     data.experienceGained = this.experience.total;
@@ -393,6 +398,8 @@ export default class ExperienceVerificator extends FormApplication {
   }
 
   getSpentGroupLog(groupMode, sortMode) {
+    const sortCondition = this.getSortCondition(sortMode);
+
     let spentGroupLog = this.groupLog(
       this.log.filter((entry) => entry.type === "spent"),
       groupMode,
@@ -400,12 +407,12 @@ export default class ExperienceVerificator extends FormApplication {
     );
     for (let skill of this.actor.itemTypes.skill) {
       if (skill.system.advances.value !== 0 && !spentGroupLog.some((entry) => entry.name === skill.name)) {
-        spentGroupLog.push(new LogEntryGroup(this, skill.name, "spent", "Skill"));
+        spentGroupLog.push(new LogEntryGroup(this, "spent", "Skill", skill.name));
       }
     }
     for (let talent of this.actor.itemTypes.talent) {
       if (!spentGroupLog.some((entry) => entry.name === talent.name)) {
-        spentGroupLog.push(new LogEntryGroup(this, talent.name, "spent", "Talent"));
+        spentGroupLog.push(new LogEntryGroup(this, "spent", "Talent", talent.name));
       }
     }
     for (let spell of this.actor.itemTypes.spell) {
@@ -414,59 +421,66 @@ export default class ExperienceVerificator extends FormApplication {
         (spell.system.memorized.value || spell.system.lore.value === "petty") &&
         !spentGroupLog.some((entry) => entry.name === formattedName)
       ) {
-        spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Spell/Miracle"));
+        spentGroupLog.push(new LogEntryGroup(this, "spent", "Spell/Miracle", formattedName));
       }
     }
     for (let career of this.actor.itemTypes.career) {
       let formattedName = game.i18n.format("LOG.CareerChange", {career: career.name});
       if (!spentGroupLog.some((entry) => entry.name === formattedName)) {
-        spentGroupLog.push(new LogEntryGroup(this, formattedName, "spent", "Career Change"));
+        spentGroupLog.push(new LogEntryGroup(this, "spent", "Career Change", formattedName));
       }
     }
-    if (groupMode === 2 || sortMode === 0) {
+    if (groupMode === 2) {
       spentGroupLog = spentGroupLog.filter((entry) => entry.value != null);
     }
-    return spentGroupLog;
+    return sortCondition(spentGroupLog);
   }
 
   getGainedGroupLog(groupMode, sortMode) {
-    return this.groupLog(
-      this.log.filter((entry) => entry.type !== "spent"),
-      groupMode,
-      sortMode
+    const sortCondition = this.getSortCondition(sortMode);
+
+    return sortCondition(
+      this.groupLog(
+        this.log.filter((entry) => entry.type !== "spent"),
+        groupMode,
+        sortMode
+      )
     );
   }
 
   async save() {
     if (!game.user.isGM) return;
-    await this.runInitialTalentsCheck();
-    await this.runInitialSkillsCheck();
-    await this.runInitialGainedExpCheck();
+    this.ignoreIssues = false;
+    this.fixingIssues = false;
+    await this.runTalentsCheck();
+    await this.runSkillsCheck();
+    await this.runGainedExpCheck();
     const fixTotalExp = await this.runFinalExpCheck();
-    let newExperienceLog = this.log
-      .toSorted((a, b) => a.index - b.index)
-      .map((entry) => {
-        return {
-          id: entry.id,
-          amount: entry.value,
-          reason: entry.name,
-          category: entry.category,
-          spent: fixTotalExp ? entry.calcSpendExp : entry.spent,
-          total: fixTotalExp ? entry.calcGainedExp : entry.total,
-          type: entry.type
-        };
-      });
-    await this.actor.update({
-      "system.details.experience.log": newExperienceLog
+    let newLog = this.log.map((entry) => {
+      return {
+        id: entry.id,
+        amount: entry.value,
+        reason: entry.name,
+        category: entry.category,
+        spent: fixTotalExp ? entry.calcSpentExp : entry.spent,
+        total: fixTotalExp ? entry.calcGainedExp : entry.total,
+        type: entry.type
+      };
     });
+    await this.actor.update({
+      "system.details.experience.total": this.calcGainedExp,
+      "system.details.experience.spent": this.calcSpentExp,
+      "system.details.experience.log": newLog
+    });
+    this.experience = foundry.utils.duplicate(this.actor.system.details.experience);
   }
 
-  async runInitialGainedExpCheck() {
-    let raceEntry = this.log.find((entry) => entry.id === "char-gen-exp-race");
-    let professionEntry = this.log.find((entry) => entry.id === "char-gen-exp-profession");
+  async runGainedExpCheck() {
+    let speciesEntry = this.log.find((entry) => entry.id === "char-gen-exp-species");
+    let careerEntry = this.log.find((entry) => entry.id === "char-gen-exp-career");
     let attributesEntry = this.log.find((entry) => entry.id === "char-gen-exp-attributes");
     let starSignEntry = this.log.find((entry) => entry.id === "char-gen-exp-star-sign");
-    if (raceEntry && professionEntry && attributesEntry && starSignEntry) return;
+    if (speciesEntry && careerEntry && attributesEntry && starSignEntry) return;
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
 
     let result = await ConfigurableDialog.create({
@@ -481,22 +495,22 @@ export default class ExperienceVerificator extends FormApplication {
         [
           {value: "Race Selection:"},
           {
-            id: "race",
+            id: "species",
             type: "select",
-            selected: raceEntry?.value,
-            values: [
+            selected: speciesEntry?.value,
+            value: [
               {name: "Chosen [0]", value: 0},
               {name: "Random [20]", value: 20}
             ]
           }
         ],
         [
-          {value: "Profession Selection:"},
+          {value: "Career Selection:"},
           {
-            id: "profession",
+            id: "career",
             type: "select",
-            selected: professionEntry?.value,
-            values: [
+            selected: careerEntry?.value,
+            value: [
               {name: "Chosen [0]", value: 0},
               {name: "Random (Choice from 3) [25]", value: 25},
               {name: "Random (First Choice) [50]", value: 50}
@@ -509,7 +523,7 @@ export default class ExperienceVerificator extends FormApplication {
             id: "attributes",
             type: "select",
             selected: attributesEntry?.value,
-            values: [
+            value: [
               {name: "Re-roll or Point-Buy [0]", value: 0},
               {name: "Random (Reordered) [25]", value: 25},
               {name: "Random [50]", value: 50}
@@ -522,7 +536,7 @@ export default class ExperienceVerificator extends FormApplication {
             id: "starSign",
             type: "select",
             selected: starSignEntry?.value,
-            values: [
+            value: [
               {name: "Chosen [0]", value: 0},
               {name: "Random [25]", value: 25}
             ]
@@ -531,9 +545,9 @@ export default class ExperienceVerificator extends FormApplication {
       ]
     });
     if (!result) return;
-    this.calcGainedExp += raceEntry + professionEntry + attributesEntry + starSignEntry;
+    this.calcGainedExp += speciesEntry + careerEntry + attributesEntry + starSignEntry;
     this.log = this.log.filter((entry) => !entry.id || !entry.id.startsWith("char-gen-exp"));
-    this.log.unshift([
+    this.log.unshift(
       new LogEntry(
         this,
         "Character Creation: Star Sign",
@@ -541,7 +555,9 @@ export default class ExperienceVerificator extends FormApplication {
         "total",
         "Character Creation",
         "char-gen-exp-star-sign"
-      ),
+      )
+    );
+    this.log.unshift(
       new LogEntry(
         this,
         "Character Creation: Attributes",
@@ -549,86 +565,108 @@ export default class ExperienceVerificator extends FormApplication {
         "total",
         "Character Creation",
         "char-gen-exp-attributes"
-      ),
+      )
+    );
+    this.log.unshift(
       new LogEntry(
         this,
-        "Character Creation: Profession",
-        result.profession,
+        "Character Creation: Career",
+        result.career,
         "total",
         "Character Creation",
-        "char-gen-exp-profession"
-      ),
+        "char-gen-exp-career"
+      )
+    );
+    this.log.unshift(
       new LogEntry(
         this,
         "Character Creation: Race",
-        Number(result.race),
+        result.species,
         "total",
         "Character Creation",
-        "char-gen-exp-race"
+        "char-gen-exp-species"
       )
-    ]);
-    this.log.forEach((entry, index) => (entry.index = index));
+    );
+    this.refreshCalculatedStats();
   }
 
-  async runInitialSkillsCheck() {
-    if (this.log.filter((entry) => entry.id === "char-gen-race-skill").length === 3 * 3 + 3 * 5) return;
+  async runSkillsCheck() {
+    let loggedSpeciesSkills = this.log.filter((entry) => entry.id === "char-gen-species-skill").map((e) => e.name);
+    let loggedCareerSkills = this.log.filter((entry) => entry.id === "char-gen-career-skill").map((e) => e.name);
+
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
-    this.log = this.log.filter((entry) => entry.id !== "char-gen-race-skill");
 
-    let species = this.actor.details.species;
-    let {skills} = game.wfrp4e.utility.speciesSkillsTalents(species.value, species.subspecies);
-    skills ??= [];
+    let {skills, speciesName} = this.getSpeciesData(this.actor.details.species);
 
-    let careerSkills = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0].system.skills ?? [];
-    let logSkills = this.getSpentGroupLog(1, 1).filter((e) => e.category === "Skill" && e.entryCount !== e.count);
-    logSkills = logSkills
+    let career = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0];
+    let careerSkills = career.system.skills ?? [];
+
+    let logSkills = this.getSpentGroupLog(1, 1)
+      .filter((e) => e.category === "Skill" && e.entryCount !== e.count)
       .toSorted((a, b) => a.name.localeCompare(b.name))
       .toSorted((a, b) => a.entryCount - a.count - b.entryCount + b.count);
+
     let formattedLogSkills = logSkills.map((skill) => {
       let text = `${skill.name} (${skill.entryCount - skill.count})`;
       if (careerSkills.includes(skill.name)) return `<span style="color: yellow">${text}</span>`;
       if (skills.some((s) => s.includes(skill.name))) return `<span style="color: limegreen">${text}</span>`;
       return text;
     });
-
-    const data = [
-      [{value: `No race skills info. Do you want to add one?`}],
+    let data = [
       [{value: `<strong>Experience log contains unmatched skills:</strong><br>${formattedLogSkills.join(", ")}`}],
-      ...(skills.length
-        ? [
-            [
-              {
-                value: `<span style="color: limegreen"><strong>Your race has those skills as racial:</strong></span><br>${skills.join(", ")}`
-              }
-            ]
-          ]
-        : []),
       [
         {
-          value: `<span style="color: yellow"><strong>Your first career has those skills:</strong></span><br>${careerSkills.join(", ")}`
+          value: `<span style="color: limegreen"><strong>${speciesName} has those skills:</strong></span><br>
+                  ${skills.join(", ")}<br>
+                  <span style="color: limegreen"><strong>Found entries in log:</strong></span><br>
+                  ${loggedSpeciesSkills.join(", ")}`
         }
       ],
-      ...Array(3)
-        .fill()
-        .map(() => [
-          {value: "Race Skill (3):"},
-          {
-            type: "select",
-            values: logSkills.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
-          }
-        ]),
-      ...Array(3)
-        .fill()
-        .map(() => [
-          {value: "Race Skill (5):"},
-          {
-            type: "select",
-            values: logSkills.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
-          }
-        ])
+      [
+        {
+          value: `<span style="color: yellow"><strong>${career.name} has those skills:</strong></span><br>
+                  ${careerSkills.join(", ")}<br>
+                  <span style="color: yellow"><strong>Found entries in log:</strong></span><br>
+                  ${loggedCareerSkills.join(", ")}`
+        }
+      ]
     ];
+    if (logSkills.length) {
+      logSkills.forEach((t) => {
+        data.push([
+          {
+            value: t.name,
+            style: `style="max-width: 50%"`
+          },
+          {
+            id: "skillState",
+            type: "select",
+            value: [
+              {name: ``, value: ""},
+              {name: `Species (Free)`, value: "species"},
+              {name: `First Career (Free)`, value: "career"},
+              {name: `Free`, value: "free"}
+            ],
+            style: `style="max-width: 40%"`
+          },
+          {
+            id: "skillLvl",
+            type: "input",
+            inputType: "number",
+            value: 1,
+            style: `style="text-align: center;max-width: 10%" min=1 max=${t.entryCount - t.count}`
+          }
+        ]);
+      });
+    } else {
+      data.push([
+        {
+          value: "No unmatched skills found, fix issue manually."
+        }
+      ]);
+    }
     let result = await ConfigurableDialog.create({
-      title: "Verification Error: Race Skills",
+      title: "Verification Error: Unmatched Skills",
       confirmLabel: "Add",
       data
     });
@@ -636,100 +674,111 @@ export default class ExperienceVerificator extends FormApplication {
     Object.values(result).forEach((value, i) => {
       let max = i < 3 ? 3 : 5;
       for (let j = 0; j < max; j++) {
-        this.log.unshift(new LogEntry(this, value, 0, "spent", "Skill", "char-gen-race-skill"));
+        this.log.unshift(new LogEntry(this, value, 0, "spent", "Skill", "char-gen-species-skill"));
       }
     });
-    this.log.forEach((entry, index) => (entry.index = index));
+    this.refreshCalculatedStats();
   }
 
-  async runInitialTalentsCheck() {
-    const species = this.actor.details.species;
-    let {talents, randomTalents} = game.wfrp4e.utility.speciesSkillsTalents(species.value, species.subspecies);
-    let raceTalents = [];
-    let countTalents = 6;
-    if (talents) {
-      countTalents = 0;
-      for (let t of talents) {
-        if (Number.isNumeric(t)) {
-          countTalents += t;
-          randomTalents["talents"] = randomTalents["talents"] ?? [];
-          randomTalents["talents"] += t;
-        } else {
-          countTalents++;
-          raceTalents.push(t);
-        }
-      }
-      if (this.log.filter((entry) => entry.id === "char-gen-race-talent").length === countTalents) return;
-    } else {
-      if (this.log.filter((entry) => entry.id === "char-gen-race-talent").length) return;
-      raceTalents = [];
-    }
+  async runTalentsCheck() {
+    const loggedSpeciesTalents = this.log.filter((e) => e.id === "char-gen-species-talent").map((e) => e.name);
+    const loggedCareerTalents = this.log.filter((e) => e.id === "char-gen-career-talent").map((e) => e.name);
+
+    let {talents, randomTalents, speciesName} = this.getSpeciesData(this.actor.details.species);
     for (let [key, value] of Object.entries(randomTalents)) {
       if (value === 0) continue;
       let table = game.wfrp4e.tables.findTable(key);
-      raceTalents.push(`${table.results.contents.map((r) => r.text).join(", ")} [${value}]`);
+      talents.push(
+        `<span title="${table.results.contents.map((r) => r.text).join("\n")}">Random Talent (${value})</span>`
+      );
     }
 
+    if (talents.length === loggedSpeciesTalents.length && loggedCareerTalents.length === 1) return;
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
-    this.log = this.log.filter((entry) => entry.id !== "char-gen-race-talent");
 
-    let careerTalents = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0].system.talents ?? [];
-    let logTalents = this.getSpentGroupLog(1, 1).filter((e) => e.category === "Talent" && e.entryCount !== e.count);
-    logTalents = logTalents
+    let career = this.actor.itemTypes.career.toSorted((a, b) => b.sort - a.sort)[0];
+    let careerTalents = (career.system.talents ?? []).sort((a, b) => a.localeCompare(b));
+
+    let logTalents = this.getSpentGroupLog(1, 1)
+      .filter((e) => e.category === "Talent" && e.entryCount !== e.count)
       .toSorted((a, b) => a.name.localeCompare(b.name))
       .toSorted((a, b) => a.entryCount - a.count - b.entryCount + b.count);
+
     let formattedLogTalents = logTalents.map((talent) => {
       let text = `${talent.name} (${talent.entryCount - talent.count})`;
       if (careerTalents.includes(talent.name)) return `<span style="color: yellow">${text}</span>`;
-      if (raceTalents.some((t) => t.includes(talent.name))) return `<span style="color: limegreen">${text}</span>`;
+      if (talents.some((t) => t.includes(talent.name))) return `<span style="color: limegreen">${text}</span>`;
       return text;
     });
-
     let data = [
-      [{value: `No race talents info. Do you want to add one?`}],
-      [{value: `<strong>Experience log contains unmatched talents:</strong><br>${formattedLogTalents.join(", ")}`}]
+      [{value: `<strong>Experience log contains unmatched talents:</strong><br>${formattedLogTalents.join(", ")}`}],
+      [
+        {
+          value: `<span style="color: limegreen"><strong>${speciesName} has those talents:</strong></span><br>
+                  ${talents.join(", ")}<br>
+                  <span style="color: limegreen"><strong>Found entries in log:</strong></span><br>
+                  ${loggedSpeciesTalents.join(", ")}`
+        }
+      ],
+      [
+        {
+          value: `<span style="color: yellow"><strong>${career.name} has those skills:</strong></span><br>
+                  ${careerTalents.join(", ")}<br>
+                  <span style="color: yellow"><strong>Found entries in log:</strong></span><br>
+                  ${loggedCareerTalents.join(", ")}`
+        }
+      ]
     ];
-    if (raceTalents.length) {
+    if (logTalents.length) {
+      logTalents.forEach((t) => {
+        data.push([
+          {
+            value: t.name,
+            style: `style="max-width: 50%"`
+          },
+          {
+            id: "talentState",
+            type: "select",
+            value: [
+              {name: ``, value: ""},
+              {name: `Species (Free)`, value: "species"},
+              {name: `First Career (Free)`, value: "career"},
+              {name: `Free`, value: "free"}
+            ],
+            style: `style="max-width: 40%"`
+          },
+          {
+            id: "talentLvl",
+            type: "input",
+            inputType: "number",
+            value: 1,
+            style: `style="text-align: center;max-width: 10%" min=1 max=${t.entryCount - t.count}`
+          }
+        ]);
+      });
+    } else {
       data.push([
         {
-          value: `<span style="color: limegreen"><strong>Your race has those talents as racial:</strong></span><br>${raceTalents.join("<br>")}`
+          value: "No unmatched talents found, fix issue manually."
         }
       ]);
     }
-    data = data.concat([
-      [
-        {
-          value: `<span style="color: yellow"><strong>Your first career has those skills:</strong></span><br>${careerTalents}`
-        }
-      ],
-      ...Array(countTalents)
-        .fill(null)
-        .map((_, i) => {
-          return [
-            {
-              value: `Race Talent ${i + 1}`
-            },
-            {
-              type: "select",
-              values: [
-                {name: ``, value: ""},
-                ...logTalents.map((s) => ({name: `${s.name} (${s.entryCount - s.count})`, value: s.name}))
-              ],
-              style: `style="align-items: center;max-width: 50%"`
-            }
-          ];
-        })
-    ]);
 
     let result = await ConfigurableDialog.create({
-      title: "Verification Error: Race Talents",
-      confirmLabel: "Add",
+      title: "Verification Error: Unmatched talents",
+      confirmLabel: "Fix",
       data
     });
     if (!result) return;
-    Object.values(result).forEach((value) => {
-      if (value === "") return;
-      this.log.unshift(new LogEntry(this, value, 0, "spent", "Talent", "char-gen-race-talent"));
+    result.talentState = Array.isArray(result.talentState) ? result.talentState : [result.talentState];
+    result.talentLvl = Array.isArray(result.talentLvl) ? result.talentLvl : [result.talentLvl];
+
+    Object.values(result.talentState).forEach((state, i) => {
+      if (state === "") return;
+      for (let j = 0; j < result.talentLvl[i]; j++) {
+        let id = state !== "free" ? `char-gen-${state}-talent` : undefined;
+        this.log.unshift(new LogEntry(this, logTalents[i].name, 0, "spent", "Talent", id));
+      }
     });
     this.log.forEach((entry, index) => (entry.index = index));
   }
@@ -740,19 +789,45 @@ export default class ExperienceVerificator extends FormApplication {
 
     let data = [];
     if (totalExp !== this.calcGainedExp) {
-      data.push([{label: `Total EXP: ${totalExp} (Calculated: ${this.calcGainedExp})`}]);
+      data.push([{value: `Total EXP: ${totalExp} (Calculated: ${this.calcGainedExp})`}]);
     }
-    if (spentExp !== this.calcSpendExp) {
-      data.push([{label: `Spent EXP: ${spentExp} (Calculated: ${this.calcSpendExp})`}]);
+    if (spentExp !== this.calcSpentExp) {
+      data.push([{value: `Spent EXP: ${spentExp} (Calculated: ${this.calcSpentExp})`}]);
     }
-    if (!data.length) return;
-    if (this.ignoreIssues || !(await this.confirmRepair())) return;
+    if (!data.length || this.ignoreIssues || !(await this.confirmRepair())) return;
 
     return await ConfigurableDialog.create({
       title: "Verification Error: Final Experience",
       confirmLabel: "Fix",
       data
     });
+  }
+
+  getSpeciesData(species) {
+    let {skills, talents, randomTalents} = game.wfrp4e.utility.speciesSkillsTalents(species.value, species.subspecies);
+    let speciesName = game.wfrp4e.config.species[species.value];
+    if (species.subspecies) {
+      speciesName += ` (${game.wfrp4e.config.subspecies[species.value][species.subspecies].name})`;
+    }
+    let speciesTalents = [];
+
+    for (let t of talents) {
+      if (t === 0) continue;
+      if (t.includes(", ")) {
+        t = t
+          .split(", ")
+          .sort((a, b) => a.localeCompare(b))
+          .join(` ${game.i18n.localize("SHEET.Or")} `);
+      }
+      if (Number.isNumeric(t)) {
+        randomTalents["talents"] = randomTalents["talents"] ?? [];
+        randomTalents["talents"] += t;
+      } else {
+        speciesTalents.push(t);
+      }
+    }
+    speciesTalents = speciesTalents.sort((a, b) => a.localeCompare(b));
+    return {skills, talents: speciesTalents, randomTalents, speciesName};
   }
 
   async confirmRepair() {
@@ -767,59 +842,5 @@ export default class ExperienceVerificator extends FormApplication {
       this.fixingIssues = true;
     }
     return result;
-  }
-}
-
-export class ConfigurableDialog extends Dialog {
-  static createRow(rowIndex, fields) {
-    let style = `style: "max-width: calc(100 / ${fields.length})%"`;
-    let content = `<div class="form-group">`;
-    content += fields
-      .map((field, columnIndex) => this.createCell(field, rowIndex, columnIndex, field.style ?? style))
-      .join("");
-    content += `</div>`;
-    return content;
-  }
-
-  static createCell(field, rowIndex, columnIndex, style) {
-    const fieldId = field?.id ?? `field-${rowIndex}-${columnIndex}`;
-    switch (field.type ?? "label") {
-      case "label":
-        return `<label ${style}>${field.value}</label>`;
-      case "input":
-        let type = field.inputType ?? "text";
-        return `<input ${style} id="${fieldId}" name="${fieldId}" type="${type}" value="${field.value}" />`;
-      case "select":
-        let options = field.values.map((e) => {
-          let selected = field.selected === e.value ? "selected" : "";
-          return `<option ${style} value="${e.value ?? e.name}" ${selected}>${e.name}</option>`;
-        });
-        return `<select ${style} id="${fieldId}" name="${fieldId}">${options.join("")}</select>`;
-    }
-  }
-
-  static create({title, data = [], buttons, confirmLabel = "Fix", cancelLabel = "Ignore"}) {
-    buttons ??= {
-      confirm: {
-        label: confirmLabel,
-        callback: (html) => {
-          let dataObject = new FormDataExtended(html.find("form")[0]).object;
-          return Object.fromEntries(
-            Object.entries(dataObject).map(([key, value]) => [key, Number.isNumeric(value) ? Number(value) : value])
-          );
-        }
-      },
-      ignore: {
-        label: cancelLabel,
-        callback: () => null
-      }
-    };
-    return Dialog.wait({
-      title: title,
-      content: `<form>${data.map((fields, index) => this.createRow(index, fields)).join("")}</form>`,
-      buttons,
-      default: "confirm",
-      close: () => null
-    });
   }
 }
