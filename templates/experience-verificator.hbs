@@ -15,8 +15,8 @@
               </div>
             </th>
           </tr>
-          {{#each spentLog as |entry|}}
-            <tr class="exp-row" name="{{entry.index}}" style="position: relative;">
+          {{#each spentLog as |entry index|}}
+            <tr class="spent-exp-row" name="{{index}}" style="position: relative;">
               <td style="position: relative; z-index: 1; padding: 0;">
                 <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
@@ -45,8 +45,8 @@
               </div>
             </th>
           </tr>
-          {{#each gainedLog as |entry|}}
-          <tr class="exp-row" name="{{entry.index}}" style="position: relative;">
+          {{#each gainedLog as |entry index|}}
+          <tr class="gained-exp-row" name="{{index}}" style="position: relative;">
             <td style="position: relative; z-index: 1; padding: 0;">
               <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
@@ -63,11 +63,11 @@
   </div>
   <div class="form-group">
     <button type="button" style="max-width: 5%" id="prev"><</button>
+    <button type="button" id="verify">Verify</button>
     <button type="button" id="compact">{{groupModeDesc}}</button>
     <button type="button" id="group">{{sortModeDesc}}</button>
     <button type="button" id="edit">{{editModeDesc}}</button>
-    <button type="button" id="verify">Verify</button>
-    <button type="button" id="confirm">Save</button>
+    <button type="button" id="confirm">Close</button>
     <button type="button" style="max-width: 5%" id="next">></button>
   </div>
 </form>

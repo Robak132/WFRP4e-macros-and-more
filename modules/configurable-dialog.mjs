@@ -41,17 +41,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => {
-          let dataObject = new FormDataExtended(html.find("form")[0]).object;
-          return Object.fromEntries(
-            Object.entries(dataObject).map(([key, value]) => {
-              if (Array.isArray(value)) {
-                value = Object.entries(value).map(([k, v]) => (value[k] = Number.isNumeric(v) ? Number(v) : v));
-              }
-              return [key, Number.isNumeric(value) ? Number(value) : value];
-            })
-          );
-        }
+        callback: (html) => ConfigurableDialog.parseResult(html)
       },
       ignore: {
         label: cancelLabel,
@@ -67,6 +57,18 @@ export default class ConfigurableDialog extends Dialog {
         close: () => null
       },
       options
+    );
+  }
+
+  static parseResult(html) {
+    let dataObject = new FormDataExtended(html.find("form")[0]).object;
+    return Object.fromEntries(
+      Object.entries(dataObject).map(([key, value]) => {
+        if (Array.isArray(value)) {
+          value = Object.entries(value).map(([k, v]) => (value[k] = Number.isNumeric(v) ? Number(v) : v));
+        }
+        return [key, Number.isNumeric(value) ? Number(value) : value];
+      })
     );
   }
 }

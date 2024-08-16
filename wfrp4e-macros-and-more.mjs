@@ -8,6 +8,7 @@ import RobakMarketWfrp4e from "./modules/robak-market.js";
 import FinanceCalculator from "./modules/finance-calculator.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
+import {setupAutoEngaged} from "./modules/auto-engaged.mjs";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -124,6 +125,7 @@ Hooks.once("init", async function () {
     configurableDialog: ConfigurableDialog,
     rollTracker: new RollTracker()
   };
+  setupAutoEngaged();
 
   // Register settings
   await registerSettings();
