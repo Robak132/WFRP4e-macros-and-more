@@ -1,6 +1,7 @@
 import path from "path";
 import fs from "fs";
 import {compilePack} from "@foundryvtt/foundryvtt-cli";
+import {outputFileSync} from "fs-extra/esm";
 
 const inputPath = "src/macros";
 const jsonPath = "src/packs/macros";
@@ -28,8 +29,10 @@ function transformData(macro) {
   return macro;
 }
 
-for (let filepath of fs.readdirSync(jsonPath)) {
-  fs.unlinkSync(path.join(jsonPath, filepath));
+if (fs.existsSync(jsonPath)) {
+  for (let filepath of fs.readdirSync(jsonPath)) {
+    fs.unlinkSync(path.join(jsonPath, filepath));
+  }
 }
 for (let filepath of fs.readdirSync(inputPath, {recursive: true, withFileTypes: true})) {
   if (!filepath.isFile() || !filepath.name.endsWith(".js")) {
@@ -46,8 +49,9 @@ for (let filepath of fs.readdirSync(inputPath, {recursive: true, withFileTypes: 
   let fileData = macrosData.common;
   fileData = Object.assign(fileData, macro);
   fileData = transformData(fileData);
-  fs.writeFileSync(path.join(jsonPath, fileName), JSON.stringify(fileData, null, 2) + "\n", "utf8");
+  outputFileSync(path.join(jsonPath, fileName), JSON.stringify(fileData, null, 2) + "\n", "utf8");
 }
+console.log("Pack data transformation complete.");
 compilePack(jsonPath, outputPath, {log: false})
   .then(() => console.log("Pack compilation complete."))
   .catch((err) => console.log(err.message));
