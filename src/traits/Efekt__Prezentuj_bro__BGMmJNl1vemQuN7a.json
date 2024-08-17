@@ -1,0 +1,30 @@
+{
+  "name": "Efekt: Prezentuj broń",
+  "type": "trait",
+  "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-show.svg",
+  "effects": [
+    {
+      "flags": {
+        "wfrp4e": {
+          "scriptData": [
+            {
+              "label": "Prezentuj Broń",
+              "trigger": "prePrepareItems",
+              "script": "[Script.1jX37MkxtB6uzViV]"
+            }
+          ],
+          "applicationData": {
+            "type": "document",
+            "documentType": "Actor"
+          }
+        }
+      },
+      "name": "Prezentuj broń",
+      "icon": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-show.svg",
+      "_id": "o30xGvrmdF3shvXZ",
+      "_key": "!items.effects!BGMmJNl1vemQuN7a.o30xGvrmdF3shvXZ"
+    }
+  ],
+  "_id": "BGMmJNl1vemQuN7a",
+  "_key": "!items!BGMmJNl1vemQuN7a"
+}

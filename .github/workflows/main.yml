@@ -18,10 +18,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Pack effects
-        run: npm run pack-effect
-
-      - name: Pack macros
+      - name: Pack
         run: npm run pack
 
       - name: Get Module ID

@@ -1,0 +1,155 @@
+{
+  "name": "Efekt: Standardowa trudność testów społecznych",
+  "type": "trait",
+  "img": "modules/wfrp4e-core/icons/traits/trait.png",
+  "effects": [
+    {
+      "name": "Standardowa trudność testów społecznych",
+      "icon": "modules/wfrp4e-core/icons/traits/trait.png",
+      "_id": "NVOaTHusOVN0icR3",
+      "flags": {
+        "wfrp4e": {
+          "applicationData": {
+            "type": "document",
+            "documentType": "Actor"
+          },
+          "scriptData": [
+            {
+              "label": "Cel ma status Brąz",
+              "script": "args.fields.modifier += 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'b' || args.skill?.name != game.i18n.localize(\"NAME.Charm\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Srebro",
+              "script": "args.fields.modifier += args?.actor?.system?.details?.status?.tier === 'g' ? 10 : -10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 's' || args.skill?.name != game.i18n.localize(\"NAME.Charm\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Złoto",
+              "script": "args.fields.modifier -= 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'g' || args.skill?.name != game.i18n.localize(\"NAME.Charm\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Brąz",
+              "script": "args.fields.modifier += args?.actor?.system?.details?.status?.tier === 'g' ? 20 : 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'b' || args.skill?.name != game.i18n.localize(\"NAME.Leadership\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Srebro",
+              "script": "args.fields.modifier += 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return ['s', 'b'].includes(args?.actor?.system?.details?.status?.tier) || args.skill?.name != game.i18n.localize(\"NAME.Leadership\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Brąz",
+              "script": "args.fields.modifier = -10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'b' || args.skill?.name != game.i18n.localize(\"NAME.Gossip\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Srebro",
+              "script": "args.fields.modifier -= 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 's' || args.skill?.name != game.i18n.localize(\"NAME.Gossip\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Złoto",
+              "script": "args.fields.modifier -= 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'g' || args.skill?.name != game.i18n.localize(\"NAME.Gossip\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Brąz",
+              "script": "args.fields.modifier += 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args?.actor?.system?.details?.status?.tier === 'b' || args.skill?.name != game.i18n.localize(\"NAME.Intimidate\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel ma status Srebro",
+              "script": "args.fields.modifier += 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return ['s', 'b'].includes(args?.actor?.system?.details?.status?.tier) || args.skill?.name != game.i18n.localize(\"NAME.Intimidate\");",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "_key": "!items.effects!ZFEDgWeW32TUp0qH.NVOaTHusOVN0icR3"
+    }
+  ],
+  "_id": "ZFEDgWeW32TUp0qH",
+  "_key": "!items!ZFEDgWeW32TUp0qH"
+}

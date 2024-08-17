@@ -134,7 +134,11 @@ export default class MaintenanceWrapper extends FormApplication {
         macro.compendium.hash = this.hash(macro.compendium?.command);
       }
 
-      if (macro.existing?.name !== macro.compendium?.name || macro.existing?.hash !== macro.compendium?.hash) {
+      if (
+        macro.existing?.name !== macro.compendium?.name ||
+        macro.existing?.img !== macro.compendium?.img ||
+        macro.existing?.hash !== macro.compendium?.hash
+      ) {
         if (macro.existing && macro.compendium) {
           content.updated.push({
             name:
@@ -145,7 +149,7 @@ export default class MaintenanceWrapper extends FormApplication {
               macro.existing.hash === macro.compendium.hash
                 ? macro.existing.hash
                 : `(${macro.existing.hash}) -> (${macro.compendium.hash})`,
-            img: macro.existing.img,
+            img: macro.compendium.img,
             existing: macro.existing,
             compendium: macro.compendium
           });

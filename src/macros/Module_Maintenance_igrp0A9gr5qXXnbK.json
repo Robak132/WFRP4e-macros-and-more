@@ -1,0 +1,17 @@
+{
+  "_id": "igrp0A9gr5qXXnbK",
+  "author": "MJAZjdKh3QKREKG2",
+  "command": "new game.robakMacros.maintenance().render(true);\n",
+  "flags": {
+    "wfrp4e-macros-and-more": {
+      "version": "1.0.0",
+      "sourceId": "igrp0A9gr5qXXnbK"
+    }
+  },
+  "folder": null,
+  "img": "modules/wfrp4e-macros-and-more/assets/icons/maintenance.svg",
+  "name": "Module Maintenance",
+  "scope": "global",
+  "type": "script",
+  "_key": "!macros!igrp0A9gr5qXXnbK"
+}
