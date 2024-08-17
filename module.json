@@ -22,8 +22,7 @@
     "css/macros-and-more.css"
   ],
   "esmodules": [
-    "wfrp4e-macros-and-more.mjs",
-    "modules/robak-market.js"
+    "wfrp4e-macros-and-more.mjs"
   ],
   "relationships": {
     "systems": [
