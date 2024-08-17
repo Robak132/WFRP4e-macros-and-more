@@ -12,15 +12,18 @@
       "ko-fi": "jagusti"
     }
   ],
-  "version": "1.6.1",
+  "version": "1.7.0",
   "compatibility": {
     "minimum": "11",
     "verified": "11",
     "maximum": "12"
   },
+  "styles": [
+    "css/macros-and-more.css"
+  ],
   "esmodules": [
     "wfrp4e-macros-and-more.mjs",
-    "load-scripts.mjs"
+    "modules/robak-market.js"
   ],
   "relationships": {
     "systems": [

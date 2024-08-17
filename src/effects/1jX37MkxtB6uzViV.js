@@ -2,7 +2,7 @@ if (!game.user.isUniqueGM) return;
 
 effectsToCreate = [];
 effectsToDelete = [];
-for (let weapon of this.actor._itemTypes.weapon ?? []) {
+for (let weapon of this.actor.itemTypes.weapon ?? []) {
   const weaponEffect = this.actor.effects.find((value) => value.name === `${weapon.name} (${weapon.id})`);
   if (weapon.equipped && weaponEffect === undefined) {
     effectsToCreate.push({
