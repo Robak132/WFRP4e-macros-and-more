@@ -163,8 +163,10 @@ function sign(x) {
 
 export default class ExperienceVerificator extends FormApplication {
   static SORT_MODES = ["Sort: Time", "Sort: Reason", "Sort: Value", "Sort: Category"];
-  static GROUP_MODES = ["Group: Off", "Group: Name", "Group: Category"];
+  static GROUP_MODES = ["Group: Off", "Group: Reason", "Group: Category"];
   static VIEW_MODES = ["Mode: View", "Mode: Edit"];
+  static SPENT_CATEGORIES = ["Skill", "Talent", "Characteristic", "Spell/Miracle", "Career Change", "Unknown"];
+  static GAINED_CATEGORIES = ["Character Creation", "EXP Gain", "Unknown"];
 
   constructor(actor, object = {}, options = {}) {
     super(object, options);
@@ -357,7 +359,7 @@ export default class ExperienceVerificator extends FormApplication {
     });
   }
 
-  renameEntryGroup(e, log) {
+  editEntryGroup(e, log) {
     e.preventDefault();
     if (!this.editMode) return;
 
@@ -365,38 +367,59 @@ export default class ExperienceVerificator extends FormApplication {
     if (!entryGroup.entries.length) return;
 
     ConfigurableDialog.create({
-      title: "Rename Entry Group",
+      title: "Edit Entry Group",
       data: [
-        [{value: "Insert new name for the entries group."}],
         [
-          {
-            id: "name",
-            type: "input",
-            inputType: "text",
-            value: entryGroup.name,
-            style: "style='text-align: center'"
-          }
-        ]
+          {value: `Name`, style: "style='text-align: center;max-width: 50%'"},
+          {value: `Category`, style: "style='text-align: center;max-width: 35%'"},
+          {value: `Value`, style: "style='text-align: center;max-width: 15%'"}
+        ],
+        ...entryGroup.entries
+          .toSorted((a, b) => b.index - a.index)
+          .map((entry) => [
+            {
+              id: "name",
+              type: "input",
+              inputType: "text",
+              value: entry.name,
+              style: "style='text-align: center;max-width: 50%'"
+            },
+            {
+              id: "category",
+              type: "select",
+              value: (entry.type === "spent"
+                ? ExperienceVerificator.SPENT_CATEGORIES
+                : ExperienceVerificator.GAINED_CATEGORIES
+              ).map((c) => ({name: c, value: c})),
+              selected: entry.category,
+              style: "style='text-align: center;max-width: 35%'"
+            },
+
+            {
+              id: "value",
+              type: "input",
+              inputType: "number",
+              value: entry.value,
+              style: "style='text-align: center;max-width: 15%'"
+            }
+          ])
       ],
       buttons: {
         confirm: {
-          label: "Rename Entry",
+          label: "Confirm",
           callback: (html) => {
-            let {name} = ConfigurableDialog.parseResult(html);
-            if (name && name !== entryGroup.name) {
-              entryGroup.entries[0].setName(name);
-              this.render(true);
-            }
-          }
-        },
-        confirmAll: {
-          label: "Rename Group",
-          callback: (html) => {
-            let {name} = ConfigurableDialog.parseResult(html);
-            if (name && name !== entryGroup.name) {
-              entryGroup.entries.forEach((e) => e.setName(name));
-              this.render(true);
-            }
+            let result = ConfigurableDialog.parseResult(html);
+            result.name = Array.isArray(result.name) ? result.name : [result.name];
+            result.category = Array.isArray(result.category) ? result.category : [result.category];
+            result.value = Array.isArray(result.value) ? result.value : [result.value];
+            entryGroup.entries
+              .toSorted((a, b) => b.index - a.index)
+              .forEach((entry, i) => {
+                entry.setName(result.name[i]);
+                entry.category = result.category[i];
+                entry.value = result.value[i];
+              });
+            this.render(true);
           }
         },
         cancel: {
@@ -423,6 +446,12 @@ export default class ExperienceVerificator extends FormApplication {
     for (let talent of this.actor.itemTypes.talent) {
       if (!spentGroupLog.some((entry) => entry.name === talent.name)) {
         spentGroupLog.push(new LogEntryGroup(this, "spent", "Talent", talent.name));
+      }
+    }
+    for (let [key, value] of Object.entries(this.actor.system.characteristics)) {
+      let name = game.wfrp4e.config.characteristics[key];
+      if (value.advances !== 0 && !spentGroupLog.some((entry) => entry.name === name)) {
+        spentGroupLog.push(new LogEntryGroup(this, "spent", "Characteristic", name));
       }
     }
     for (let spell of this.actor.itemTypes.spell) {
@@ -468,11 +497,13 @@ export default class ExperienceVerificator extends FormApplication {
       speciesName += ` (${game.wfrp4e.config.subspecies[species.value][species.subspecies].name})`;
     }
     let speciesTalents = [];
+    let talentCount = Object.values(randomTalents).reduce((acc, val) => acc + val, 0);
 
     for (let t of talents) {
       if (Number.isNumeric(t)) {
         randomTalents["talents"] = randomTalents["talents"] ?? [];
         randomTalents["talents"] += t;
+        talentCount += t;
       } else {
         if (t.includes(", ")) {
           t = t
@@ -481,10 +512,11 @@ export default class ExperienceVerificator extends FormApplication {
             .join(` ${game.i18n.localize("SHEET.Or")} `);
         }
         speciesTalents.push(t);
+        talentCount += 1;
       }
     }
     speciesTalents = speciesTalents.sort((a, b) => a.localeCompare(b));
-    return {skills, talents: speciesTalents, randomTalents, speciesName};
+    return {skills, talents: speciesTalents, talentCount, randomTalents, speciesName};
   }
 
   activateListeners(html) {
@@ -509,6 +541,7 @@ export default class ExperienceVerificator extends FormApplication {
     });
     html.on("click", `button[id="verify"]`, async () => {
       await this.save();
+      if (!this.fixingIssues) return ui.notifications.info("No issues found.");
       this.render(true);
     });
     html.on("click", `button[id="group"]`, () => {
@@ -525,8 +558,8 @@ export default class ExperienceVerificator extends FormApplication {
       this.editMode = !this.editMode;
       this.render(true);
     });
-    html.on("click", ".spent-exp-row", (e) => this.renameEntryGroup(e, this.spentGroupLog));
-    html.on("click", ".gained-exp-row", (e) => this.renameEntryGroup(e, this.gainedGroupLog));
+    html.on("click", ".spent-exp-row", (e) => this.editEntryGroup(e, this.spentGroupLog));
+    html.on("click", ".gained-exp-row", (e) => this.editEntryGroup(e, this.gainedGroupLog));
     html.on("contextmenu", ".spent-exp-row", (e) => this.deleteEntryGroup(e, this.spentGroupLog));
     html.on("contextmenu", ".gained-exp-row", (e) => this.deleteEntryGroup(e, this.gainedGroupLog));
   }
@@ -558,6 +591,7 @@ export default class ExperienceVerificator extends FormApplication {
     await this.runSkillsCheck();
     await this.runTalentsCheck();
     await this.runCareerCheck();
+    await this.runSpellsCheck();
     const fixTotalExp = await this.runFinalExpCheck();
     let newLog = this.log.map((entry) => {
       return {
@@ -682,7 +716,7 @@ export default class ExperienceVerificator extends FormApplication {
     this.log.unshift(
       new LogEntry(
         this,
-        "Character Creation: Race",
+        "Character Creation: Species",
         result.species,
         "total",
         "Character Creation",
@@ -693,10 +727,11 @@ export default class ExperienceVerificator extends FormApplication {
   }
 
   async runAttributesCheck() {
-    const loggedProfessionAttributes = this.log
-      .filter((e) => e.id === "char-gen-career-attribute")
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((e) => e.name);
+    const loggedProfessionAttributes = this.log.filter((e) => e.id === "char-gen-career-attribute").map((e) => e.name);
+    const loggedProfessionAttributesGrp = loggedProfessionAttributes.reduce((acc, val) => {
+      acc[val] = (acc[val] || 0) + 1;
+      return acc;
+    }, {});
     const loggedAttributes = this.getSpentGroupLog(1, 1)
       .filter((e) => e.category === "Characteristic" && e.entryCount !== e.count)
       .toSorted((a, b) => a.name.localeCompare(b.name))
@@ -726,7 +761,9 @@ export default class ExperienceVerificator extends FormApplication {
           value: `<span style="color: yellow"><strong>${career.name} has those attributes:</strong></span><br>
                   ${careerTalents.join(", ")}<br>
                   <span style="color: yellow"><strong>Found entries in log:</strong></span><br>
-                  ${loggedProfessionAttributes.join(", ")}`
+                  ${Object.entries(loggedProfessionAttributesGrp)
+                    .map(([key, value]) => `${key} (${value})`)
+                    .join(", ")}`
         }
       ]
     ];
@@ -738,7 +775,7 @@ export default class ExperienceVerificator extends FormApplication {
             style: `style="max-width: 50%"`
           },
           {
-            id: "attributeState",
+            id: "state",
             type: "select",
             value: [
               {name: ``, value: ""},
@@ -748,7 +785,7 @@ export default class ExperienceVerificator extends FormApplication {
             style: `style="max-width: 40%"`
           },
           {
-            id: "attributeLvl",
+            id: "lvl",
             type: "input",
             inputType: "number",
             value: 1,
@@ -759,7 +796,7 @@ export default class ExperienceVerificator extends FormApplication {
     } else {
       data.push([
         {
-          value: "No unmatched talents found, fix issue manually."
+          value: "No unmatched attributes found, fix issue manually."
         }
       ]);
     }
@@ -770,13 +807,13 @@ export default class ExperienceVerificator extends FormApplication {
       data
     });
     if (!result) return;
-    result.attributeState = Array.isArray(result.attributeState) ? result.attributeState : [result.attributeState];
-    result.attributeLvl = Array.isArray(result.attributeLvl) ? result.attributeLvl : [result.attributeLvl];
+    result.state = Array.isArray(result.state) ? result.state : [result.state];
+    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
 
-    Object.values(result.attributeState).forEach((state, i) => {
+    Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       let id = state !== "free" ? `char-gen-${state}-attribute` : undefined;
-      for (let j = 0; j < result.attributeLvl[i]; j++) {
+      for (let j = 0; j < result.lvl[i]; j++) {
         this.log.unshift(new LogEntry(this, loggedAttributes[i].name, 0, "spent", "Characteristic", id));
       }
     });
@@ -852,7 +889,7 @@ export default class ExperienceVerificator extends FormApplication {
             style: `style="max-width: 50%"`
           },
           {
-            id: "skillState",
+            id: "state",
             type: "select",
             value: [
               {name: ``, value: ""},
@@ -863,7 +900,7 @@ export default class ExperienceVerificator extends FormApplication {
             style: `style="max-width: 40%"`
           },
           {
-            id: "skillLvl",
+            id: "lvl",
             type: "input",
             inputType: "number",
             value: 1,
@@ -884,13 +921,13 @@ export default class ExperienceVerificator extends FormApplication {
       data
     });
     if (!result) return;
-    result.skillState = Array.isArray(result.skillState) ? result.skillState : [result.skillState];
-    result.skillLvl = Array.isArray(result.skillLvl) ? result.skillLvl : [result.skillLvl];
+    result.state = Array.isArray(result.state) ? result.state : [result.state];
+    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
 
-    Object.values(result.skillState).forEach((state, i) => {
+    Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       let id = state !== "free" ? `char-gen-${state}-skill` : undefined;
-      for (let j = 0; j < result.skillLvl[i]; j++) {
+      for (let j = 0; j < result.lvl[i]; j++) {
         this.log.unshift(new LogEntry(this, loggedSkills[i].name, 0, "spent", "Skill", id));
       }
     });
@@ -911,7 +948,7 @@ export default class ExperienceVerificator extends FormApplication {
       .toSorted((a, b) => a.name.localeCompare(b.name))
       .toSorted((a, b) => a.entryCount - a.count - b.entryCount + b.count);
 
-    let {talents, randomTalents, speciesName} = this.getSpeciesData(this.actor.details.species);
+    let {talents, talentCount, randomTalents, speciesName} = this.getSpeciesData(this.actor.details.species);
     for (let [key, value] of Object.entries(randomTalents)) {
       if (value === 0) continue;
       let table = game.wfrp4e.tables.findTable(key);
@@ -920,7 +957,7 @@ export default class ExperienceVerificator extends FormApplication {
       );
     }
 
-    if (talents.length === loggedSpeciesTalents.length && loggedCareerTalents.length === 1 && !loggedTalents.length) {
+    if (loggedSpeciesTalents.length === talentCount && loggedCareerTalents.length === 1 && !loggedTalents.length) {
       return;
     }
     if (this.ignoreIssues || !(await this.confirmRepair())) return;
@@ -1084,6 +1121,65 @@ export default class ExperienceVerificator extends FormApplication {
     this.refreshCalculatedStats();
   }
 
+  async runSpellsCheck() {
+    const loggedSpells = this.getSpentGroupLog(1, 1).filter(
+      (e) => e.category === "Spell/Miracle" && e.entryCount !== e.count
+    );
+
+    if (!loggedSpells.length) return;
+    if (this.ignoreIssues || !(await this.confirmRepair())) return;
+
+    let formattedLogCareer = loggedSpells.map((c) => c.name);
+    let data = [
+      [{value: `<strong>Experience log contains unmatched spells:</strong><br>${formattedLogCareer.join(", ")}`}]
+    ];
+    if (loggedSpells.length) {
+      loggedSpells.forEach((t) => {
+        data.push([
+          {
+            value: t.name,
+            style: `style="max-width: 70%"`
+          },
+          {
+            id: "state",
+            type: "select",
+            value: [
+              {name: ``, value: ""},
+              {name: `Free`, value: "free"}
+            ],
+            style: `style="max-width: 20%"`
+          },
+          {
+            id: "lvl",
+            type: "input",
+            inputType: "number",
+            value: 1,
+            style: `style="text-align: center;max-width: 10%" min=1 max=${t.entryCount - t.count}`
+          }
+        ]);
+      });
+    } else {
+      data.push([{value: "No unmatched careers found, fix issue manually."}]);
+    }
+
+    let result = await ConfigurableDialog.create({
+      title: "Verification Error: Unmatched spells",
+      confirmLabel: "Fix",
+      data
+    });
+    if (!result) return;
+    result.state = Array.isArray(result.state) ? result.state : [result.state];
+    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
+
+    Object.values(result.state).forEach((state, i) => {
+      if (state === "") return;
+      for (let j = 0; j < result.lvl[i]; j++) {
+        this.log.unshift(new LogEntry(this, loggedSpells[i].name, 0, "spent", "Career Change"));
+      }
+    });
+    this.refreshCalculatedStats();
+  }
+
   async runFinalExpCheck() {
     let totalExp = this.experience.total;
     let spentExp = this.experience.spent;
@@ -1095,7 +1191,7 @@ export default class ExperienceVerificator extends FormApplication {
     if (spentExp !== this.calcSpentExp) {
       data.push([{value: `Spent EXP: ${spentExp} (Calculated: ${this.calcSpentExp})`}]);
     }
-    if (!data.length || this.ignoreIssues || !(await this.confirmRepair())) return;
+    if (!data.length || this.ignoreIssues || !(await this.confirmRepair())) return false;
 
     return await ConfigurableDialog.create({
       title: "Verification Error: Final Experience",
