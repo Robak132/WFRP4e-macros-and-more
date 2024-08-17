@@ -1,14 +1,10 @@
 import ItemTransfer from "./modules/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
-import {RollTracker, RollTrackerDialog} from "./modules/roll-tracker.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
-import RobakMarketWfrp4e from "./modules/robak-market.js";
-import FinanceCalculator from "./modules/finance-calculator.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
-import {setupAutoEngaged} from "./modules/auto-engaged.mjs";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -117,15 +113,12 @@ async function registerHandlebars() {
 Hooks.once("init", async function () {
   Utility.log("Initializing");
   game.robakMacros = {
-    financeCalculator: FinanceCalculator,
     transferItem: ItemTransfer,
     maintenance: MaintenanceWrapper,
     experienceVerificator: ExperienceVerificator,
     utils: Utility,
-    configurableDialog: ConfigurableDialog,
-    rollTracker: new RollTracker()
+    configurableDialog: ConfigurableDialog
   };
-  setupAutoEngaged();
 
   // Register settings
   await registerSettings();
