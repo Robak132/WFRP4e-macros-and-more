@@ -1,5 +1,7 @@
 wfrp4e-macros-and-more.lock
 node_modules/*
 packs/**
+src/packs/macros/*.json
+data/effects.json
 .idea
 .fvttrc.yml

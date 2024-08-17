@@ -1,12 +1,13 @@
 {
   "scripts": {
-    "pack": "node build/pack.mjs",
-    "pack-effect": "node build/pack-scripts.mjs",
+    "pack": "node .build/pack.mjs",
+    "pack-effect": "node .build/pack-scripts.mjs",
     "unpack": "node .build/unpack.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.0.3",
     "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
-    "prettier": "3.3.2"
+    "prettier": "3.3.2",
+    "fs-extra": "^11.2.0"
   }
 }

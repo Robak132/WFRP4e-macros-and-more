@@ -2,10 +2,10 @@ import {extractPack} from "@foundryvtt/foundryvtt-cli";
 import fs from "fs";
 import path from "path";
 
-const input_path = "../src/macros";
-const json_path = "../src/packs/macros";
-const output_path = "../packs/macros";
-const macrosData = JSON.parse(fs.readFileSync("macros.data.json"));
+const input_path = "src/macros";
+const json_path = "src/packs/macros";
+const output_path = "packs/macros";
+const macrosData = JSON.parse(fs.readFileSync(".build/macros.data.json"));
 
 function changeEndLineSignToSystem(text) {
   const IS_WIN = typeof process !== "undefined" && process.platform === "win32";
