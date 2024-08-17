@@ -16,9 +16,8 @@ https://github.com/Robak132/WFRP4e-macros-and-more/releases/latest/download/modu
 
 ## Acknowledgements
 
-Maintenance mode, release script and some codes were based
-on [GM Toolkit (WFRP 4e)](https://github.com/Jagusti/fvtt-wfrp4e-gmtoolkit) module by Jagusti. Some macros will work
-without it, but for some is required.
+Maintenance mode, release script and some codes were based on [GM Toolkit (WFRP 4e)](https://github.com/Jagusti/fvtt-wfrp4e-gmtoolkit) module by Jagusti.
+Some macros will work without it, but for some is required.
 
 ## Features
 
@@ -32,19 +31,30 @@ presence is required when sending items to another players' actors.
 After each turn of combat, chat message will be sent with summary of all fighters (adjusted by size). Which allows for
 easy determining which side has more fighters.
 
+### Experience Verificator
+
+Allows for easy browsing players' experience logs. Verifies that there are no mistakes in logs and visualise exp 
+categories as bar charts. 
+
+### Change Actors' and Items' Type
+
+Activated by "Change Type" option in context menu. Allows for changing actors' and items' type. Useful when you want
+to change NPC to PC or Trapping to Weapon.
+
 ## Macros
 
-### Add EXP (with Companions)
+### Add EXP
 
-Modified macro from Jagusti's GM Toolkit. Add full EXP for player's characters and half EXP for companions.
+Modified macro from Jagusti's GM Toolkit. Allows for adding experience to actors. Can be configured to add half exp for 
+companions.
 
 ### Auto-Pursuit
 
-Allows for creating pretty pursuits (Core & UiA rules)
+Allows for creating pretty pursuits (Core & UiA rules).
 
 ### Consume Alcohol
 
-Automatically counts failures and adds modifiers when drunk
+Automatically counts failures and adds modifiers when drunk.
 
 ### Initial Advantage Calculator
 
@@ -54,19 +64,18 @@ Calculate initial advantage and applies it to actors.
 
 Allows for easy item movement between containers and actors.
 
-### Pay/Credit Helper
-
-Adds GUI for sending players their money in easy way.
-
 ### Random Vampire Weakness
 
 Generate random weakness for Vampires. Based on WFRP2 rules.
 
 ### Roll Passive Talent
 
-**Requires GM Toolkit by Jagusti.**  
 Allows for easier interaction with passive talents like Sixth Sense and Trapper.
 
-### Random Weather Generator (Sea)
+### Sea Weather Generator
 
-Generate sea weather by Sea of Claws rules.
+Generate sea weather by Sea of Claws rules. Can be configured to save weather in Journal.
+
+### Token Manipulator
+
+Allows for easy token manipulation. Can be used to change token disposition or show/hide weapons.

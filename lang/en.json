@@ -5,6 +5,12 @@
   "MACROS-AND-MORE.SettingsMaintenanceMenuHint": "Replace imported macros with latest compendium versions.",
   "MACROS-AND-MORE.SettingsMaintenanceMenuLabel": "Update Content",
   "MACROS-AND-MORE.MessageNoPermission": "You have no permissions for this action",
+
+  "MACROS-AND-MORE.PayCommand": "Payment Response",
+  "MACROS-AND-MORE.PayRequest": "Payment Request ({currency})",
+  "MACROS-AND-MORE.CreditCommand": "Credit Response",
+  "MACROS-AND-MORE.CreditRequest": "Credit Request",
+
   "NAME.SixthSense": "Sixth Sense",
   "NAME.Trapper": "Trapper",
   "NAME.NoseForTrouble": "Nose for Trouble",
@@ -19,6 +25,58 @@
   "MACROS-AND-MORE.ChangeItemType": "Change Item Type",
   "MACROS-AND-MORE.ChangeActorType": "Change Actor Type",
 
+  "MACROS-AND-MORE.Settings": "Settings",
+  "MACROS-AND-MORE.Disabled": "Disabled",
+  "MACROS-AND-MORE.Random": "Random",
+  "MACROS-AND-MORE.Create": "Create",
+  "MACROS-AND-MORE.True": "True",
+  "MACROS-AND-MORE.False": "False",
+
+  "FINANCE-CALCULATOR.Bretonia": "Bretonia",
+  "FINANCE-CALCULATOR.Empire": "Empire",
+
+  "SEA-WEATHER-GENERATOR.Label": "Sea Weather Generator",
+  "SEA-WEATHER-GENERATOR.PrevailingWinds": "Prevailing Winds",
+  "SEA-WEATHER-GENERATOR.WindMidnight": "Wind Strength at Midnight",
+  "SEA-WEATHER-GENERATOR.Ship": "Ship",
+  "SEA-WEATHER-GENERATOR.FlyingJib": "Flying Jib",
+  "SEA-WEATHER-GENERATOR.Propulsion": "Propulsion",
+  "SEA-WEATHER-GENERATOR.Speed": "Speed",
+  "SEA-WEATHER-GENERATOR.ExternalConditions": "External Conditions",
+  "SEA-WEATHER-GENERATOR.WindDirection": "Wind Direction",
+  "SEA-WEATHER-GENERATOR.WindStrength": "Wind Strength",
+  "SEA-WEATHER-GENERATOR.ShowGM": "Show to GM",
+  "SEA-WEATHER-GENERATOR.ShowAll": "Show to All",
+  "SEA-WEATHER-GENERATOR.Logbook": "Captain's Log",
+  "SEA-WEATHER-GENERATOR.DistanceCalculation": "Distance Calculation",
+  "SEA-WEATHER-GENERATOR.LogbookDisabled": "Disabled (Distance to Target not used)",
+  "SEA-WEATHER-GENERATOR.LogbookStandard": "Standard (Base distance only)",
+  "SEA-WEATHER-GENERATOR.LogbookOptimal": "Optimal (Base distance + Tack + favorable Drift)",
+  "SEA-WEATHER-GENERATOR.SeaTemperature": "Sea Temperature",
+  "SEA-WEATHER-GENERATOR.Cold": "Zimna",
+  "SEA-WEATHER-GENERATOR.Warm": "Ciepła",
+  "SEA-WEATHER-GENERATOR.Sail": "Sail",
+  "SEA-WEATHER-GENERATOR.Other": "Other",
+  "SEA-WEATHER-GENERATOR.Journey": "Journey",
+  "SEA-WEATHER-GENERATOR.True": "True",
+  "SEA-WEATHER-GENERATOR.False": "False",
+  "SEA-WEATHER-GENERATOR.DistanceToTarget": "Distance to Target",
+  "SEA-WEATHER-GENERATOR.CurrentDay": "Current Day",
+  "SEA-WEATHER-GENERATOR.Day": "Day",
+  "SEA-WEATHER-GENERATOR.SyncWithCalendar": "Sync with Calendar",
+  "SEA-WEATHER-GENERATOR.WeatherRaport": "Weather Raport",
+  "SEA-WEATHER-GENERATOR.WindsRaport": "Winds Raport",
+  "SEA-WEATHER-GENERATOR.DistanceRaport": "Distance Raport",
+  "SEA-WEATHER-GENERATOR.SaveSettings": "Save Settings",
+  "SEA-WEATHER-GENERATOR.DefaultSettings": "Default Settings",
+
+  "SEA-WEATHER-GENERATOR.Season": "Season",
+  "SEA-WEATHER-GENERATOR.Spring": "Spring",
+  "SEA-WEATHER-GENERATOR.Summer": "Summer",
+  "SEA-WEATHER-GENERATOR.Autumn": "Autumn",
+  "SEA-WEATHER-GENERATOR.Winter": "Winter",
+
+  "SEA-WEATHER-GENERATOR.Direction": "Direction",
   "SEA-WEATHER-GENERATOR.North": "North",
   "SEA-WEATHER-GENERATOR.NorthAdj": "Northerly",
   "SEA-WEATHER-GENERATOR.South": "South",
@@ -34,7 +92,9 @@
   "SEA-WEATHER-GENERATOR.NearGale": "Near Gale",
   "SEA-WEATHER-GENERATOR.StrongGale": "Strong Gale",
   "SEA-WEATHER-GENERATOR.ViolentStorm": "Violent Storm",
+  "SEA-WEATHER-GENERATOR.SeaSickness": "Every Human, Dwarf, Halfling, or Ogre Character should make a <b>Challenging(+0) Endurance</b> Test or suffer from sea sickness.",
 
+  "SEA-WEATHER-GENERATOR.Precipitation.Label": "Precipitation",
   "SEA-WEATHER-GENERATOR.Precipitation.None": "None",
   "SEA-WEATHER-GENERATOR.Precipitation.NoneDesc": "",
   "SEA-WEATHER-GENERATOR.Precipitation.Light": "Light",
@@ -44,6 +104,7 @@
   "SEA-WEATHER-GENERATOR.Precipitation.VeryHeavy": "Very Heavy",
   "SEA-WEATHER-GENERATOR.Precipitation.VeryHeavyDesc": "–30 to Athletics, Climb, and Ranged (Blackpowder) Tests, -20 to Leadership, Navigation, Perception, Row, and Sail Tests, –10 to all other Tests",
 
+  "SEA-WEATHER-GENERATOR.Temperature.Label": "Temperature",
   "SEA-WEATHER-GENERATOR.Temperature.Sweltering": "Sweltering",
   "SEA-WEATHER-GENERATOR.Temperature.SwelteringDesc": "Every two hours, make a <b>Challenging (+0) Endurance</b> Test. If the Test is failed, suffer the effects of Heat Exposure. Crew members must drink two gallons of water a day or else suffer from Thirst",
   "SEA-WEATHER-GENERATOR.Temperature.Hot": "Hot",
@@ -55,6 +116,7 @@
   "SEA-WEATHER-GENERATOR.Temperature.Bitter": "Bitter",
   "SEA-WEATHER-GENERATOR.Temperature.BitterDesc": "Every two hours, make a <b>Challenging (+0) Endurance</b> Test. If the Test is failed, suffer effects of Cold Exposure.",
 
+  "SEA-WEATHER-GENERATOR.Visibility.Label": "Visibility",
   "SEA-WEATHER-GENERATOR.Visibility.Clear": "Clear",
   "SEA-WEATHER-GENERATOR.Visibility.ClearDesc": "",
   "SEA-WEATHER-GENERATOR.Visibility.Misty": "Misty",
@@ -62,5 +124,101 @@
   "SEA-WEATHER-GENERATOR.Visibility.Foggy": "Foggy",
   "SEA-WEATHER-GENERATOR.Visibility.FoggyDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –2 SL penalty if the target is more than 10 yards away.",
   "SEA-WEATHER-GENERATOR.Visibility.ThickFog": "Thick Fog",
-  "SEA-WEATHER-GENERATOR.Visibility.ThickFogDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –3 SL penalty if the target is more than 5 yards away."
+  "SEA-WEATHER-GENERATOR.Visibility.ThickFogDesc": "Ranged Tests, Navigation Tests, and Perception Tests based on sight suffer from a –3 SL penalty if the target is more than 5 yards away.",
+
+  "MARKET.OtherMoneyAvailable": "Other currency (Converted Sum):",
+
+  "MACROS-AND-MORE": {
+    "button-title": "Check Rolls",
+    "form-label": {
+      "mean": "Mean",
+      "median": "Median",
+      "mode": "Mode",
+      "autoSuccess": "Auto-success",
+      "autoFailure": "Auto-failure",
+      "lastRoll": "Last roll",
+      "criticals": "Criticals",
+      "fumbles": "Fumbles",
+      "count": "Rolls Counted"
+    },
+    "form-button": {
+      "clear": "Clear Data",
+      "download": "Download",
+      "print": "Print to Chat"
+    },
+    "comparison-card": {
+      "title": "Comparison Card",
+      "headers": {
+        "mean": "Mean",
+        "median": "Median",
+        "mode": "Mode",
+        "autoSuccess": "Natural 1s",
+        "autoFailure": "Natural 20s"
+      },
+      "descriptors": {
+        "highest": "Highest",
+        "lowest": "Lowest",
+        "most": "Most",
+        "fewest": "Fewest",
+        "raw": "Raw Numbers",
+        "percentage": "By Percentage"
+      },
+      "misc": {
+        "and": "and",
+        "with": "with"
+      },
+      "mode": {
+        "most-frequent": "had the most frequent mode with",
+        "instances-of": "instances of",
+        "of-their-rolls": "of their rolls being"
+      }
+    },
+    "settings": {
+      "gm_see_players": {
+        "Name": "See Player Roll Icons?",
+        "Hint": "If enabled, the GM will see icons beside all player names that they can use to access that player's roll stats."
+      },
+      "roll_storage": {
+        "Name": "Max rolls stored",
+        "Hint": "How many rolls should the system store before older rolls begin to be overwritten?"
+      },
+      "players_see_players": {
+        "Name": "Can Players Access Tracked Rolls?",
+        "Hint": "If disabled, players will not be able to access their roll summaries."
+      },
+      "count_hidden": {
+        "Name": "Count Blind Rolls?",
+        "Hint": "If disabled, blind rolls for players will not be counted in the tracker."
+      },
+      "streak_behaviour": {
+        "Name": "Streak Behaviour",
+        "Hint": "Choose whether to disable streak messages, send them only to the GM, or show them publicly. Note: streaks that include a blind roll are always whispered to the GM.",
+        "disable": "Disable Streak Messages",
+        "hidden": "Whisper Streaks to GM",
+        "shown": "Publicly display Streaks"
+      },
+      "streak_threshold": {
+        "Name": "Streak Threshold",
+        "Hint": "The number of consecutive rolls within 1 point of each other that should be counted as a streak."
+      },
+      "dnd5e": {
+        "restrict_counted_rolls": {
+          "Name": "Don't Count Unlinked Rolls",
+          "Hint": "If enabled, the tracker will not count any rolls that are not explicitly linked to an actor. Ex: typing /r 1d20 in the chat will not be counted, but an attack or saving throw will be."
+        }
+      },
+      "pf2e": {
+        "restrict_counted_rolls": {
+          "Name": "Don't Count Unlinked Rolls",
+          "Hint": "If enabled, the tracker will not count any rolls that are not explicitly linked to an actor. Ex: typing /r 1d20 in the chat will not be counted, but an attack or saving throw will be."
+        }
+      }
+    },
+    "confirms": {
+      "clear_rolls": {
+        "title": "Clear Rolls?",
+        "content": "Are you sure you want to clear your rolls? This cannot be undone."
+      }
+    }
+  }
 }

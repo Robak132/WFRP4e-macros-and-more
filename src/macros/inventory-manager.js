@@ -11,19 +11,19 @@ class InventoryManager {
         title: "Inventory Manager",
         content: this.getHTMLForm(),
         buttons: {
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: "Cancel"
+          },
           confirm: {
             icon: '<i class="fas fa-check"></i>',
             label: "Move Items",
             callback: (html) => this.transferItems(html)
-          },
-          cancel: {
-            icon: '<i class="fas fa-times"></i>',
-            label: "Cancel"
           }
         },
         default: "confirm"
       },
-      {width: 850}
+      {width: 750}
     ).render(true);
   }
 
@@ -34,10 +34,10 @@ class InventoryManager {
         ? -1
         : 0;
     const fullValue = Number(
-      Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value
+      (Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value).toFixed(2)
     );
-    const currentValue = Number(x.system.encumbrance.value);
-    if (fullValue.toFixed(2) === currentValue.toFixed(2)) {
+    const currentValue = Number((x.system.encumbrance.value * x.system.quantity.value).toFixed(2));
+    if (fullValue === currentValue) {
       return `${currentValue}`;
     } else {
       return `${currentValue} (${fullValue})`;
@@ -100,13 +100,13 @@ class InventoryManager {
 
   getHTMLActorHeader(actor) {
     return `
-      <h3 style="font-family: CaslonAntique,serif;font-size: 30px;font-variant: small-caps;font-weight: bold">
+      <h1 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
         ${actor.name.toLocaleUpperCase("pl")}
         (${actor.system.status.encumbrance.current}/${actor.system.status.encumbrance.max})
-      </h3>`;
+      </h1>`;
   }
 
-  getHTMLContainerHeader(containerItems, container) {
+  getHTMLContainerHeader(containerItems, container, actorId) {
     let containerItemsEnc = Number(
       Object.values(containerItems).reduce(
         (sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)),
@@ -117,42 +117,38 @@ class InventoryManager {
       containerItemsEnc = containerItemsEnc.toFixed(2);
     }
     return `
-        <h3>
-          <div class="form-group">
-            <span style="flex: 1;text-align: center">${this.formatItemEnc(container.value)}</span>
-            <span style="flex: 10">${container.name} (${containerItemsEnc}/${container.value.carries.value ?? "-"})</span>
-          </div>
-        </h3>`;
+      <div class="form-group">
+        <h2 style="max-width: 10%;text-align: center;font-family: CaslonAntique,serif;">${this.formatItemEnc(container.value)}</h2>
+        <h2 style="max-width: 90%;text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold;">
+          ${container.name} (${containerItemsEnc}/${container.value.carries.value ?? "-"})
+        </h2>
+      </div>`;
   }
 
   getHTMLItemList(containerItems, containerId, actorId) {
     let form = "";
-    for (const [categoryName, categoryList] of Object.entries(containerItems)) {
+    for (const [_, categoryList] of Object.entries(containerItems)) {
       if (categoryList.length > 0) {
         let categoryEnc = Number(categoryList.reduce((acc, x) => acc + Number(x.encumbrance.value), 0));
         if (categoryEnc % 1 !== 0) {
           categoryEnc = categoryEnc.toFixed(2);
         }
-        form += `
-            <p style="text-align: center;font-variant: small-caps;font-weight: bold;">
-              ${game.i18n.localize(WFRP4E.trappingCategories[categoryName])} (${categoryEnc})
-            </p>`;
         for (const item of categoryList) {
           form += `
               <div class="form-group">
-                <span style="flex: 1;text-align: center">${this.formatItemEnc(item)}</span>
-                <span style="flex: 5;text-align: center">${item.name}</span>
-                <span style="flex: 1;text-align: center">${item.quantity.value}</span>
-                <input style="flex: 3" class="slider" name="${item.id}" min="0" max="${item.system.quantity.value}" value="0" type="range">
-                <input style="flex: 1;text-align: center" name="${item.id}" min="0" max="${item.system.quantity.value}" value="0" type="number">
-                <span style="flex: 1;text-align: center">&#8594;</span>
-                <select style="flex: 3" 
+                <span style="max-width: 10%;text-align: center">${this.formatItemEnc(item)}</span>
+                <span style="max-width: 30%;text-align: center">${item.name}</span>
+                <span style="max-width: 5%;text-align: center">${item.quantity.value}</span>
+                <input style="max-width: 20%" class="slider" name="${item.id}" min="0" max="${item.system.quantity.value}" value="0" type="range">
+                <input style="max-width: 5%;text-align: center" name="${item.id}" min="0" max="${item.system.quantity.value}" value="0" type="number">
+                <span style="max-width: 5%;text-align: center">&#8594;</span>
+                <select style="max-width: 25%" 
                         name="${item.id}"
                         data-item="${item.id}"
                         data-source-actor="${actorId}"
                         data-source-container="${containerId}">
                 <option selected label=""></option>
-                ${game.robakMacros.transferItem.createSelectTag(actorId, containerId)}
+                  ${game.robakMacros.transferItem.createSelectTag(actorId, containerId)}
                 </select>
               </div>`;
         }
@@ -175,7 +171,7 @@ class InventoryManager {
           continue;
         }
 
-        form += this.getHTMLContainerHeader(containerItems, container);
+        form += this.getHTMLContainerHeader(containerItems, container, actor.id);
         form += this.getHTMLItemList(containerItems, container.id, actor.id);
       }
     }
@@ -218,7 +214,7 @@ class InventoryManager {
       })
       .get()
       .filter((s) => s.targetContainerId != null && s.targetActorId != null);
-    console.log(itemTransfers);
+    game.robakMacros.utils.log(itemTransfers);
     await game.robakMacros.transferItem.transferItems(itemTransfers);
   }
 }

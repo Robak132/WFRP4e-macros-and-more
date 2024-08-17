@@ -1,4 +1,0 @@
-const effects = {
-  "1jX37MkxtB6uzViV": "if (!game.user.isUniqueGM) return;\n\neffectsToCreate = [];\neffectsToDelete = [];\nfor (let weapon of this.actor._itemTypes.weapon ?? []) {\n  const weaponEffect = this.actor.effects.find((value) => value.name === `${weapon.name} (${weapon.id})`);\n  if (weapon.equipped && weaponEffect === undefined) {\n    effectsToCreate.push({\n      name: `${weapon.name} (${weapon.id})`,\n      icon: weapon.img,\n      statuses: [\"show-item\"]\n    });\n  } else if (!weapon.equipped && weaponEffect !== undefined) {\n    effectsToDelete.push(weaponEffect._id);\n  }\n}\nthis.actor.createEmbeddedDocuments(\"ActiveEffect\", effectsToCreate);\nif (effectsToDelete.length) {\n  this.actor.deleteEmbeddedDocuments(\"ActiveEffect\", effectsToDelete);\n}\n"
-};
-Hooks.on("init", () => mergeObject(game.wfrp4e.config.effectScripts, effects));

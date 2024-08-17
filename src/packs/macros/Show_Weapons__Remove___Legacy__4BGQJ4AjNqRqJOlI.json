@@ -4,12 +4,13 @@
   "command": "/* ==========\n* MACRO: Show Weapons (Remove)\n* AUTHOR: Robak132\n* DESCRIPTION: Shows actor's equipped weapons in form of status effects.\n========== */\n\nshowWeapons();\n\nfunction showWeapons() {\n  if (canvas.tokens.controlled.length) {\n    for (let character of canvas.tokens.controlled) {\n      let effects = [];\n      effects = effects.concat(\n        character.actor.effects\n          .filter((e) => e.name === game.i18n.localize(\"MACROS-AND-MORE.ShowWeapons\"))\n          .map((e) => e._id)\n      );\n      effects = effects.concat(character.actor.effects.filter((e) => e.statuses.has(\"show-item\")).map((e) => e._id));\n      if (effects.length) {\n        character.actor.deleteEmbeddedDocuments(\"ActiveEffect\", effects);\n      }\n    }\n  } else {\n    return ui.notifications.error(\"Select one or more characters on which you want to run this macro\");\n  }\n}\n",
   "flags": {
     "wfrp4e-macros-and-more": {
-      "version": "1.1.0"
+      "version": "1.1.0",
+      "sourceId": "4BGQJ4AjNqRqJOlI"
     }
   },
   "folder": null,
   "img": "modules/wfrp4e-macros-and-more/assets/icons/show-weapons-hide.svg",
-  "name": "Show Weapons (Remove)",
+  "name": "Show Weapons (Remove) [Legacy]",
   "scope": "global",
   "type": "script",
   "_key": "!macros!4BGQJ4AjNqRqJOlI"
