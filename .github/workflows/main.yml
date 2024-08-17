@@ -15,8 +15,8 @@ jobs:
         with:
           node-version: '20.x'
 
-      - name: Install Foundry CLI
-        run: npm install -g @foundryvtt/foundryvtt-cli
+      - name: Install Dependencies
+        run: npm install
 
       - name: Pack macros
         run: npm run pack

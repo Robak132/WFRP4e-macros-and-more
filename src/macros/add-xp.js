@@ -56,13 +56,18 @@ let data = [
     .sort((a, b) => a.character.name.localeCompare(b.character.name))
     .map((u, i) => {
       return [
-        {id: "charactersEnabled", type: "checkbox", value: options.charactersEnabled[i] !== 0},
-        {value: `${u.character.name}<br>(${u.name})`},
+        {
+          id: "charactersEnabled",
+          type: "checkbox",
+          value: options?.charactersEnabled?.[i] !== 0,
+          style: "style='max-width: 10%'"
+        },
+        {value: `${u.character.name}<br>(${u.name})`, style: "style='max-width: 50%'"},
         {
           id: "charactersMod",
           type: "select",
           style: "style='max-width: 40%'",
-          selected: options.charactersMod[i] ?? 1,
+          selected: options?.charactersMod?.[i] ?? 1,
           value: [
             {name: "Character (Full Exp)", value: 1},
             {name: "Companion (Half Exp)", value: 0.5}
@@ -78,13 +83,18 @@ if (otherActors.length) {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((a, i) => {
         return [
-          {id: "othersEnabled", type: "checkbox", value: options.othersEnabled[i] !== 0},
-          {value: a.name},
+          {
+            id: "othersEnabled",
+            type: "checkbox",
+            value: options?.othersEnabled?.[i] !== 0,
+            style: "style='max-width: 10%'"
+          },
+          {value: a.name, style: "style='max-width: 50%'"},
           {
             id: "othersMod",
             type: "select",
             style: "style='max-width: 40%'",
-            selected: options.othersMod[i] ?? 0.5,
+            selected: options?.othersMod?.[i] ?? 0.5,
             value: [
               {name: "Companion (Half Exp)", value: 0.5},
               {name: "Character (Full Exp)", value: 1}
