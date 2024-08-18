@@ -134,7 +134,7 @@ Hooks.once("init", async function () {
   await registerHandlebars();
 
   // Load scripts
-  fetch("modules/wfrp4e-macros-and-more/data/effects.json")
+  fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
     .then((r) => r.json())
     .then(async (effects) => {
       mergeObject(game.wfrp4e.config.effectScripts, effects);

@@ -20,37 +20,37 @@ let OPERATIONS = [
   {
     id: "show-weapons",
     name: "Show Weapons",
-    function: (token) => {
-      if (token.actor.effects.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")) === undefined) {
-        token.actor.createEmbeddedDocuments("ActiveEffect", [SHOW_WEAPONS_EFFECT]);
+    function: async (token) => {
+      if (token.actor.effects.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))) {
+        await token.actor.createEmbeddedDocuments("ActiveEffect", [SHOW_WEAPONS_EFFECT]);
       }
     }
   },
   {
     id: "hide-weapons",
     name: "Hide Weapons",
-    function: (token) => {
+    function: async (token) => {
       let effects = token.actor.effects
         .filter((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))
-        .map((e) => e._id);
-      effects = effects.concat(token.actor.effects.filter((e) => e.statuses.has("show-item")).map((e) => e._id));
+        .map((e) => e._id)
+        .concat(token.actor.effects.filter((e) => e.statuses.has("show-item")).map((e) => e._id));
       if (effects.length) {
-        token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
+        await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
       }
     }
   },
   {
     id: "toggle-weapons",
-    name: 'Toggle Weapons"',
-    function: (token) => {
-      if (token.actor.effects.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons")) === undefined) {
-        token.actor.createEmbeddedDocuments("ActiveEffect", [SHOW_WEAPONS_EFFECT]);
+    name: "Toggle Weapons",
+    function: async (token) => {
+      if (token.actor.effects.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))) {
+        await token.actor.createEmbeddedDocuments("ActiveEffect", [SHOW_WEAPONS_EFFECT]);
       } else {
         let effects = token.actor.effects
           .filter((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeapons"))
           .map((e) => e._id);
         effects = effects.concat(token.actor.effects.filter((e) => e.statuses.has("show-item")).map((e) => e._id));
-        token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
+        await token.actor.deleteEmbeddedDocuments("ActiveEffect", effects);
       }
     }
   },
@@ -165,7 +165,9 @@ if (canvas.tokens.controlled.length) {
         callback: async (html) => {
           const operationId = html.find('[name="operation"]').val();
           const operation = OPERATIONS.find((op) => op.id === operationId);
-          canvas.tokens.controlled.forEach((token) => operation.function());
+          for (const token of canvas.tokens.controlled) {
+            await operation.function(token);
+          }
         }
       }
     },

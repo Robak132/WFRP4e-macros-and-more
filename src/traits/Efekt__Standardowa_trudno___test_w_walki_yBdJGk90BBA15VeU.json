@@ -1,0 +1,325 @@
+{
+  "name": "Efekt: Standardowa trudność testów walki",
+  "type": "trait",
+  "_id": "yBdJGk90BBA15VeU",
+  "img": "modules/wfrp4e-core/icons/traits/trait.png",
+  "system": {
+    "description": {
+      "type": "String",
+      "label": "Description",
+      "value": ""
+    },
+    "gmdescription": {
+      "type": "String",
+      "label": "Description",
+      "value": ""
+    },
+    "rollable": {
+      "value": false,
+      "damage": false,
+      "skill": "",
+      "label": "Rollable",
+      "type": "Boolean",
+      "rollCharacteristic": "",
+      "bonusCharacteristic": "",
+      "dice": "",
+      "defaultDifficulty": "challenging",
+      "SL": true,
+      "attackType": "melee"
+    },
+    "specification": {
+      "value": "",
+      "type": "String",
+      "label": "Specification"
+    },
+    "qualities": {
+      "label": "Qualities",
+      "value": []
+    },
+    "flaws": {
+      "label": "Flaws",
+      "value": []
+    },
+    "category": "standard",
+    "disabled": false
+  },
+  "effects": [
+    {
+      "name": "Standardowa trudność testów walki",
+      "icon": "modules/wfrp4e-core/icons/traits/trait.png",
+      "_id": "NcWeTBdNgM6EjWHN",
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": 86995502836,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": 0,
+        "startTurn": 0
+      },
+      "description": "",
+      "origin": null,
+      "transfer": true,
+      "statuses": [],
+      "flags": {
+        "wfrp4e": {
+          "applicationData": {
+            "type": "document",
+            "documentType": "Actor"
+          },
+          "scriptData": [
+            {
+              "label": "Strzelanie do tłumu (13+ celów)",
+              "script": "args.fields.modifier += 60",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie do dużej grupy (7-12 celów)",
+              "script": "args.fields.modifier += 40",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie do małej grupy (3-6 celów)",
+              "script": "args.fields.modifier += 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Atakowanie celu z przewagą 3 do 1",
+              "script": "args.fields.modifier += 40",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.item?.system?.attackType != \"melee\" && ![\"ws\"].includes(args.characteristic)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Atakowanie celu z przewagą 2 do 1",
+              "script": "args.fields.modifier += 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.item?.system?.attackType != \"melee\" && ![\"ws\"].includes(args.characteristic)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie po Akcji celowania",
+              "script": "args.fields.modifier += 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Atakowanie w błocie, ulewie lub w trudnym terenie",
+              "script": "args.fields.modifier -= 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.item?.system?.attackType != \"melee\" && ![\"ws\"].includes(args.characteristic)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie w Rundzie, w której korzystasz też z Ruchu",
+              "script": "args.fields.modifier =- 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel za miękką osłoną (np. za żywopłotem)",
+              "script": "args.fields.modifier -= 10",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel za średnią osłoną (np. drewnianym płotem)",
+              "script": "args.fields.modifier -= 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Cel za twardą osłoną (np. za kamiennym murkiem)",
+              "script": "args.fields.modifier -= 30",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Walka w ciasnocie, wąskich korytarzach bronią dłuższą niż Średnia",
+              "script": "args.fields.modifier -= 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return !((args.item?.system?.attackType !== 'melee' && ['long', 'vLong', 'massive'].includes(args.item?.system?.reach)) || ['ws'].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie do celów ukrytych we mgle, w dymie lub cieniu",
+              "script": "args.fields.modifier -= 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Atakowanie w trakcie sztormu, huraganu, śnieżycy i w innej ekstremalnej pogodzie",
+              "script": "",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.item?.system?.attackType !== \"melee\" && ![\"ws\"].includes(args.characteristic)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Walka wręcz w ciemności",
+              "script": "args.fields.modifier -= 20",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.item?.system?.attackType !== \"melee\" && ![\"ws\"].includes(args.characteristic)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Atakowanie lub unikanie w głębokim śniegu, wodzie i na innym uciążliwym terenie",
+              "script": "args.fields.modifier -= 30",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return !(args.item?.system?.attackType === \"melee\" || [\"ws\"].includes(args.characteristic) || args.options.dodge)",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            },
+            {
+              "label": "Strzelanie w ciemności",
+              "script": "args.fields.modifier -= 30",
+              "trigger": "dialog",
+              "options": {
+                "dialog": {
+                  "hideScript": "return args.options.reload || (args.item?.system?.attackType != \"ranged\" && ![\"bs\"].includes(args.characteristic))",
+                  "activateScript": "",
+                  "submissionScript": "",
+                  "targeter": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "tint": null,
+      "_key": "!items.effects!yBdJGk90BBA15VeU.NcWeTBdNgM6EjWHN"
+    }
+  ],
+  "folder": null,
+  "ownership": {
+    "default": 0,
+    "MJAZjdKh3QKREKG2": 3
+  },
+  "flags": {
+    "core": {},
+    "exportSource": {
+      "world": "morskie-opowiesci",
+      "system": "wfrp4e",
+      "coreVersion": "11.315",
+      "systemVersion": "7.2.4"
+    }
+  },
+  "_stats": {
+    "systemId": "wfrp4e",
+    "systemVersion": "7.2.4",
+    "coreVersion": "11.315",
+    "createdTime": 1696581033484,
+    "modifiedTime": 1723932769110,
+    "lastModifiedBy": "MJAZjdKh3QKREKG2"
+  },
+  "sort": 0,
+  "_key": "!items!yBdJGk90BBA15VeU"
+}
