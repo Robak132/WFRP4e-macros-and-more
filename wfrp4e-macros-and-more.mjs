@@ -49,7 +49,6 @@ async function registerSettings() {
     onChange: debouncedReload,
     restricted: true
   });
-
   await game.settings.register("wfrp4e-macros-and-more", "current-region", {
     scope: "world",
     config: false,
@@ -63,36 +62,6 @@ async function registerSettings() {
     config: true,
     hint: `MACROS-AND-MORE.settings.gm_see_players.Hint`,
     onChange: () => ui.players.render()
-  });
-  await game.settings.register("wfrp4e-macros-and-more", "roll_storage", {
-    name: `MACROS-AND-MORE.settings.roll_storage.Name`,
-    default: 50,
-    type: Number,
-    range: {
-      min: -1,
-      max: 500,
-      step: 10
-    },
-    scope: "world",
-    config: true,
-    hint: `MACROS-AND-MORE.settings.roll_storage.Hint`
-  });
-  await game.settings.register("wfrp4e-macros-and-more", "players_see_players", {
-    name: `MACROS-AND-MORE.settings.players_see_players.Name`,
-    default: true,
-    type: Boolean,
-    scope: "world",
-    config: true,
-    hint: `MACROS-AND-MORE.settings.players_see_players.Hint`,
-    onChange: () => ui.players.render()
-  });
-  await game.settings.register("wfrp4e-macros-and-more", "count_hidden", {
-    name: `MACROS-AND-MORE.settings.count_hidden.Name`,
-    default: true,
-    type: Boolean,
-    scope: "world",
-    config: true,
-    hint: `MACROS-AND-MORE.settings.count_hidden.Hint`
   });
 }
 

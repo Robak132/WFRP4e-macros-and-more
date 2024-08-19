@@ -33,14 +33,22 @@ if (fs.existsSync(jsonPath)) {
     fs.unlinkSync(path.join(jsonPath, filepath));
   }
 }
+let files = [];
 for (let filepath of fs.readdirSync(inputPath, {recursive: true, withFileTypes: true})) {
   if (!filepath.isFile() || !filepath.name.endsWith(".js")) {
     continue;
   }
-  filepath = filepath.name;
-  let macro = macrosData.macros.find((m) => m.codeFile === filepath);
+  files.push(filepath.name);
+}
+for (let macro of macrosData.macros) {
+  if (!files.includes(macro.codeFile)) {
+    console.error(`No file for ${macro.codeFile}`);
+  }
+}
+for (let file of files) {
+  let macro = macrosData.macros.find((m) => m.codeFile === file);
   if (!macro) {
-    console.error(`No entry for ${filepath}`);
+    console.error(`No entry for ${file}`);
     continue;
   }
 

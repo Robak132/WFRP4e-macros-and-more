@@ -15,7 +15,9 @@
   "MACROS-AND-MORE.Allies": "Sojusznicy",
   "MACROS-AND-MORE.Neutral": "Neutralni",
   "MACROS-AND-MORE.Enemies": "Wrogowie",
-  "MACROS-AND-MORE.ShowWeapons": "Prezentuj Broń",
+
+  "MACROS-AND-MORE.ShowWeaponsEffect": "Efekt: Prezentuj broń",
+  "MACROS-AND-MORE.ShowWeapons": "Prezentuj broń",
 
   "MACROS-AND-MORE.ChangeItemType": "Zmień typ Przedmiotu",
   "MACROS-AND-MORE.ChangeActorType": "Zmień typ Aktora",
@@ -26,9 +28,6 @@
   "MACROS-AND-MORE.Create": "Stwórz",
   "MACROS-AND-MORE.True": "Tak",
   "MACROS-AND-MORE.False": "Nie",
-
-  "FINANCE-CALCULATOR.Bretonia": "Bretonia",
-  "FINANCE-CALCULATOR.Empire": "Imperium",
 
   "SEA-WEATHER-GENERATOR.Label": "Generator Pogody Morskiej",
   "SEA-WEATHER-GENERATOR.PrevailingWinds": "Dominujący wiatr",
@@ -59,6 +58,9 @@
   "SEA-WEATHER-GENERATOR.Summer": "Lato",
   "SEA-WEATHER-GENERATOR.Autumn": "Jesień",
   "SEA-WEATHER-GENERATOR.Winter": "Zima",
+
+  "FINANCE-CALCULATOR.Bretonia": "Bretonia",
+  "FINANCE-CALCULATOR.Empire": "Imperium",
 
   "SEA-WEATHER-GENERATOR.North": "Północ",
   "SEA-WEATHER-GENERATOR.NorthAdj": "Pólnocny",

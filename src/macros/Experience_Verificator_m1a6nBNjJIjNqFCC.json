@@ -1,0 +1,17 @@
+{
+  "_id": "m1a6nBNjJIjNqFCC",
+  "author": "MJAZjdKh3QKREKG2",
+  "command": "new game.robakMacros.experienceVerificator(token?.actor).render(true);\n",
+  "flags": {
+    "wfrp4e-macros-and-more": {
+      "version": "1.0.0",
+      "sourceId": "m1a6nBNjJIjNqFCC"
+    }
+  },
+  "folder": null,
+  "img": "modules/wfrp4e-macros-and-more/assets/icons/experience-verificator.svg",
+  "name": "Experience Verificator",
+  "scope": "global",
+  "type": "script",
+  "_key": "!macros!m1a6nBNjJIjNqFCC"
+}
