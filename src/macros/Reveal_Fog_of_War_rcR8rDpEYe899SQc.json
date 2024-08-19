@@ -1,0 +1,17 @@
+{
+  "_id": "rcR8rDpEYe899SQc",
+  "author": "MJAZjdKh3QKREKG2",
+  "command": "/* ==========\n* MACRO: Reveal Fog of War\n* AUTHORS: Originally by @mxzf, modified by @Robak132\n* DESCRIPTION: Reveal Fog of War for all players.\n========== */\n\nconst dimensions = canvas.scene.dimensions;\nlet [created_light] = await canvas.scene.createEmbeddedDocuments(\"AmbientLight\", [\n  {dim: dimensions.maxR, vision: true, walls: false, x: dimensions.width / 2, y: dimensions.height / 2}\n]);\nawait new Promise((r) => setTimeout(r, 100));\nawait created_light.update({hidden: true});\nawait created_light.delete();\n",
+  "flags": {
+    "wfrp4e-macros-and-more": {
+      "version": "1.0.0",
+      "sourceId": "rcR8rDpEYe899SQc"
+    }
+  },
+  "folder": null,
+  "img": "icons/svg/dice-target.svg",
+  "name": "Reveal Fog of War",
+  "scope": "global",
+  "type": "script",
+  "_key": "!macros!rcR8rDpEYe899SQc"
+}
