@@ -6,7 +6,7 @@ export default class ConfigurableDialog extends Dialog {
     return fields
       .map((field, columnIndex) => {
         field.style ??= style;
-        this.createCell(field.value, rowIndex, columnIndex);
+        return this.createCell(field, rowIndex, columnIndex);
       })
       .join("");
   }
