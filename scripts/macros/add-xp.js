@@ -15,15 +15,14 @@ function getCurrentDate() {
   return year + "-" + month + "-" + day;
 }
 
-function updateActorXP(pc, XP, reason) {
-  const recipient = pc?.actor?.name || pc.name;
-  const XPTotal = pc?.details?.experience?.total;
+function updateActorXP(actor, XP, reason) {
+  const recipient = actor.name;
+  const XPTotal = actor?.details?.experience?.total;
   const newXPTotal = Math.max(XPTotal + XP, 0);
-  const XPCurrent = pc?.details?.experience?.current || 0;
+  const XPCurrent = actor?.details?.experience?.current || 0;
   const newXPCurrent = Math.max(XPCurrent + XP, 0);
 
-  pc?.actor ? pc.actor.awardExp(XP, reason) : pc.awardExp(XP, reason);
-
+  actor.awardExp(XP, reason);
   return game.i18n.format("GMTOOLKIT.AddXP.Success", {
     recipient,
     XPTotal,
@@ -33,75 +32,77 @@ function updateActorXP(pc, XP, reason) {
   });
 }
 
-let characterActors = game.users.filter((u) => u.character).map((u) => u.character);
-let otherActors = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character" && !characterActors.includes(a));
-
 const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
-let reason =
-  game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason") !== "null"
-    ? game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason")
-    : "";
+const defaultReason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
+let reason = defaultReason !== "null" ? defaultReason : "";
 if (reason) {
-  reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
   const session = game.gmtoolkit.utility.getSession();
+  reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
   reason = session.date ? reason.replace("(%date%)", `(${getCurrentDate()})`) : reason.replace(" (%date%)", "");
   reason = session.id !== "null" ? reason.replace("%session%", session.id) : (reason = reason.replace("%session%", ""));
 }
 
+let characterActors = game.users
+  .filter((u) => u.character)
+  .map((u) => {
+    return {user: u, character: u.character};
+  })
+  .sort((a, b) => a.character.name.localeCompare(b.character.name));
+
+let otherActors = game.actors
+  .filter((a) => a.hasPlayerOwner && a.type === "character" && !characterActors.find((ca) => ca.character === a))
+  .map((a) => ({character: a}))
+  .sort((a, b) => a.character.name.localeCompare(b.character.name));
+
 const options = game.user.getFlag("world", "add-exp-options") ?? {};
 let data = [
   [{value: "Players' Characters"}],
-  ...game.users
-    .filter((u) => u.character)
-    .sort((a, b) => a.character.name.localeCompare(b.character.name))
-    .map((u, i) => {
-      return [
-        {
-          id: "charactersEnabled",
-          type: "checkbox",
-          value: options?.charactersEnabled?.[i] !== 0,
-          style: "style='max-width: 10%'"
-        },
-        {value: `${u.character.name}<br>(${u.name})`, style: "style='max-width: 50%'"},
-        {
-          id: "charactersMod",
-          type: "select",
-          style: "style='max-width: 40%'",
-          selected: options?.charactersMod?.[i] ?? 1,
-          value: [
-            {name: "Character (Full Exp)", value: 1},
-            {name: "Companion (Half Exp)", value: 0.5}
-          ]
-        }
-      ];
-    })
+  ...characterActors.map((u, i) => {
+    return [
+      {
+        id: "charactersEnabled",
+        type: "checkbox",
+        value: options?.charactersEnabled?.[i] !== 0,
+        style: "style='max-width: 10%'"
+      },
+      {value: `${u.character.name}<br>(${u.user.name})`, style: "style='max-width: 50%'"},
+      {
+        id: "charactersMod",
+        type: "select",
+        style: "style='max-width: 40%'",
+        selected: options?.charactersMod?.[i] ?? 1,
+        value: [
+          {name: "Character (Full Exp)", value: 1},
+          {name: "Companion (Half Exp)", value: 0.5}
+        ]
+      }
+    ];
+  })
 ];
 if (otherActors.length) {
   data = data.concat([
     [{value: "Other Actors"}],
-    ...otherActors
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map((a, i) => {
-        return [
-          {
-            id: "othersEnabled",
-            type: "checkbox",
-            value: options?.othersEnabled?.[i] !== 0,
-            style: "style='max-width: 10%'"
-          },
-          {value: a.name, style: "style='max-width: 50%'"},
-          {
-            id: "othersMod",
-            type: "select",
-            style: "style='max-width: 40%'",
-            selected: options?.othersMod?.[i] ?? 0.5,
-            value: [
-              {name: "Companion (Half Exp)", value: 0.5},
-              {name: "Character (Full Exp)", value: 1}
-            ]
-          }
-        ];
-      })
+    ...otherActors.map((a, i) => {
+      return [
+        {
+          id: "othersEnabled",
+          type: "checkbox",
+          value: options?.othersEnabled?.[i] !== 0,
+          style: "style='max-width: 10%'"
+        },
+        {value: a.character.name, style: "style='max-width: 50%'"},
+        {
+          id: "othersMod",
+          type: "select",
+          style: "style='max-width: 40%'",
+          selected: options?.othersMod?.[i] ?? 0.5,
+          value: [
+            {name: "Companion (Half Exp)", value: 0.5},
+            {name: "Character (Full Exp)", value: 1}
+          ]
+        }
+      ];
+    })
   ]);
 }
 data = data.concat([
@@ -125,14 +126,16 @@ if (result) {
   await game.user.setFlag("world", "add-exp-options", result);
   let chatContent = characterActors.reduce((acc, actor, i) => {
     if (!result.charactersEnabled[i]) return acc;
-    return acc + updateActorXP(actor, Utility.round(result.xpNumber * result.charactersMod[i], 0), result.xpReason);
+    let exp = Utility.round(result.xpNumber * result.charactersMod[i], 0);
+    return acc + updateActorXP(actor.character, exp, result.xpReason);
   }, "");
   chatContent = otherActors.reduce((acc, actor, i) => {
     if (!result.othersEnabled[i]) return acc;
-    return acc + updateActorXP(actor, Utility.round(result.xpNumber * result.othersMod[i], 0), result.xpReason);
+    let exp = Utility.round(result.xpNumber * result.othersMod[i], 0);
+    return acc + updateActorXP(actor.character, exp, result.xpReason);
   }, chatContent);
 
   const chatData = game.wfrp4e.utility.chatDataSetup(chatContent, "selfroll", false);
-  chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {XP, reason});
+  chatData.flavor = game.i18n.format("GMTOOLKIT.AddXP.Flavor", {XP: result.xpNumber, reason: result.xpReason});
   await ChatMessage.create(chatData, {});
 }
