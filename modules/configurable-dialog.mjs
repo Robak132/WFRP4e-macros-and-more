@@ -41,7 +41,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html)
+        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
       },
       ignore: {
         label: cancelLabel,
@@ -73,7 +73,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html)
+        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
       },
       ignore: {
         label: cancelLabel,
@@ -105,7 +105,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html)
+        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
       },
       ignore: {
         label: cancelLabel,
@@ -126,15 +126,18 @@ export default class ConfigurableDialog extends Dialog {
     );
   }
 
-  static parseResult(html) {
+  static parseResult(html, forceList = []) {
     let dataObject = new FormDataExtended(html.find("form")[0]).object;
-    return Object.fromEntries(
+    dataObject = Object.fromEntries(
       Object.entries(dataObject).map(([key, value]) => {
         if (Array.isArray(value)) {
           value = Object.entries(value).map(([k, v]) => (value[k] = Number.isNumeric(v) ? Number(v) : v));
         }
-        return [key, Number.isNumeric(value) ? Number(value) : value];
+        value = Number.isNumeric(value) ? Number(value) : value;
+        if (forceList.includes(key)) value = Array.isArray(value) ? value : [value];
+        return [key, value];
       })
     );
+    return dataObject;
   }
 }

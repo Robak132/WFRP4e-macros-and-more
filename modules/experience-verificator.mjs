@@ -366,68 +366,68 @@ export default class ExperienceVerificator extends FormApplication {
     let entryGroup = log[Number($(e.currentTarget).attr("name"))];
     if (!entryGroup.entries.length) return;
 
-    ConfigurableDialog.create({
-      title: "Edit Entry Group",
-      data: [
-        [
-          {value: `Name`, style: "style='text-align: center;max-width: 50%'"},
-          {value: `Category`, style: "style='text-align: center;max-width: 35%'"},
-          {value: `Value`, style: "style='text-align: center;max-width: 15%'"}
-        ],
-        ...entryGroup.entries
-          .toSorted((a, b) => b.index - a.index)
-          .map((entry) => [
-            {
-              id: "name",
-              type: "input",
-              inputType: "text",
-              value: entry.name,
-              style: "style='text-align: center;max-width: 50%'"
-            },
-            {
-              id: "category",
-              type: "select",
-              value: (entry.type === "spent"
-                ? ExperienceVerificator.SPENT_CATEGORIES
-                : ExperienceVerificator.GAINED_CATEGORIES
-              ).map((c) => ({name: c, value: c})),
-              selected: entry.category,
-              style: "style='text-align: center;max-width: 35%'"
-            },
+    ConfigurableDialog.create(
+      {
+        title: "Edit Entry Group",
+        data: [
+          [
+            {value: `Name`, style: "style='text-align: center;max-width: 50%'"},
+            {value: `Category`, style: "style='text-align: center;max-width: 35%'"},
+            {value: `Value`, style: "style='text-align: center;max-width: 15%'"}
+          ],
+          ...entryGroup.entries
+            .toSorted((a, b) => b.index - a.index)
+            .map((entry) => [
+              {
+                id: "name",
+                type: "input",
+                inputType: "text",
+                value: entry.name,
+                style: "style='text-align: center;max-width: 50%'"
+              },
+              {
+                id: "category",
+                type: "select",
+                value: (entry.type === "spent"
+                  ? ExperienceVerificator.SPENT_CATEGORIES
+                  : ExperienceVerificator.GAINED_CATEGORIES
+                ).map((c) => ({name: c, value: c})),
+                selected: entry.category,
+                style: "style='text-align: center;max-width: 35%'"
+              },
 
-            {
-              id: "value",
-              type: "input",
-              inputType: "number",
-              value: entry.value,
-              style: "style='text-align: center;max-width: 15%'"
+              {
+                id: "value",
+                type: "input",
+                inputType: "number",
+                value: entry.value,
+                style: "style='text-align: center;max-width: 15%'"
+              }
+            ])
+        ],
+        buttons: {
+          confirm: {
+            label: "Confirm",
+            callback: (html) => {
+              let result = ConfigurableDialog.parseResult(html, options.forceList);
+              entryGroup.entries
+                .toSorted((a, b) => b.index - a.index)
+                .forEach((entry, i) => {
+                  entry.setName(result.name[i]);
+                  entry.category = result.category[i];
+                  entry.value = result.value[i];
+                });
+              this.render(true);
             }
-          ])
-      ],
-      buttons: {
-        confirm: {
-          label: "Confirm",
-          callback: (html) => {
-            let result = ConfigurableDialog.parseResult(html);
-            result.name = Array.isArray(result.name) ? result.name : [result.name];
-            result.category = Array.isArray(result.category) ? result.category : [result.category];
-            result.value = Array.isArray(result.value) ? result.value : [result.value];
-            entryGroup.entries
-              .toSorted((a, b) => b.index - a.index)
-              .forEach((entry, i) => {
-                entry.setName(result.name[i]);
-                entry.category = result.category[i];
-                entry.value = result.value[i];
-              });
-            this.render(true);
+          },
+          cancel: {
+            label: "Cancel",
+            callback: () => null
           }
-        },
-        cancel: {
-          label: "Cancel",
-          callback: () => null
         }
-      }
-    });
+      },
+      {forceList: ["name", "category", "value"]}
+    );
   }
 
   getSpentGroupLog(groupMode, sortMode) {
@@ -801,15 +801,15 @@ export default class ExperienceVerificator extends FormApplication {
       ]);
     }
 
-    let result = await ConfigurableDialog.create({
-      title: "Verification Error: Unmatched attributes",
-      confirmLabel: "Fix",
-      data
-    });
+    let result = await ConfigurableDialog.create(
+      {
+        title: "Verification Error: Unmatched attributes",
+        confirmLabel: "Fix",
+        data
+      },
+      {forceList: ["state", "lvl"]}
+    );
     if (!result) return;
-    result.state = Array.isArray(result.state) ? result.state : [result.state];
-    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
-
     Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       let id = state !== "free" ? `char-gen-${state}-attribute` : undefined;
@@ -915,15 +915,15 @@ export default class ExperienceVerificator extends FormApplication {
         }
       ]);
     }
-    let result = await ConfigurableDialog.create({
-      title: "Verification Error: Unmatched Skills",
-      confirmLabel: "Fix",
-      data
-    });
+    let result = await ConfigurableDialog.create(
+      {
+        title: "Verification Error: Unmatched Skills",
+        confirmLabel: "Fix",
+        data
+      },
+      {forceList: ["state", "lvl"]}
+    );
     if (!result) return;
-    result.state = Array.isArray(result.state) ? result.state : [result.state];
-    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
-
     Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       let id = state !== "free" ? `char-gen-${state}-skill` : undefined;
@@ -1025,14 +1025,15 @@ export default class ExperienceVerificator extends FormApplication {
       ]);
     }
 
-    let result = await ConfigurableDialog.create({
-      title: "Verification Error: Unmatched talents",
-      confirmLabel: "Fix",
-      data
-    });
+    let result = await ConfigurableDialog.create(
+      {
+        title: "Verification Error: Unmatched talents",
+        confirmLabel: "Fix",
+        data
+      },
+      {forceList: ["state", "lvl"]}
+    );
     if (!result) return;
-    result.state = Array.isArray(result.state) ? result.state : [result.state];
-    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
 
     Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
@@ -1102,15 +1103,15 @@ export default class ExperienceVerificator extends FormApplication {
       data.push([{value: "No unmatched careers found, fix issue manually."}]);
     }
 
-    let result = await ConfigurableDialog.create({
-      title: "Verification Error: Unmatched talents",
-      confirmLabel: "Fix",
-      data
-    });
+    let result = await ConfigurableDialog.create(
+      {
+        title: "Verification Error: Unmatched talents",
+        confirmLabel: "Fix",
+        data
+      },
+      {forceList: ["state", "lvl"]}
+    );
     if (!result) return;
-    result.state = Array.isArray(result.state) ? result.state : [result.state];
-    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
-
     Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       let id = state !== "free" ? `char-gen-${state}` : undefined;
@@ -1162,15 +1163,15 @@ export default class ExperienceVerificator extends FormApplication {
       data.push([{value: "No unmatched careers found, fix issue manually."}]);
     }
 
-    let result = await ConfigurableDialog.create({
-      title: "Verification Error: Unmatched spells",
-      confirmLabel: "Fix",
-      data
-    });
+    let result = await ConfigurableDialog.create(
+      {
+        title: "Verification Error: Unmatched spells",
+        confirmLabel: "Fix",
+        data
+      },
+      {forceList: ["state", "lvl"]}
+    );
     if (!result) return;
-    result.state = Array.isArray(result.state) ? result.state : [result.state];
-    result.lvl = Array.isArray(result.lvl) ? result.lvl : [result.lvl];
-
     Object.values(result.state).forEach((state, i) => {
       if (state === "") return;
       for (let j = 0; j < result.lvl[i]; j++) {
