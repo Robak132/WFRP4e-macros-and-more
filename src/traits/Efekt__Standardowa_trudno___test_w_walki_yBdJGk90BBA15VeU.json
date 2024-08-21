@@ -3,66 +3,11 @@
   "type": "trait",
   "_id": "yBdJGk90BBA15VeU",
   "img": "modules/wfrp4e-core/icons/traits/trait.png",
-  "system": {
-    "description": {
-      "type": "String",
-      "label": "Description",
-      "value": ""
-    },
-    "gmdescription": {
-      "type": "String",
-      "label": "Description",
-      "value": ""
-    },
-    "rollable": {
-      "value": false,
-      "damage": false,
-      "skill": "",
-      "label": "Rollable",
-      "type": "Boolean",
-      "rollCharacteristic": "",
-      "bonusCharacteristic": "",
-      "dice": "",
-      "defaultDifficulty": "challenging",
-      "SL": true,
-      "attackType": "melee"
-    },
-    "specification": {
-      "value": "",
-      "type": "String",
-      "label": "Specification"
-    },
-    "qualities": {
-      "label": "Qualities",
-      "value": []
-    },
-    "flaws": {
-      "label": "Flaws",
-      "value": []
-    },
-    "category": "standard",
-    "disabled": false
-  },
   "effects": [
     {
       "name": "Standardowa trudność testów walki",
       "icon": "modules/wfrp4e-core/icons/traits/trait.png",
       "_id": "NcWeTBdNgM6EjWHN",
-      "changes": [],
-      "disabled": false,
-      "duration": {
-        "startTime": 86995502836,
-        "seconds": null,
-        "combat": null,
-        "rounds": null,
-        "turns": null,
-        "startRound": 0,
-        "startTurn": 0
-      },
-      "description": "",
-      "origin": null,
-      "transfer": true,
-      "statuses": [],
       "flags": {
         "wfrp4e": {
           "applicationData": {
@@ -241,7 +186,7 @@
             },
             {
               "label": "Atakowanie w trakcie sztormu, huraganu, śnieżycy i w innej ekstremalnej pogodzie",
-              "script": "",
+              "script": "args.fields.modifier -= 20",
               "trigger": "dialog",
               "options": {
                 "dialog": {
@@ -294,32 +239,8 @@
           ]
         }
       },
-      "tint": null,
       "_key": "!items.effects!yBdJGk90BBA15VeU.NcWeTBdNgM6EjWHN"
     }
   ],
-  "folder": null,
-  "ownership": {
-    "default": 0,
-    "MJAZjdKh3QKREKG2": 3
-  },
-  "flags": {
-    "core": {},
-    "exportSource": {
-      "world": "morskie-opowiesci",
-      "system": "wfrp4e",
-      "coreVersion": "11.315",
-      "systemVersion": "7.2.4"
-    }
-  },
-  "_stats": {
-    "systemId": "wfrp4e",
-    "systemVersion": "7.2.4",
-    "coreVersion": "11.315",
-    "createdTime": 1696581033484,
-    "modifiedTime": 1723932769110,
-    "lastModifiedBy": "MJAZjdKh3QKREKG2"
-  },
-  "sort": 0,
   "_key": "!items!yBdJGk90BBA15VeU"
 }

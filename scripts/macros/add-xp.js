@@ -120,7 +120,7 @@ data = data.concat([
 let result = await ConfigurableDialog.create({
   title: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Title"),
   data,
-  options: {width: 450}
+  options: {width: 450, forceList: ["charactersEnabled", "charactersMod", "othersEnabled", "othersMod"]}
 });
 if (result) {
   await game.user.setFlag("world", "add-exp-options", result);

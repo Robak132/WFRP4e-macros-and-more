@@ -49,7 +49,7 @@
       }
     },
     {
-      "name": "effects",
+      "name": "traits",
       "label": "Robak's Traits",
       "path": "packs/traits",
       "type": "Item",
