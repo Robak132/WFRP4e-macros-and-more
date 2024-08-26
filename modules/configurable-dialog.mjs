@@ -41,7 +41,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
       },
       ignore: {
         label: cancelLabel,
@@ -73,7 +73,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
       },
       ignore: {
         label: cancelLabel,
@@ -105,7 +105,7 @@ export default class ConfigurableDialog extends Dialog {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
       },
       ignore: {
         label: cancelLabel,
