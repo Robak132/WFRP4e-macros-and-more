@@ -117,7 +117,7 @@ Hooks.once("ready", async () => {
       return;
     }
     switch (type) {
-      case "transferItem":
+      case "transferItems":
         return ItemTransfer.handleTransfer(data);
       case "darkWhispers":
         await Utility.darkWhispersDialog(data);
