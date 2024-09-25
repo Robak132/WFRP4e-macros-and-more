@@ -2,11 +2,26 @@
   "empire": {
     "key": "empire",
     "name": "Empire",
-    "currency": {
-      "gc": "NAME.GC",
-      "ss": "NAME.SS",
-      "bp": "NAME.BP"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "NAME.GC",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "NAME.SS",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "NAME.BP",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "bretonia": 0.95,
       "estalia": 0.9,
@@ -21,11 +36,26 @@
   "bretonia": {
     "key": "bretonia",
     "name": "Bretonnia",
-    "currency": {
-      "gc": "Złote ecu",
-      "ss": "Srebrny denar",
-      "bp": "Bretoński brązowy pens"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złote ecu",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny denar",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Bretoński brązowy pens",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.05,
       "estalia": 0.95,
@@ -40,11 +70,26 @@
   "estalia": {
     "key": "estalia",
     "name": "Estalia",
-    "currency": {
-      "gc": "Złote excelente",
-      "ss": "Srebrny real",
-      "bp": "Brązowe duro"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złote excelente",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny real",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowe duro",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.1,
       "bretonia": 1.05,
@@ -59,11 +104,26 @@
   "kislev": {
     "key": "kislev",
     "name": "Kislev",
-    "currency": {
-      "gc": "Złoty dukat",
-      "ss": "Srebrna denga",
-      "bp": "Brązowe pulo"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty dukat",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrna denga",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowe pulo",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.1,
       "bretonia": 1.1,
@@ -78,10 +138,20 @@
   "norsca": {
     "key": "norsca",
     "name": "Norsca",
-    "currency": {
-      "ss": "Srebrna sceatta",
-      "bp": "Brązowy fennig"
-    },
+    "coins": [
+      {
+        "key": "s",
+        "name": "Srebrna sceatta",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowy fennig",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.0,
       "bretonia": 1.0,
@@ -96,11 +166,26 @@
   "tilea": {
     "key": "tilea",
     "name": "Tilea",
-    "currency": {
-      "gc": "Tileańska złota korona",
-      "ss": "Tileański srebrny szyling",
-      "bp": "Tileański brązowy pens"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Tileańska złota korona",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Tileański srebrny szyling",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Tileański brązowy pens",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 0.8,
       "bretonia": 0.85,
@@ -114,12 +199,27 @@
   },
   "dwarf": {
     "key": "dwarf",
-    "name": "Dwarf Keeps",
-    "currency": {
-      "gc": "Złocisz",
-      "ss": "Srebrniak",
-      "bp": "Miedziak"
-    },
+    "name": "Krasnoludzkie twierdze",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złocisz",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrniak",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Miedziak",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 0.9,
       "bretonia": 0.85,
@@ -132,10 +232,15 @@
   },
   "elf": {
     "key": "elf",
-    "name": "Elf Kingdoms",
-    "currency": {
-      "gc": "Złoty suweren"
-    },
+    "name": "Królestwa elfów",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty suweren",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.05,
       "bretonia": 1.0,
@@ -150,11 +255,26 @@
   "araby": {
     "key": "araby",
     "name": "Araby",
-    "currency": {
-      "gc": "Złoty rial",
-      "ss": "Srebrny dirham",
-      "bp": "Brązowy fals"
-    },
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty rial",
+        "main": true,
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny dirham",
+        "main": true,
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowy fals",
+        "main": true,
+        "value": 1
+      }
+    ],
     "exchangeRates": {
       "empire": 1.1,
       "bretonia": 1.05,

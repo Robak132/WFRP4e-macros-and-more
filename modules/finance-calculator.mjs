@@ -1,4 +1,4 @@
-import RobakMarketWfrp4e from "./robak-market.js";
+import RobakMarketWfrp4e from "./market.mjs";
 import Utility from "./utility.mjs";
 
 export default class FinanceCalculator extends FormApplication {

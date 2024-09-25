@@ -4,7 +4,7 @@ import Utility from "./modules/utility.mjs";
 import {RollTracker, RollTrackerDialog} from "./modules/roll-tracker.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
-import RobakMarketWfrp4e from "./modules/robak-market.js";
+import RobakMarketWfrp4e, {onMarketButtonClicked, overrideMarket} from "./modules/market.mjs";
 import FinanceCalculator from "./modules/finance-calculator.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
@@ -102,6 +102,9 @@ Hooks.once("init", async function () {
   // Register handlebars
   await registerHandlebars();
 
+  // Register market
+  await overrideMarket();
+
   // Load scripts
   fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
     .then((r) => r.json())
@@ -123,21 +126,6 @@ Hooks.once("ready", async () => {
         await Utility.darkWhispersDialog(data);
     }
   });
-
-  if (game.settings.get("wfrp4e-macros-and-more", "currency-market") === "override") {
-    let market = game.wfrp4e.market;
-    for (let method of Utility.getMethods(RobakMarketWfrp4e)) {
-      try {
-        Utility.log(`Setting ${method} succeeded`);
-        market[method] = RobakMarketWfrp4e[method] ?? market[method];
-      } catch (e) {
-        Utility.warn(`Setting ${method} failed`);
-      }
-    }
-    Utility.log("Market override succeeded");
-    await RobakMarketWfrp4e.loadRegions();
-    Utility.log("Regions loaded");
-  }
 });
 
 Hooks.once("devModeReady", ({registerPackageDebugFlag}) => {
@@ -159,41 +147,6 @@ Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
 Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
 
 Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
-
-Hooks.on("renderChatLog", (log, html, _) => {
-  html.on("click", ".robak-darkwhisper-button", async (event) => {
-    event.preventDefault();
-    if (!game.user.isGM) {
-      let actor = game.user.character;
-      let characters = JSON.parse($(event.currentTarget).attr("data-characters"));
-      let authorId = $(event.currentTarget).attr("data-author");
-      if (actor && characters.includes(actor._id)) {
-        let response = "";
-        switch ($(event.currentTarget).attr("data-button")) {
-          case "actOnWhisper":
-            response = `${game.i18n.format("GMTOOLKIT.Message.DarkWhispers.Accepted", {currentUser: actor.name})}`;
-            break;
-          case "denyDarkGods":
-            response = `${game.i18n.format("GMTOOLKIT.Message.DarkWhispers.Rejected", {currentUser: actor.name})}`;
-            break;
-        }
-        response += `<blockquote>${$(event.currentTarget).attr("data-ask")}</blockquote>`;
-
-        await ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({actor: game.user.character}),
-          content: response,
-          whisper: [authorId, ...ChatMessage.getWhisperRecipients("GM")]
-        });
-      } else {
-        ui.notifications.notify(game.i18n.format("GMTOOLKIT.Notification.NoActor", {currentUser: game.user.name}));
-      }
-    } else {
-      ui.notifications.notify(
-        game.i18n.format("GMTOOLKIT.Notification.UserMustBePlayer", {action: event.currentTarget.text})
-      );
-    }
-  });
-});
 
 Hooks.on("updateChatMessage", async (chatMessage) => {
   const isBlind = chatMessage.blind;

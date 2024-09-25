@@ -1,3 +1,5 @@
+import RobakMarketWfrp4e from "./market.mjs";
+
 export default class Utility {
   static #OWNERSHIP_OWNER = 3;
   static #OWNERSHIP_OBSERVER = 2;
@@ -293,5 +295,17 @@ export default class Utility {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
+  }
+
+  static formatMoney(moneyToPay) {
+    moneyToPay = RobakMarketWfrp4e.consolidate(moneyToPay);
+    let result = "";
+    if (moneyToPay.gc === 0 && moneyToPay.ss === 0 && moneyToPay.bp === 0) return "0";
+    if (moneyToPay.gc > 0) result += `${moneyToPay.gc} `;
+    if (moneyToPay.ss === 0 && moneyToPay.bp === 0) return result.trim();
+    let bp = moneyToPay.bp > 0 ? moneyToPay.bp : "-";
+    let ss = moneyToPay.ss > 0 ? moneyToPay.ss : "-";
+    result += `${ss}/${bp}`;
+    return result.trim();
   }
 }

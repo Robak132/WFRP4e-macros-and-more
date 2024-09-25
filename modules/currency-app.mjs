@@ -1,11 +1,13 @@
-import RobakMarketWfrp4e from "./robak-market.js";
+import Utility from "./utility.mjs";
 
 export default class CurrencyApp extends FormApplication {
-  constructor(fields, needed, currency) {
+  constructor(fields, needed, currency, resolve, reject) {
     super();
     this.fields = fields;
     this.needed = needed;
     this.currency = currency;
+    this.resolve = resolve;
+    this.reject = reject;
     this.total = 0;
   }
 
@@ -27,18 +29,23 @@ export default class CurrencyApp extends FormApplication {
     console.log(formData);
   }
 
+  close(options) {
+    this.resolve();
+    return super.close(options);
+  }
+
   getData({options = {}}) {
     let data = super.getData(options);
     data.fields = this.fields;
-    data.neededText = RobakMarketWfrp4e.format({bp: this.needed});
-    data.totalText = RobakMarketWfrp4e.format({bp: this.total});
+    data.neededText = Utility.formatMoney({bp: this.needed});
+    data.totalText = Utility.formatMoney({bp: this.total});
     data.currency = this.currency;
     return data;
   }
 
   activateListeners(html) {
     super.activateListeners(html);
-    html.find(".document-name").click((ev) => {
+    html.on("click", ".document-name", (ev) => {
       let document = $(ev.currentTarget).parents(".document")[0];
       if (document.classList.contains("active")) {
         this.fields[document.dataset.index].active = "";
@@ -49,11 +56,11 @@ export default class CurrencyApp extends FormApplication {
       }
       this.render(true);
     });
-    html.find("button").click((ev) => {
+    html.find("click", "button", async (ev) => {
       if ($(ev.currentTarget).data("action") === "submit") {
-        this.submit();
+        await this.submit();
       } else {
-        this.close();
+        await this.close();
       }
     });
   }
