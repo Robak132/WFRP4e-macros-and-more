@@ -113,6 +113,10 @@ Hooks.once("init", async function () {
     });
 });
 
+Hooks.once("babele.ready", async () => {
+  await RobakMarketWfrp4e.loadRegions();
+});
+
 Hooks.once("ready", async () => {
   game.socket.on("module.wfrp4e-macros-and-more", async ({type, data}) => {
     Utility.log("Received transfer object", data);

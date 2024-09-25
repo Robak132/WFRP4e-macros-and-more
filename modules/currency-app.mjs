@@ -1,13 +1,12 @@
 import Utility from "./utility.mjs";
 
 export default class CurrencyApp extends FormApplication {
-  constructor(fields, needed, currency, resolve, reject) {
+  constructor(fields, needed, currency, resolve) {
     super();
     this.fields = fields;
     this.needed = needed;
     this.currency = currency;
     this.resolve = resolve;
-    this.reject = reject;
     this.total = 0;
   }
 
@@ -24,13 +23,13 @@ export default class CurrencyApp extends FormApplication {
     return options;
   }
 
-  async _updateObject(event, formData) {
-    console.log(event);
-    console.log(formData);
+  submit(options) {
+    this.resolve();
+    return super.close(options);
   }
 
   close(options) {
-    this.resolve();
+    this.resolve(null);
     return super.close(options);
   }
 
@@ -56,12 +55,7 @@ export default class CurrencyApp extends FormApplication {
       }
       this.render(true);
     });
-    html.find("click", "button", async (ev) => {
-      if ($(ev.currentTarget).data("action") === "submit") {
-        await this.submit();
-      } else {
-        await this.close();
-      }
-    });
+    html.on("click", `button[id="pay"]`, async () => await this.submit());
+    html.on("click", `button[id="cancel"]`, async () => await this.close());
   }
 }
