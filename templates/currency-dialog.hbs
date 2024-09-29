@@ -10,7 +10,7 @@
   <div class="directory">
     <ol class="directory-list">
       {{#each fields as |item i|}}
-        <li class="directory-item document flexrow {{item.active}}" title="{{item.regionName}}" data-index="{{i}}" data-converted="{{item.converted}}">
+        <li class="directory-item document flexrow {{item.active}}" title="{{item.name}}" data-index="{{i}}" data-converted="{{item.converted}}">
           <img class="thumbnail" src="{{item.img}}">
           <h4 class="document-name">{{item.name}}</h4>
         </li>

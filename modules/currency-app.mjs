@@ -1,13 +1,37 @@
 import Utility from "./utility.mjs";
+import RobakMarketWfrp4e from "./market.mjs";
 
 export default class CurrencyApp extends FormApplication {
-  constructor(fields, needed, currency, resolve) {
+  /**
+   * @param {Currency[]} currencies - Given currencies.
+   * @param {number} needed - The amount of requested currency needed.
+   * @param {Region} requestedRegion - The region to convert currency to.
+   * @param {Function} resolve - The resolve function to call on form submission.
+   */
+  constructor(currencies, needed, requestedRegion, resolve) {
     super();
-    this.fields = fields;
+    this.currencies = currencies;
     this.needed = needed;
-    this.currency = currency;
+    this.requestedRegion = requestedRegion;
     this.resolve = resolve;
     this.total = 0;
+
+    this.fields = this.currencies
+      .map((currency) => {
+        const region = currency.region;
+        const mainCoin = region.getMainCoin();
+        return {
+          currency: currency,
+          name: `${Utility.formatMoney(currency.totalValue)} ${mainCoin.name} (${Utility.formatMoney(currency.convertedValue)} ${requestedRegion.getMainCoin().name}) [x${currency.modifier}]`,
+          img: mainCoin.img,
+          value: currency.totalValue,
+          converted: currency.convertedValue,
+          modifier: currency.modifier,
+          active: ""
+        };
+      })
+      .filter((field) => field.converted > 0)
+      .toSorted((a, b) => a.converted - b.converted);
   }
 
   static get defaultOptions() {
@@ -24,21 +48,26 @@ export default class CurrencyApp extends FormApplication {
   }
 
   submit(options) {
-    this.resolve();
-    return super.close(options);
+    if (this.total < this.needed) {
+      ui.notifications.error("Selected currency does not cover the needed amount.");
+      return;
+    }
+    let result = this.fields.filter((field) => field.active === "active").map((field) => field.currency);
+    this.resolve(result);
+    return super.close();
   }
 
   close(options) {
     this.resolve(null);
-    return super.close(options);
+    return super.close();
   }
 
   getData({options = {}}) {
     let data = super.getData(options);
     data.fields = this.fields;
-    data.neededText = Utility.formatMoney({bp: this.needed});
-    data.totalText = Utility.formatMoney({bp: this.total});
-    data.currency = this.currency;
+    data.neededText = Utility.formatMoney(this.needed);
+    data.totalText = Utility.formatMoney(this.total);
+    data.currency = this.requestedRegion.getMainCoin().name;
     return data;
   }
 
