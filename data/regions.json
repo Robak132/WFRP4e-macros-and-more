@@ -6,16 +6,19 @@
       {
         "key": "zk",
         "name": "NAME.GC",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "NAME.SS",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "NAME.BP",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -37,16 +40,19 @@
       {
         "key": "zk",
         "name": "Złote ecu",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny denar",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Bretoński brązowy pens",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -68,16 +74,19 @@
       {
         "key": "zk",
         "name": "Złote excelente",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny real",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowe duro",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -99,16 +108,19 @@
       {
         "key": "zk",
         "name": "Złoty dukat",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrna denga",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowe pulo",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -130,11 +142,13 @@
       {
         "key": "s",
         "name": "Srebrna sceatta",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowy fennig",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -156,16 +170,19 @@
       {
         "key": "zk",
         "name": "Tileańska złota korona",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Tileański srebrny szyling",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Tileański brązowy pens",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -187,16 +204,19 @@
       {
         "key": "zk",
         "name": "Złocisz",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrniak",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Miedziak",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],
@@ -217,6 +237,7 @@
       {
         "key": "zk",
         "name": "Złoty suweren",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 1
       }
     ],
@@ -238,16 +259,19 @@
       {
         "key": "zk",
         "name": "Złoty rial",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny dirham",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowy fals",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
         "value": 1
       }
     ],

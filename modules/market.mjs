@@ -152,10 +152,6 @@ export async function onMarketButtonClicked(event) {
             WFRP_Audio.PlayContextAudio({item: {type: "money"}, action: "gain"});
             let instances = msg.getFlag("wfrp4e", "instances") - 1;
             let messageUpdate = {};
-
-            // Only allow credit to be taken as many times as it has been split
-            // This allows a player to take multiple times if they wish, but not more than the original total amount
-            // This solution might fail if two or more players click the button at the same time and create a race condition
             if (instances <= 0) {
               messageUpdate = {content: `<p><strong>${game.i18n.localize("CHAT.NoMoreLeft")}</strong></p>`};
             } else {
@@ -185,15 +181,13 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     );
   }
 
-  // ---------------------------- Override ---------------------------- //
   /**
    * Directly execute the pay command.
    * @param amount {string} The amount to pay.
    * @param actor {object}  The actor making the payment.
-   * @param options {object} Additional options.
    */
-  static directPayCommand(amount, actor, options = {}) {
-    RobakMarketWfrp4e.payCommand(amount, actor, options).then(() => Utility.log("Pay command executed"));
+  static async directPayCommand(amount, actor) {
+    await RobakMarketWfrp4e.payCommand(amount, actor);
   }
 
   /**
@@ -202,13 +196,14 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    * @param {object} actor - The actor making the payment.
    * @param {object} - Additional options.
    * @returns {Promise<boolean>} Whether the payment was successful.
+   * @override
    */
   static async payCommand(cmd, actor) {
     let [command, regionKey, strictMode] = cmd.split("@");
-    let requestedRegion = regionKey == null ? RobakMarketWfrp4e.currentRegion : RobakMarketWfrp4e.regions[regionKey];
+    let requestedRegion = regionKey ? RobakMarketWfrp4e.currentRegion : RobakMarketWfrp4e.regions[regionKey];
     strictMode ??= false;
 
-    let moneyValue = RobakMarketWfrp4e.parseMoneyTransactionString(command);
+    let moneyValue = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(command);
     if (!moneyValue) {
       await RobakMarketWfrp4e.printPayWrongCommand();
       return false;
@@ -220,7 +215,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     if (requestedCurrency?.getValue() >= moneyValue) {
       Utility.log("Paying with requested currency");
       await RobakMarketWfrp4e.validateMoney(actor, requestedRegion);
-      let {paid} = RobakMarketWfrp4e.payInCurrency(actor, requestedRegion, requestedCurrency, moneyValue);
+      let {paid} = await RobakMarketWfrp4e.payInCurrency(actor, requestedRegion, requestedCurrency, moneyValue);
       RobakMarketWfrp4e.throwMoney(moneyValue);
       await RobakMarketWfrp4e.printPaySummary(actor, requestedRegion, [{currency: requestedCurrency, value: paid}]);
       return true;
@@ -237,7 +232,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
       for (let currency of selectedCurrencies) {
         if (moneyValue === 0) break;
         await RobakMarketWfrp4e.validateMoney(actor, currency.region);
-        let {paid, remaining} = RobakMarketWfrp4e.payInCurrency(actor, requestedRegion, currency, moneyValue);
+        let {paid, remaining} = await RobakMarketWfrp4e.payInCurrency(actor, requestedRegion, currency, moneyValue);
         moneyValue = remaining;
         paySummary.push({currency, value: paid});
         Utility.log(`Paid ${RobakMarketWfrp4e.formatMoney(paid)} ${currency.region.getMainCoin().name}`);
@@ -253,147 +248,108 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   /**
-   * Execute the credit command.
-   * @param {string} amount - The amount to credit.
-   * @param {object} actor - The actor receiving the credit.
-   * @param {object} options - Additional options.
-   * @returns {Promise<boolean>} The updated money inventory or false if an error occurred.
+   * Handles payment of currency for an actor.
+   * @param {object} actor - The actor whose currency will be modified.
+   * @param {Region} requestedRegion - The region to convert currency to.
+   * @param {Currency} currency - The currency details to use for the transaction (local currency).
+   * @param {number} gValue - The total change to pay (global currency).
+   * @returns {Promise<{paid: number, remaining: number}>} An object containing the paid and remaining amounts.
    */
-  static async creditCommand(amount, actor, options = {}) {
-    // First we parse the amount
-    let moneyItemInventory = actor.getItemTypes("money").map((i) => i.toObject());
-    let moneyToSend = RobakMarketWfrp4e.parseMoneyTransactionString(amount);
-    let msg = `<h3><b>${game.i18n.localize("MARKET.CreditCommand")}</b></h3>`;
-    let errorOccured = false;
-    // Wrong amount
-    if (!moneyToSend) {
-      msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p><p><i>${game.i18n.localize(
-        "MARKET.CreditCommandExample"
-      )}</i></p>`;
-      errorOccured = true;
-    }
-    // Command is ok, let's try to pay
-    else {
-      // We need to get the character money items for gc, ss and bp. This is a "best effort" lookup method. If it fails, we stop the amount to prevent any data loss.
-      let characterMoney = RobakMarketWfrp4e.getCharacterMoney(moneyItemInventory);
-      RobakMarketWfrp4e.checkCharacterMoneyValidity(moneyItemInventory, characterMoney);
+  static async payInCurrency(actor, requestedRegion, currency, gValue) {
+    // l - local currency, g - global currency
+    const modifier = currency.getExchangeModifier(requestedRegion);
+    let lValue = gValue / modifier;
+    let lToPay = Math.max(0, gValue - RobakMarketWfrp4e.getConvertedValue(gValue, currency.region, requestedRegion)); // 3.44 remaining -> 4 to pay
+    let lPaid = lValue - lToPay;
 
-      // If one money is missing, we stop here before doing anything bad
-      if (Object.values(characterMoney).includes(false)) {
-        msg += `<p>${game.i18n.localize("MARKET.CantFindMoneyItems")}</p>`;
-        errorOccured = true;
-      } else {
-        // Great, we can just deduce the quantity for each money
-        moneyItemInventory[characterMoney.gc].system.quantity.value += moneyToSend.gc;
-        moneyItemInventory[characterMoney.ss].system.quantity.value += moneyToSend.ss;
-        moneyItemInventory[characterMoney.bp].system.quantity.value += moneyToSend.bp;
-      }
-    }
-    if (errorOccured) {
-      moneyItemInventory = false;
-    } else {
-      msg += game.i18n.format("MARKET.Credit", {
-        number1: moneyToSend.gc,
-        number2: moneyToSend.ss,
-        number3: moneyToSend.bp
-      });
-      msg += `<br><b>${game.i18n.localize("MARKET.ReceivedBy")}</b> ${actor.name}`;
-      RobakMarketWfrp4e.throwMoney(moneyToSend);
-    }
-    if (options.suppressMessage) {
-      ui.notifications.notify(
-        `${actor.name} received ${moneyToSend.gc}${game.i18n.localize(
-          "MARKET.Abbrev.GC"
-        )} ${moneyToSend.ss}${game.i18n.localize(
-          "MARKET.Abbrev.SS"
-        )} ${moneyToSend.bp}${game.i18n.localize("MARKET.Abbrev.BP")}`
-      );
-    } else {
-      await ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
-    }
-    return moneyItemInventory;
+    // Lowest value of the currency coin
+    let lMinCoinValue = currency.coins.reduce((p, c) => {
+      return p.system.coinValue.value < c.system.coinValue.value ? p : c;
+    }).system.coinValue.value;
+    lPaid = Math.ceil(lPaid / lMinCoinValue); // 320 / 240 = 1.33 -> 2
+    lToPay = Math.max(0, Math.ceil(lToPay / lMinCoinValue)); // 3.44 -> 4
+    let lRemaining = currency.getValue() - lPaid;
+    await RobakMarketWfrp4e.updateActorsCoins(actor, currency, lRemaining);
+
+    return {
+      paid: lPaid,
+      remaining: lToPay * modifier
+    };
   }
 
   /**
    * Process a credit request.
-   * @param {string} creditRequest - The credit request string.
+   * @param {string} cmd - The command string.
    * @param {string} optionOrName - The option or player name.
+   * @returns {Promise<boolean>} Whether the credit was successful.
    */
-  static async processCredit(creditRequest, optionOrName) {
-    let parsedPayRequest = RobakMarketWfrp4e.parseMoneyTransactionString(creditRequest);
+  static async processCredit(cmd, optionOrName) {
+    let [command, regionKey] = cmd.split("@");
+    let requestedRegion = regionKey ? RobakMarketWfrp4e.regions[regionKey] : RobakMarketWfrp4e.currentRegion;
+    optionOrName = (optionOrName || "split").trim().toLowerCase();
 
-    //If the /credit command has a syntax error, we display an error message to the gm
-    if (!parsedPayRequest) {
-      let msg = `<h3><b>${game.i18n.localize("MARKET.CreditRequest")}</b></h3>`;
-      msg += `<p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p><p><i>${game.i18n.localize(
-        "MARKET.CreditCommandExample"
-      )}</i></p>`;
-      await ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "gmroll"));
-    } //generate a card with a summary and a receive button
-    else {
-      let amount, message, forceWhisper;
-      optionOrName = optionOrName || "split"; // Default behavior
+    let moneyValue = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(command);
+    if (!moneyValue) {
+      await RobakMarketWfrp4e.printCreditWrongCommand();
+      return false;
+    }
 
-      // Process split/each options
-      let nbActivePlayers = Array.from(game.users).filter((u) => u.role !== 4 && u.active).length;
-      if (optionOrName.toLowerCase() === "each" || optionOrName.toLowerCase() === "split") {
-        if (nbActivePlayers === 0) {
-          let message = game.i18n.localize("MARKET.NoPlayers");
-          await ChatMessage.create({content: message});
-          return;
-        }
-        if (optionOrName.toLowerCase() === "split") {
-          amount = RobakMarketWfrp4e.splitAmountBetweenAllPlayers(parsedPayRequest, nbActivePlayers);
-          message = game.i18n.format("MARKET.RequestMessageForSplitCredit", {
-            activePlayerNumber: nbActivePlayers,
-            initialAmount: RobakMarketWfrp4e.amountToString(parsedPayRequest)
-          });
-        } else if (optionOrName.toLowerCase() === "each") {
-          amount = parsedPayRequest;
-          message = game.i18n.format("MARKET.RequestMessageForEachCredit", {
-            activePlayerNumber: nbActivePlayers,
-            initialAmount: RobakMarketWfrp4e.amountToString(parsedPayRequest)
-          });
-        }
+    let nbActivePlayers = game.users.filter((u) => u.role !== 4 && u.active).length;
+    if (["each", "split"].includes(optionOrName)) {
+      if (nbActivePlayers === 0) {
+        RobakMarketWfrp4e.printNoPlayers();
+        return false;
+      }
+
+      let message = `<p><b>Total amount of money:</b><br>${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)}</p><b>Each of the ${nbActivePlayers} players will receive:<br></b>`;
+      if (optionOrName === "split") moneyValue = Math.floor(moneyValue / nbActivePlayers);
+      message += RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion);
+      RobakMarketWfrp4e.generateCreditCard(cmd, message, nbActivePlayers);
+      return true;
+    } else {
+      let player = Array.of(game.users.players).find((p) => p.name.toLowerCase() === optionOrName);
+      if (player) {
+        let message = `The amount of money ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} is sent to user ${player.name}.`;
+        RobakMarketWfrp4e.generateCreditCard(cmd, message, 1, player.name);
+        return true;
       } else {
-        amount = parsedPayRequest;
-        let paName = optionOrName.trim().toLowerCase();
-        let player = game.users.players.filter((p) => p.name.toLowerCase() === paName);
-        if (player[0]) {
-          // Player found !
-          forceWhisper = player[0].name;
-          message = game.i18n.format("MARKET.CreditToUser", {
-            userName: player[0].name,
-            initialAmount: RobakMarketWfrp4e.amountToString(parsedPayRequest)
-          });
+        let actor = Array.of(game.actors).find((a) => a.name.toLowerCase().includes(optionOrName));
+        if (actor) {
+          await RobakMarketWfrp4e.creditCommand(cmd, actor);
+          return true;
         } else {
-          let actor = game.actors.find((a) => a.name.toLowerCase().includes(paName.toLowerCase()));
-          if (actor) {
-            let money = RobakMarketWfrp4e.creditCommand(RobakMarketWfrp4e.amountToString(amount), actor); // Imediate processing!
-            if (money) {
-              await actor.updateEmbeddedDocuments("Item", money);
-            }
-            return;
-          } else {
-            message = game.i18n.localize("MARKET.NoMatchingPlayer");
-            await ChatMessage.create({content: message});
-            return;
-          }
+          RobakMarketWfrp4e.printNoMatchingPlayer();
+          return false;
         }
       }
-      let cardData = {
-        digestMessage: message,
-        amount: RobakMarketWfrp4e.amountToString(amount),
-        QtGC: amount.gc,
-        QtSS: amount.ss,
-        QtBP: amount.bp
-      };
-      renderTemplate("modules/wfrp4e-macros-and-more/templates/market-credit.hbs", cardData).then((html) => {
-        let chatData = WFRP_Utility.chatDataSetup(html, "roll", false, {forceWhisper});
-        foundry.utils.setProperty(chatData, "flags.wfrp4e.instances", nbActivePlayers);
-        ChatMessage.create(chatData);
-      });
     }
+  }
+
+  /**
+   * Execute the credit command.
+   * @param {string} cmd - The command string.
+   * @param {object} actor - The actor receiving the credit.
+   * @param {object} options - Additional options.
+   * @returns {Promise<boolean>} The updated money inventory or false if an error occurred.
+   * @override
+   */
+  static async creditCommand(cmd, actor, options = {}) {
+    let [command, regionKey] = cmd.split("@");
+    let requestedRegion = regionKey ? RobakMarketWfrp4e.regions[regionKey] : RobakMarketWfrp4e.currentRegion;
+
+    let moneyValue = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(command);
+    if (!moneyValue) {
+      await RobakMarketWfrp4e.printCreditWrongCommand();
+      return false;
+    }
+    await RobakMarketWfrp4e.validateMoney(actor, requestedRegion);
+    let {currencies} = RobakMarketWfrp4e.groupMoney(actor, requestedRegion);
+    let requestedCurrency = currencies[requestedRegion.key];
+
+    await RobakMarketWfrp4e.updateActorsCoins(actor, requestedCurrency, requestedCurrency.getValue() + moneyValue);
+    RobakMarketWfrp4e.throwMoney(moneyValue);
+    await RobakMarketWfrp4e.printCreditSummary(actor, moneyValue, requestedRegion, options);
+    return true;
   }
 
   /**
@@ -426,7 +382,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    * @param {String} string - The string to parse
    * @returns {number|null} The parsed price
    */
-  static parseMoneyTransactionString(string) {
+  static parseMoneyTransactionStringToValue(string) {
     const expression = /((\d+)\s?(\p{L}+))/gu;
     let matches = [...string.matchAll(expression)];
 
@@ -475,14 +431,20 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     return modifier;
   }
 
-  static consolidate(moneyObject) {
-    let total = (moneyObject?.gc ?? 0) * 240 + (moneyObject?.ss ?? 0) * 12 + (moneyObject?.bp ?? 0);
-    let temp = total;
-    let gc = Math.floor(temp / 240);
-    temp = temp % 240;
-    let ss = Math.floor(temp / 12);
-    let bp = temp % 12;
-    return {gc, ss, bp, total};
+  /**
+   * @param {Object} actor - The actor to update.
+   * @param {Currency} currency - The currency to update.
+   * @param {number} value - The value to update.
+   */
+  static async updateActorsCoins(actor, currency, value) {
+    let updates = [];
+    for (let coin of currency.coins.toSorted((a, b) => b.system.coinValue.value - a.system.coinValue.value)) {
+      let coinValue = coin.system.coinValue.value;
+      let q = Math.floor(value / coinValue);
+      value = value % coinValue;
+      updates.push({_id: coin._id, "system.quantity.value": q});
+    }
+    await actor.updateEmbeddedDocuments("Item", updates);
   }
 
   /**
@@ -497,11 +459,11 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     let currencies = {};
     let lookupTable = RobakMarketWfrp4e.getLookupTable();
     for (let money of moneyItemInventory) {
-      let otherMoneyRegion = lookupTable[money.name];
-      if (otherMoneyRegion) {
-        let value = currencies[otherMoneyRegion.key] || new Currency(otherMoneyRegion);
+      let region = lookupTable[money.name];
+      if (region) {
+        let value = currencies[region.key] || new Currency(region);
         value.coins.push(money);
-        currencies[otherMoneyRegion.key] = value;
+        currencies[region.key] = value;
       }
     }
     let total = 0;
@@ -544,79 +506,6 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     }
   }
 
-  /**
-   * Handles payment of currency for an actor.
-   * @param {object} actor - The actor whose currency will be modified.
-   * @param {Region} requestedRegion - The region to convert currency to.
-   * @param {Currency} currency - The currency details to use for the transaction (local currency).
-   * @param {number} gValue - The total change to pay (global currency).
-   * @returns {Promise<{paid: number, remaining: number}>} An object containing the paid and remaining amounts.
-   */
-  static payInCurrency(actor, requestedRegion, currency, gValue) {
-    // l - local currency, g - global currency
-    let updates = [];
-    const modifier = currency.getExchangeModifier(requestedRegion);
-    let lValue = gValue / modifier;
-    let lToPay = Math.max(0, gValue - RobakMarketWfrp4e.getConvertedValue(gValue, currency.region, requestedRegion)); // 3.44 remaining -> 4 to pay
-    let lPaid = lValue - lToPay;
-
-    // Lowest value of the currency coin
-    let lMinCoinValue = currency.coins.reduce((p, c) => {
-      return p.system.coinValue.value < c.system.coinValue.value ? p : c;
-    }).system.coinValue.value;
-    lPaid = Math.ceil(lPaid / lMinCoinValue); // 320 / 240 = 1.33 -> 2
-    lToPay = Math.max(0, Math.ceil(lToPay / lMinCoinValue)); // 3.44 -> 4
-    let lRemaining = currency.getValue() - lPaid;
-
-    for (let coin of currency.coins.toSorted((a, b) => b.system.coinValue.value - a.system.coinValue.value)) {
-      let coinValue = coin.system.coinValue.value;
-      let q = Math.floor(lRemaining / coinValue);
-      lRemaining = lRemaining % coinValue;
-      updates.push({_id: coin._id, "system.quantity.value": q});
-    }
-
-    actor.updateEmbeddedDocuments("Item", updates);
-    return {
-      paid: lPaid,
-      remaining: lToPay * modifier
-    };
-  }
-
-  static makeSomeChange(amount, bpRemainder) {
-    let gc = 0;
-    let ss = 0;
-    let bp = 0;
-    if (amount >= 0) {
-      gc = Math.floor(amount / 240);
-      amount = amount % 240;
-      ss = Math.floor(amount / 12);
-      bp = amount % 12;
-      bp = bp + (bpRemainder > 0 ? 1 : 0);
-    }
-    return {
-      gc: gc,
-      ss: ss,
-      bp: bp
-    };
-  }
-
-  static amountToString(amount) {
-    let gc = game.i18n.localize("MARKET.Abbrev.GC");
-    let ss = game.i18n.localize("MARKET.Abbrev.SS");
-    let bp = game.i18n.localize("MARKET.Abbrev.BP");
-    return `${amount.gc || amount.g || 0}${gc} ${amount.ss || amount.s || 0}${ss} ${amount.bp || amount.b || 0}${bp}`;
-  }
-
-  static splitAmountBetweenAllPlayers(initialAmount, nbOfPlayers) {
-    // convert initialAmount in bp
-    let bpAmount = initialAmount.gc * 240 + initialAmount.ss * 12 + initialAmount.bp;
-    // divide bpAmount by nb of players and get the true remainder
-    let bpRemainder = bpAmount % nbOfPlayers;
-    bpAmount = Math.floor(bpAmount / nbOfPlayers);
-    // rebuild an amount of gc/ss/bp from bpAmount
-    return RobakMarketWfrp4e.makeSomeChange(bpAmount, bpRemainder);
-  }
-
   static throwMoney(moneyValue) {
     let number = Math.floor(moneyValue / 240);
     moneyValue = moneyValue % 240;
@@ -631,6 +520,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   // ---------------------------- Money format functions ---------------------- //
+
   /**
    * Formats a given amount of money into a string representation.
    * @param value {number} The money to format.
@@ -677,17 +567,31 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     return result.trim();
   }
 
+  /**
+   * @param {{gc?:number, ss?:number, bp?: number}} moneyObject
+   * @returns {{gc: number, ss: number, bp: number, total: number}}
+   */
+  static consolidate(moneyObject) {
+    let total = (moneyObject?.gc ?? 0) * 240 + (moneyObject?.ss ?? 0) * 12 + (moneyObject?.bp ?? 0);
+    let temp = total;
+    let gc = Math.floor(temp / 240);
+    temp = temp % 240;
+    let ss = Math.floor(temp / 12);
+    let bp = temp % 12;
+    return {gc, ss, bp, total};
+  }
+
   // ---------------------------- Helper functions ---------------------------- //
+
   /**
    * @param cmd {string} Command to parse
    * @param player {object}
    */
   static generatePayCard(cmd, player) {
-    let [payRequest, regionKey, strictMode] = cmd.split("@");
+    let [payRequest, regionKey] = cmd.split("@");
     let requestedRegion = regionKey == null ? RobakMarketWfrp4e.currentRegion : RobakMarketWfrp4e.regions[regionKey];
-    strictMode ??= false;
 
-    let parsedPayRequest = RobakMarketWfrp4e.parseMoneyTransactionString(payRequest);
+    let parsedPayRequest = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(payRequest);
     // If the /pay command has a syntax error, we display an error message to the gm
     if (!parsedPayRequest) {
       let msg = `<h3><b>${game.i18n.localize("MARKET.PayRequest")}</b></h3>`;
@@ -710,6 +614,24 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   }
 
   /**
+   * @param {string} cmd - Command to parse
+   * @param {string} message - Message to display
+   * @param {number} nbActivePlayers - Number of active players
+   * @param {string} forceWhisper - Force whisper to a specific player
+   */
+  static generateCreditCard(cmd, message, nbActivePlayers, forceWhisper = undefined) {
+    let cardData = {
+      creditRequest: cmd,
+      message
+    };
+    renderTemplate("modules/wfrp4e-macros-and-more/templates/market-credit.hbs", cardData).then((html) => {
+      let chatData = WFRP_Utility.chatDataSetup(html, "roll", false, {forceWhisper});
+      foundry.utils.setProperty(chatData, "flags.wfrp4e.instances", nbActivePlayers);
+      ChatMessage.create(chatData);
+    });
+  }
+
+  /**
    * @param {Object} actor
    * @param {Region} requestedRegion
    * @param {{currency: Currency, value: number}[]} paySummary
@@ -726,6 +648,26 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     }
     msg += `<ul>${currencyMsg}</ul><b>${game.i18n.localize("MARKET.PaidBy")}</b> ${actor.name}`;
     ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
+  }
+
+  /**
+   * @param {Object} actor - The actor receiving the credit.
+   * @param {number} moneyValue - The amount of money received.
+   * @param {Region} requestedRegion - Region of the money.
+   * @param {Object} options - Additional options.
+   */
+  static printCreditSummary(actor, moneyValue, requestedRegion, options) {
+    let msg = `<h3><b>${game.i18n.localize("MARKET.CreditCommand")}</b></h3><b>Credit complete:</b>
+      <ul><li>${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} (${moneyValue})</li></ul>
+      <b>${game.i18n.localize("MARKET.ReceivedBy")}</b> ${actor.name}`;
+
+    if (options.suppressMessage) {
+      ui.notifications.notify(
+        `${actor.name} received ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} (${moneyValue})`
+      );
+    } else {
+      ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
+    }
   }
 
   /**
@@ -757,5 +699,20 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
       <p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p>
       <p><i>${game.i18n.localize("MARKET.PayCommandExample")}</i></p>`;
     ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
+  }
+
+  static printCreditWrongCommand() {
+    let msg = `<h3><b>${game.i18n.localize("MARKET.CreditRequest")}</b></h3>
+      <p>${game.i18n.localize("MARKET.MoneyTransactionWrongCommand")}</p>
+      <p><i>${game.i18n.localize("MARKET.CreditCommandExample")}</i></p>`;
+    ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "gmroll"));
+  }
+
+  static printNoPlayers() {
+    ChatMessage.create({content: game.i18n.localize("MARKET.NoPlayers")});
+  }
+
+  static printNoMatchingPlayer() {
+    ChatMessage.create({content: game.i18n.localize("MARKET.NoMatchingPlayer")});
   }
 }
