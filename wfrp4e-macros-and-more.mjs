@@ -4,7 +4,7 @@ import Utility from "./modules/utility.mjs";
 import {RollTracker, RollTrackerDialog} from "./modules/roll-tracker.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
-import RobakMarketWfrp4e, {onMarketButtonClicked, overrideMarket} from "./modules/market.mjs";
+import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import FinanceCalculator from "./modules/finance-calculator.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";

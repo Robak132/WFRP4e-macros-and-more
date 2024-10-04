@@ -6,19 +6,16 @@
       {
         "key": "zk",
         "name": "NAME.GC",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "NAME.SS",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "NAME.BP",
-        "main": true,
         "value": 1
       }
     ],
@@ -40,19 +37,16 @@
       {
         "key": "zk",
         "name": "Złote ecu",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny denar",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Bretoński brązowy pens",
-        "main": true,
         "value": 1
       }
     ],
@@ -74,19 +68,16 @@
       {
         "key": "zk",
         "name": "Złote excelente",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny real",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowe duro",
-        "main": true,
         "value": 1
       }
     ],
@@ -108,19 +99,16 @@
       {
         "key": "zk",
         "name": "Złoty dukat",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrna denga",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowe pulo",
-        "main": true,
         "value": 1
       }
     ],
@@ -142,13 +130,11 @@
       {
         "key": "s",
         "name": "Srebrna sceatta",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowy fennig",
-        "main": true,
         "value": 1
       }
     ],
@@ -170,19 +156,16 @@
       {
         "key": "zk",
         "name": "Tileańska złota korona",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Tileański srebrny szyling",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Tileański brązowy pens",
-        "main": true,
         "value": 1
       }
     ],
@@ -204,19 +187,16 @@
       {
         "key": "zk",
         "name": "Złocisz",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrniak",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Miedziak",
-        "main": true,
         "value": 1
       }
     ],
@@ -237,7 +217,6 @@
       {
         "key": "zk",
         "name": "Złoty suweren",
-        "main": true,
         "value": 1
       }
     ],
@@ -259,19 +238,16 @@
       {
         "key": "zk",
         "name": "Złoty rial",
-        "main": true,
         "value": 240
       },
       {
         "key": "s",
         "name": "Srebrny dirham",
-        "main": true,
         "value": 12
       },
       {
         "key": "p",
         "name": "Brązowy fals",
-        "main": true,
         "value": 1
       }
     ],

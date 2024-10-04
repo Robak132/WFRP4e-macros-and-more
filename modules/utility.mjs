@@ -296,24 +296,4 @@ export default class Utility {
     }
     return result;
   }
-  /**
-   * Formats a given amount of money into a string representation.
-   * @param {number|{gc?: number, ss?: number, bp?: number, total?: number}} moneyToPay - The money to format.
-   * @returns {string} The formatted string representation of the money.
-   */
-  static formatMoney(moneyToPay) {
-    if (typeof moneyToPay === "number") {
-      moneyToPay = {bp: moneyToPay};
-    }
-
-    moneyToPay = RobakMarketWfrp4e.consolidate(moneyToPay);
-    if (moneyToPay.gc === 0 && moneyToPay.ss === 0 && moneyToPay.bp === 0) return "0";
-    let result = moneyToPay.gc > 0 ? `${moneyToPay.gc} ` : "";
-    if (moneyToPay.ss === 0 && moneyToPay.bp === 0) return result.trim();
-
-    let ss = moneyToPay.ss > 0 ? moneyToPay.ss : "-";
-    let bp = moneyToPay.bp > 0 ? moneyToPay.bp : "-";
-    result += `${ss}/${bp}`;
-    return result.trim();
-  }
 }

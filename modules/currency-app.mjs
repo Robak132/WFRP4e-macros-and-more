@@ -1,4 +1,3 @@
-import Utility from "./utility.mjs";
 import RobakMarketWfrp4e from "./market.mjs";
 
 export default class CurrencyApp extends FormApplication {
@@ -18,15 +17,17 @@ export default class CurrencyApp extends FormApplication {
 
     this.fields = this.currencies
       .map((currency) => {
-        const region = currency.region;
-        const mainCoin = region.getMainCoin();
+        const localMoney = RobakMarketWfrp4e.formatMoney(currency.getValue(), currency.region);
+        const converted = currency.getConvertedValue(requestedRegion);
+        const globalMoney = RobakMarketWfrp4e.formatMoney(converted, requestedRegion);
+        const modifier = currency.getExchangeModifier(requestedRegion);
         return {
           currency: currency,
-          name: `${Utility.formatMoney(currency.totalValue)} ${mainCoin.name} (${Utility.formatMoney(currency.convertedValue)} ${requestedRegion.getMainCoin().name}) [x${currency.modifier}]`,
-          img: mainCoin.img,
-          value: currency.totalValue,
-          converted: currency.convertedValue,
-          modifier: currency.modifier,
+          name: `${localMoney} (${currency.getValue()}) -> ${globalMoney} (${converted}) [x${modifier}]`,
+          img: currency.region.getMainCoin().img,
+          value: currency.getValue(),
+          converted,
+          modifier,
           active: ""
         };
       })
@@ -65,8 +66,8 @@ export default class CurrencyApp extends FormApplication {
   getData({options = {}}) {
     let data = super.getData(options);
     data.fields = this.fields;
-    data.neededText = Utility.formatMoney(this.needed);
-    data.totalText = Utility.formatMoney(this.total);
+    data.neededText = RobakMarketWfrp4e.formatMoney(this.needed);
+    data.totalText = RobakMarketWfrp4e.formatMoney(this.total);
     data.currency = this.requestedRegion.getMainCoin().name;
     return data;
   }
