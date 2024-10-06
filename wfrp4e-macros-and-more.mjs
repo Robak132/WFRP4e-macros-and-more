@@ -37,15 +37,6 @@ async function registerSettings() {
     restricted: true,
     type: Boolean
   });
-  await game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
-    name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
-    label: "MACROS-AND-MORE.SettingsMaintenanceMenuLabel",
-    hint: "MACROS-AND-MORE.SettingsMaintenanceMenuHint",
-    icon: "fas fa-cog",
-    type: MaintenanceWrapper,
-    onChange: debouncedReload,
-    restricted: true
-  });
   await game.settings.register("wfrp4e-macros-and-more", "current-region", {
     name: "Current region",
     hint: "Current region for currency conversion.",
@@ -56,6 +47,25 @@ async function registerSettings() {
     restricted: true,
     choices: RobakMarketWfrp4e.getKeyValueRegions(),
     type: String
+  });
+  await game.settings.register("wfrp4e-macros-and-more", "auto-engaged", {
+    name: "Enable Auto-Engaging",
+    hint: "Automatically set 'Engaged' condition when rolling attacks.",
+    scope: "world",
+    config: true,
+    onChange: debouncedReload,
+    default: false,
+    restricted: true,
+    type: Boolean
+  });
+  await game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
+    name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
+    label: "MACROS-AND-MORE.SettingsMaintenanceMenuLabel",
+    hint: "MACROS-AND-MORE.SettingsMaintenanceMenuHint",
+    icon: "fas fa-cog",
+    type: MaintenanceWrapper,
+    onChange: debouncedReload,
+    restricted: true
   });
   await game.settings.register("wfrp4e-macros-and-more", "gm_see_players", {
     name: `MACROS-AND-MORE.settings.gm_see_players.Name`,
@@ -97,7 +107,6 @@ Hooks.once("init", async function () {
     configurableDialog: ConfigurableDialog,
     rollTracker: new RollTracker()
   };
-  setupAutoEngaged();
 
   // Load regions
   await RobakMarketWfrp4e.loadRegions();
@@ -107,6 +116,11 @@ Hooks.once("init", async function () {
 
   // Register handlebars
   await registerHandlebars();
+
+  // Register
+  if (game.settings.get("wfrp4e-macros-and-more", "auto-engaged")) {
+    setupAutoEngaged();
+  }
 
   // Register market
   if (game.settings.get("wfrp4e-macros-and-more", "currency-market")) {
