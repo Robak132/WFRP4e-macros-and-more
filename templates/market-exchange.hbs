@@ -1,0 +1,12 @@
+<div>
+  <h2><b>Exchange rates for {{currentRegion}}</b></h2>
+</div>
+<div>
+  {{#each rows as |row|}}
+    <h3>{{row.region}}</h3>
+    <div style="display:flex;align-items: center;justify-content: space-between;">
+      <span>1 {{row.currencySource}} = {{row.modifier}} {{row.currencyTarget}}</span>
+      <a class="chat-card-button" data-button="payItem" data-pay="{{payRequest}}">Exchange</a>
+    </div>
+  {{/each}}
+</div>

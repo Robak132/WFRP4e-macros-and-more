@@ -3,6 +3,7 @@ import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
+import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
 
@@ -23,6 +24,37 @@ async function registerSettings() {
     default: false,
     type: Boolean
   });
+  await game.settings.register("wfrp4e-macros-and-more", "currency-market", {
+    name: "[Experimental] Currencies in Pay/Credit commands",
+    hint: "Enables advanced currency handling in Pay/Credit commands.",
+    scope: "world",
+    config: true,
+    onChange: debouncedReload,
+    default: false,
+    restricted: true,
+    type: Boolean
+  });
+  await game.settings.register("wfrp4e-macros-and-more", "current-region", {
+    name: "Current region",
+    hint: "Current region for currency conversion.",
+    scope: "world",
+    config: true,
+    default: "empire",
+    onChange: debouncedReload,
+    restricted: true,
+    choices: RobakMarketWfrp4e.getKeyValueRegions(),
+    type: String
+  });
+  await game.settings.register("wfrp4e-macros-and-more", "auto-engaged", {
+    name: "Enable Auto-Engaging",
+    hint: "Automatically set 'Engaged' condition when rolling attacks.",
+    scope: "world",
+    config: true,
+    onChange: debouncedReload,
+    default: false,
+    restricted: true,
+    type: Boolean
+  });
   await game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
     name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
     label: "MACROS-AND-MORE.SettingsMaintenanceMenuLabel",
@@ -31,6 +63,15 @@ async function registerSettings() {
     type: MaintenanceWrapper,
     onChange: debouncedReload,
     restricted: true
+  });
+  await game.settings.register("wfrp4e-macros-and-more", "gm_see_players", {
+    name: `MACROS-AND-MORE.settings.gm_see_players.Name`,
+    default: true,
+    type: Boolean,
+    scope: "world",
+    config: true,
+    hint: `MACROS-AND-MORE.settings.gm_see_players.Hint`,
+    onChange: () => ui.players.render()
   });
 }
 
@@ -62,11 +103,24 @@ Hooks.once("init", async function () {
     configurableDialog: ConfigurableDialog
   };
 
+  // Load regions
+  await RobakMarketWfrp4e.loadRegions();
+
   // Register settings
   await registerSettings();
 
   // Register handlebars
   await registerHandlebars();
+
+  // Register
+  if (game.settings.get("wfrp4e-macros-and-more", "auto-engaged")) {
+    setupAutoEngaged();
+  }
+
+  // Register market
+  if (game.settings.get("wfrp4e-macros-and-more", "currency-market")) {
+    await overrideMarket();
+  }
 
   // Load scripts
   fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
@@ -76,14 +130,14 @@ Hooks.once("init", async function () {
     });
 });
 
-Hooks.once("ready", async () => {
+Hooks.once("babele.ready", async () => {
   game.socket.on("module.wfrp4e-macros-and-more", async ({type, data}) => {
     Utility.log("Received transfer object", data);
     if (!game.user.isUniqueGM) {
       return;
     }
     switch (type) {
-      case "transferItem":
+      case "transferItems":
         return ItemTransfer.handleTransfer(data);
       case "darkWhispers":
         await Utility.darkWhispersDialog(data);

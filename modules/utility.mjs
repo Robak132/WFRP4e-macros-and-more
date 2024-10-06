@@ -129,7 +129,7 @@ export default class Utility {
     }).render(true);
   }
 
-  static async blockDarkWhispersRequest({currentUser, message, characters, sendToOwners}) {
+  static async blockDarkWhispersRequest({currentUser, message, characters}) {
     await ChatMessage.create({
       content: `
           <p><strong>Bogowie Prawości zablokowali Mroczny Podszept</strong></p>
@@ -139,9 +139,9 @@ export default class Utility {
     });
   }
 
-  static async acceptDarkWhispersRequest({currentUser, message, characters, sendToOwners}) {
+  static async acceptDarkWhispersRequest({currentUser, message, characters}) {
     const playerRecipients = characters.reduce((recipients, character) => {
-      const ids = sendToOwners ? character.owners.map((m) => m._id) : [character.assignedUser?._id];
+      const ids = [character.assignedUser?._id];
       recipients.push(...ids.filter((id) => id !== undefined));
       return recipients;
     }, []);

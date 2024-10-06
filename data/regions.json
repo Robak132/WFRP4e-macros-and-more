@@ -1,0 +1,289 @@
+{
+  "empire": {
+    "key": "empire",
+    "name": "Empire",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "NAME.GC",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "NAME.SS",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "NAME.BP",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "bretonia": 0.95,
+      "estalia": 0.9,
+      "kislev": 0.9,
+      "norsca": 0.7,
+      "tilea": 0.5,
+      "dwarf": 1.2,
+      "elf": 0.95,
+      "araby": 0.9
+    }
+  },
+  "bretonia": {
+    "key": "bretonia",
+    "name": "Bretonnia",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złote ecu",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny denar",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Bretoński brązowy pens",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.05,
+      "estalia": 0.95,
+      "kislev": 0.95,
+      "norsca": 0.8,
+      "tilea": 0.7,
+      "dwarf": 1.3,
+      "elf": 1.0,
+      "araby": 0.95
+    }
+  },
+  "estalia": {
+    "key": "estalia",
+    "name": "Estalia",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złote excelente",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny real",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowe duro",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.05,
+      "kislev": 1.1,
+      "norsca": 0.9,
+      "tilea": 0.8,
+      "dwarf": 1.4,
+      "elf": 1.05,
+      "araby": 1.0
+    }
+  },
+  "kislev": {
+    "key": "kislev",
+    "name": "Kislev",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty dukat",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrna denga",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowe pulo",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.1,
+      "estalia": 0.9,
+      "norsca": 0.95,
+      "tilea": 0.9,
+      "dwarf": 1.4,
+      "elf": 1.05,
+      "araby": 1.1
+    }
+  },
+  "norsca": {
+    "key": "norsca",
+    "name": "Norsca",
+    "coins": [
+      {
+        "key": "s",
+        "name": "Srebrna sceatta",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowy fennig",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.0,
+      "bretonia": 1.0,
+      "estalia": 1.0,
+      "kislev": 1.0,
+      "tilea": 1.0,
+      "dwarf": 1.0,
+      "elf": 1.0,
+      "araby": 1.0
+    }
+  },
+  "tilea": {
+    "key": "tilea",
+    "name": "Tilea",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Tileańska złota korona",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Tileański srebrny szyling",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Tileański brązowy pens",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 0.8,
+      "bretonia": 0.85,
+      "estalia": 0.9,
+      "kislev": 1.0,
+      "norsca": 0.95,
+      "dwarf": 1.5,
+      "elf": 1.2,
+      "araby": 0.9
+    }
+  },
+  "dwarf": {
+    "key": "dwarf",
+    "name": "Krasnoludzkie twierdze",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złocisz",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrniak",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Miedziak",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 0.9,
+      "bretonia": 0.85,
+      "estalia": 0.8,
+      "kislev": 0.9,
+      "norsca": 0.8,
+      "elf": 1.0,
+      "araby": 0.8
+    }
+  },
+  "elf": {
+    "key": "elf",
+    "name": "Królestwa elfów",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty suweren",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.05,
+      "bretonia": 1.0,
+      "estalia": 1.0,
+      "kislev": 0.95,
+      "norsca": 0.9,
+      "tilea": 0.8,
+      "dwarf": 1.0,
+      "araby": 0.95
+    }
+  },
+  "araby": {
+    "key": "araby",
+    "name": "Araby",
+    "coins": [
+      {
+        "key": "zk",
+        "name": "Złoty rial",
+        "img": "modules/wfrp4e-core/icons/currency/goldcrown.png",
+        "value": 240
+      },
+      {
+        "key": "s",
+        "name": "Srebrny dirham",
+        "img": "modules/wfrp4e-core/icons/currency/silvershilling.png",
+        "value": 12
+      },
+      {
+        "key": "p",
+        "name": "Brązowy fals",
+        "img": "modules/wfrp4e-core/icons/currency/brasspenny.png",
+        "value": 1
+      }
+    ],
+    "exchangeRates": {
+      "empire": 1.1,
+      "bretonia": 1.05,
+      "estalia": 1.0,
+      "kislev": 0.9,
+      "norsca": 1.0,
+      "tilea": 0.9,
+      "dwarf": 1.2,
+      "elf": 1.05
+    }
+  }
+}
