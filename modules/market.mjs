@@ -63,7 +63,7 @@ class Coin {
   }
 }
 
-class Currency {
+class CurrencySet {
   /**
    * @param region {Region}
    * @param coins {object[]}
@@ -93,7 +93,7 @@ export async function overrideMarket() {
   libWrapper.register(
     "wfrp4e-macros-and-more",
     `ChatWFRP._onMarketButtonClicked`,
-    async (wrapper, event) => {
+    async function (wrapper, event) {
       if (["payItem", "creditItem"].includes($(event.currentTarget).attr("data-button"))) {
         await onMarketButtonClicked.call(this, event);
       } else {
@@ -101,6 +101,30 @@ export async function overrideMarket() {
       }
     },
     "MIXED"
+  );
+  libWrapper.register(
+    "wfrp4e-macros-and-more",
+    `ActorSheetWfrp4e.prototype._onDropMoney`,
+    async function (dragData) {
+      await onDropMoney.call(this, dragData);
+    },
+    "OVERRIDE"
+  );
+  libWrapper.register(
+    "wfrp4e-macros-and-more",
+    `ActorSheetWfrp4e.prototype._onMoneyIconClicked`,
+    async function (ev) {
+      await onMoneyIconClicked.call(this, ev);
+    },
+    "OVERRIDE"
+  );
+  libWrapper.register(
+    "wfrp4e-macros-and-more",
+    `ActorSheetWfrp4eNPC.prototype._onNpcIncomeClick`,
+    async function (event) {
+      await onNpcIncomeClick.call(this, event);
+    },
+    "OVERRIDE"
   );
 
   for (let method of Utility.getMethods(MarketWfrp4e)) {
@@ -118,7 +142,15 @@ export async function overrideMarket() {
   Utility.log("Market override succeeded");
 }
 
-export async function onMarketButtonClicked(event) {
+async function onMoneyIconClicked(ev) {
+  ev.preventDefault();
+  let {currencies} = RobakMarketWfrp4e.groupMoney(this.actor, RobakMarketWfrp4e.currentRegion);
+  for (let currency of Object.values(currencies)) {
+    await RobakMarketWfrp4e.updateActorsCoins(this.actor, currency, currency.getValue());
+  }
+}
+
+async function onMarketButtonClicked(event) {
   let msg = game.messages.get($(event.currentTarget).parents(".message").attr("data-message-id"));
   switch ($(event.currentTarget).attr("data-button")) {
     case "payItem":
@@ -169,9 +201,62 @@ export async function onMarketButtonClicked(event) {
   }
 }
 
+async function onDropMoney(dragData) {
+  let moneyString = dragData.payload;
+  let type = moneyString.slice(-1);
+  let amt;
+  if (type === "b") {
+    amt = Math.round(moneyString.slice(0, -1));
+  } else if (type === "s") {
+    amt = Number.fromString(moneyString.slice(0, -1)) * 20;
+  } else if (type === "g") {
+    amt = Number.fromString(moneyString.slice(0, -1)) * 240;
+  }
+  let requestedRegion = RobakMarketWfrp4e.currentRegion;
+  let {currencies} = RobakMarketWfrp4e.groupMoney(this.actor, requestedRegion);
+  let currency = currencies[requestedRegion.key];
+  await RobakMarketWfrp4e.updateActorsCoins(this.actor, currency, currency.getValue() + amt);
+}
+
+async function onNpcIncomeClick(event) {
+  let status = this.actor.details.status.value.split(" ");
+  let dieAmount = game.wfrp4e.config.earningValues[WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers)][0];
+  dieAmount = Number(dieAmount) * status[1];
+  let moneyEarned;
+  if (WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers) != "g") {
+    dieAmount = dieAmount + "d10";
+    moneyEarned = (await new Roll(dieAmount).roll()).total;
+  } else {
+    moneyEarned = dieAmount;
+  }
+
+  let amt;
+  switch (WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers)) {
+    case "b":
+      amt = moneyEarned;
+      break;
+    case "s":
+      amt = moneyEarned * 12;
+      break;
+    case "g":
+      amt = moneyEarned * 240;
+      break;
+  }
+
+  let requestedRegion = RobakMarketWfrp4e.currentRegion;
+  await RobakMarketWfrp4e.validateMoney(this.actor, requestedRegion);
+  let {currencies} = RobakMarketWfrp4e.groupMoney(this.actor, requestedRegion);
+  let currency = currencies[requestedRegion.key];
+  await RobakMarketWfrp4e.updateActorsCoins(this.actor, currency, currency.getValue() + amt);
+}
+
 export default class RobakMarketWfrp4e extends MarketWfrp4e {
   static get currentRegion() {
     return RobakMarketWfrp4e.regions[game.settings.get("wfrp4e-macros-and-more", "current-region")];
+  }
+
+  static getKeyValueRegions() {
+    return Object.fromEntries(Object.values(RobakMarketWfrp4e.regions).map((region) => [region.key, region.name]));
   }
 
   static async loadRegions() {
@@ -200,7 +285,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    */
   static async payCommand(cmd, actor) {
     let [command, regionKey, strictMode] = cmd.split("@");
-    let requestedRegion = regionKey ? RobakMarketWfrp4e.currentRegion : RobakMarketWfrp4e.regions[regionKey];
+    let requestedRegion = regionKey ? RobakMarketWfrp4e.regions[regionKey] : RobakMarketWfrp4e.currentRegion;
     strictMode ??= false;
 
     let moneyValue = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(command);
@@ -251,7 +336,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    * Handles payment of currency for an actor.
    * @param {object} actor - The actor whose currency will be modified.
    * @param {Region} requestedRegion - The region to convert currency to.
-   * @param {Currency} currency - The currency details to use for the transaction (local currency).
+   * @param {CurrencySet} currency - The currency details to use for the transaction (local currency).
    * @param {number} gValue - The total change to pay (global currency).
    * @returns {Promise<{paid: number, remaining: number}>} An object containing the paid and remaining amounts.
    */
@@ -344,19 +429,19 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     }
     await RobakMarketWfrp4e.validateMoney(actor, requestedRegion);
     let {currencies} = RobakMarketWfrp4e.groupMoney(actor, requestedRegion);
-    let requestedCurrency = currencies[requestedRegion.key];
+    let currency = currencies[requestedRegion.key];
 
-    await RobakMarketWfrp4e.updateActorsCoins(actor, requestedCurrency, requestedCurrency.getValue() + moneyValue);
+    await RobakMarketWfrp4e.updateActorsCoins(actor, currency, currency.getValue() + moneyValue);
     RobakMarketWfrp4e.throwMoney(moneyValue);
     await RobakMarketWfrp4e.printCreditSummary(actor, moneyValue, requestedRegion, options);
     return true;
   }
 
   /**
-   * @param {Currency[]} currencies
+   * @param {CurrencySet[]} currencies
    * @param {number} moneyValue
    * @param {Region} requestedRegion
-   * @returns {Promise<Currency[]>}
+   * @returns {Promise<CurrencySet[]>}
    */
   static async getCurrencyFromApp(currencies, moneyValue, requestedRegion) {
     return await new Promise((resolve) => {
@@ -433,7 +518,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
 
   /**
    * @param {Object} actor - The actor to update.
-   * @param {Currency} currency - The currency to update.
+   * @param {CurrencySet} currency - The currency to update.
    * @param {number} value - The value to update.
    */
   static async updateActorsCoins(actor, currency, value) {
@@ -450,18 +535,18 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   /**
    * @param {object} actor
    * @param {Region} requestedRegion
-   * @returns {{currencies: Object.<string, Currency>, total: number}}
+   * @returns {{currencies: Object.<string, CurrencySet>, total: number}}
    */
   static groupMoney(actor, requestedRegion) {
     const moneyItemInventory = actor.getItemTypes("money").map((i) => i.toObject());
 
-    /** @type {Object.<string, Currency>} */
+    /** @type {Object.<string, CurrencySet>} */
     let currencies = {};
     let lookupTable = RobakMarketWfrp4e.getLookupTable();
     for (let money of moneyItemInventory) {
       let region = lookupTable[money.name];
       if (region) {
-        let value = currencies[region.key] || new Currency(region);
+        let value = currencies[region.key] || new CurrencySet(region);
         value.coins.push(money);
         currencies[region.key] = value;
       }
@@ -482,22 +567,15 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     let result = [];
     for (let coin of requestedRegion.coins) {
       if (!moneyItemInventory.find((m) => m.name === coin.name)) {
-        let found = await game.wfrp4e.utility.findItem(coin.name);
-        if (found) {
-          found = found.toObject();
-          found["system.quantity.value"] = 0;
-        } else {
-          found = {
-            name: coin.name,
-            img: coin.img,
-            type: "money",
-            "system.description.value": "",
-            "system.quantity.value": 0,
-            "system.coinValue.value": coin.value,
-            "system.encumbrance.value": 0.005
-          };
-        }
-        result.push(found);
+        result.push({
+          name: coin.name,
+          img: coin.img,
+          type: "money",
+          "system.description.value": "",
+          "system.quantity.value": 0,
+          "system.coinValue.value": coin.value,
+          "system.encumbrance.value": 0.005
+        });
       }
     }
     if (result.length) {
@@ -545,25 +623,15 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    * @returns {string} The formatted string representation of the money.
    */
   static formatMoneyValue(value, {goldCoin = true, silverCoin = true, bronzeCoin = true}) {
-    let moneyToPay = RobakMarketWfrp4e.consolidate({bp: value});
+    let gold = goldCoin ? Math.floor(value / 240) : 0;
+    value %= 240;
+    let silver = silverCoin ? Math.floor(value / 12) : 0;
+    value %= 12;
+    let bronze = bronzeCoin ? Math.floor(value) : 0;
 
-    if (goldCoin && !silverCoin && !bronzeCoin) {
-      return `${moneyToPay.gc}`;
-    }
-    if (!goldCoin && silverCoin && bronzeCoin) {
-      const ss = moneyToPay.ss || "-";
-      const bp = moneyToPay.bp ? Math.floor(moneyToPay.bp) : "-";
-      return `${ss}/${bp}`;
-    }
-
-    if (moneyToPay.gc === 0 && moneyToPay.ss === 0 && moneyToPay.bp === 0) return "0";
-
-    let result = moneyToPay.gc ? `${moneyToPay.gc} ` : "";
-    if (!moneyToPay.ss && !moneyToPay.bp) return result.trim();
-
-    const ss = moneyToPay.ss || "-";
-    const bp = moneyToPay.bp ? Math.floor(moneyToPay.bp) : "-";
-    result += `${ss}/${bp}`;
+    let result = gold ? `${gold} ` : "";
+    if (!silver && !bronze) return result.trim();
+    result += `${silver || "-"}/${bronze || "-"}`;
     return result.trim();
   }
 
@@ -581,6 +649,30 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
     return {gc, ss, bp, total};
   }
 
+  /**
+   * Consolidate every money the player has in order to give him the fewer coins possible
+   * @param {Array} money
+   */
+  static consolidateMoney(money) {
+    //We sort the money from the highest BP value to the lowest (so gc => ss => bp)
+    //This allow us to deal with custom money too and to not be dependent on the money name (translation errors could break the code otherwise)
+    money.sort((a, b) => b.system.coinValue.value - a.system.coinValue.value);
+
+    let brass = 0;
+    //First we calculate the BP value
+    for (let m of money) brass += m.system.quantity.value * m.system.coinValue.value;
+
+    //Then we consolidate the coins
+    for (let m of money) {
+      //We don't know what players could create as a custom money and we dont want to divide by zero, ever. It would kill a kitten somewhere, probably.
+      if (m.system.coinValue.value <= 0) break;
+      m.system.quantity.value = Math.trunc(brass / m.system.coinValue.value);
+      brass = brass % m.system.coinValue.value;
+    }
+
+    return money;
+  }
+
   // ---------------------------- Helper functions ---------------------------- //
 
   /**
@@ -589,7 +681,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    */
   static generatePayCard(cmd, player) {
     let [payRequest, regionKey] = cmd.split("@");
-    let requestedRegion = regionKey == null ? RobakMarketWfrp4e.currentRegion : RobakMarketWfrp4e.regions[regionKey];
+    let requestedRegion = regionKey ? RobakMarketWfrp4e.regions[regionKey] : RobakMarketWfrp4e.currentRegion;
 
     let parsedPayRequest = RobakMarketWfrp4e.parseMoneyTransactionStringToValue(payRequest);
     // If the /pay command has a syntax error, we display an error message to the gm
@@ -602,9 +694,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
       // generate a card with a summary and a pay button
       let cardData = {
         payRequest: cmd,
-        value: RobakMarketWfrp4e.formatMoney(parsedPayRequest),
-        valueBP: parsedPayRequest,
-        label: requestedRegion.getMainCoin().name
+        value: RobakMarketWfrp4e.formatMoney(parsedPayRequest, requestedRegion)
       };
       renderTemplate("modules/wfrp4e-macros-and-more/templates/market-pay.hbs", cardData).then((html) => {
         let chatData = WFRP_Utility.chatDataSetup(html, "roll", false, {forceWhisper: player});
@@ -634,7 +724,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   /**
    * @param {Object} actor
    * @param {Region} requestedRegion
-   * @param {{currency: Currency, value: number}[]} paySummary
+   * @param {{currency: CurrencySet, value: number}[]} paySummary
    */
   static printPaySummary(actor, requestedRegion, paySummary) {
     let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3><b>Payment complete:</b>`;
@@ -644,7 +734,7 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
       const localMoney = RobakMarketWfrp4e.formatMoney(value, region);
       const convertedValue = Math.ceil(value * currency.getExchangeModifier(requestedRegion));
       const globalMoney = RobakMarketWfrp4e.formatMoney(convertedValue, requestedRegion);
-      currencyMsg += `<li>${localMoney} (${value}) -> ${globalMoney} (${convertedValue})</li>`;
+      currencyMsg += `<li>${localMoney} (${globalMoney})</li>`;
     }
     msg += `<ul>${currencyMsg}</ul><b>${game.i18n.localize("MARKET.PaidBy")}</b> ${actor.name}`;
     ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
@@ -658,13 +748,11 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
    */
   static printCreditSummary(actor, moneyValue, requestedRegion, options) {
     let msg = `<h3><b>${game.i18n.localize("MARKET.CreditCommand")}</b></h3><b>Credit complete:</b>
-      <ul><li>${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} (${moneyValue})</li></ul>
+      <ul><li>${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)}</li></ul>
       <b>${game.i18n.localize("MARKET.ReceivedBy")}</b> ${actor.name}`;
 
     if (options.suppressMessage) {
-      ui.notifications.notify(
-        `${actor.name} received ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} (${moneyValue})`
-      );
+      ui.notifications.notify(`${actor.name} received ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)}`);
     } else {
       ChatMessage.create(WFRP_Utility.chatDataSetup(msg, "roll"));
     }
@@ -673,21 +761,21 @@ export default class RobakMarketWfrp4e extends MarketWfrp4e {
   /**
    * @param {number} moneyValue
    * @param {Region} requestedRegion
-   * @param {Currency[]} currencies
+   * @param {CurrencySet[]} currencies
    * @param {number} total
    */
   static printNotEnoughMoney(moneyValue, requestedRegion, currencies, total) {
     let msg = `<h3><b>${game.i18n.localize("MARKET.PayCommand")}</b></h3>
       ${game.i18n.localize("MARKET.NotEnoughMoney")}<br>
-      <b>Needed Money:</b> ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)} (${moneyValue})<br>
-      <b>Available money:</b> ${RobakMarketWfrp4e.formatMoney(total, requestedRegion)} (${total})`;
+      <b>Needed Money:</b> ${RobakMarketWfrp4e.formatMoney(moneyValue, requestedRegion)}<br>
+      <b>Available money:</b> ${RobakMarketWfrp4e.formatMoney(total, requestedRegion)}`;
     let otherCurrencyMsg = currencies
       .filter((currency) => currency.getValue() !== 0)
       .map((currency) => {
         const localMoney = RobakMarketWfrp4e.formatMoney(currency.getValue(), currency.region);
         const converted = currency.getConvertedValue(requestedRegion);
         const globalMoney = RobakMarketWfrp4e.formatMoney(converted, requestedRegion);
-        return `<li>${localMoney} (${currency.getValue()}) -> ${globalMoney} (${converted})</li>`;
+        return `<li>${localMoney} (${globalMoney})</li>`;
       })
       .join("");
     if (otherCurrencyMsg !== "") msg += `<ul>${otherCurrencyMsg}</ul>`;

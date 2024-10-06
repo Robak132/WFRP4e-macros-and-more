@@ -28,17 +28,14 @@ async function registerSettings() {
     type: Boolean
   });
   await game.settings.register("wfrp4e-macros-and-more", "currency-market", {
-    name: "Currencies in Pay/Credit commands",
-    hint: 'Control currency usage in Pay/Credit commands.\n"Disabled" will disable other currencies.\n"Compatibility Mode" will use default WFRP4e system.\n"Override Mode" will use custom currency system',
+    name: "[Experimental] Currencies in Pay/Credit commands",
+    hint: "Enables advanced currency handling in Pay/Credit commands.",
     scope: "world",
     config: true,
-    default: "override",
-    type: String,
-    choices: {
-      disable: "Disabled",
-      compatibility: "Compatibility Mode",
-      override: "Override Mode"
-    }
+    onChange: debouncedReload,
+    default: false,
+    restricted: true,
+    type: Boolean
   });
   await game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
     name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
@@ -50,9 +47,15 @@ async function registerSettings() {
     restricted: true
   });
   await game.settings.register("wfrp4e-macros-and-more", "current-region", {
+    name: "Current region",
+    hint: "Current region for currency conversion.",
     scope: "world",
-    config: false,
-    default: "empire"
+    config: true,
+    default: "empire",
+    onChange: debouncedReload,
+    restricted: true,
+    choices: RobakMarketWfrp4e.getKeyValueRegions(),
+    type: String
   });
   await game.settings.register("wfrp4e-macros-and-more", "gm_see_players", {
     name: `MACROS-AND-MORE.settings.gm_see_players.Name`,
@@ -96,6 +99,9 @@ Hooks.once("init", async function () {
   };
   setupAutoEngaged();
 
+  // Load regions
+  await RobakMarketWfrp4e.loadRegions();
+
   // Register settings
   await registerSettings();
 
@@ -103,7 +109,9 @@ Hooks.once("init", async function () {
   await registerHandlebars();
 
   // Register market
-  await overrideMarket();
+  if (game.settings.get("wfrp4e-macros-and-more", "currency-market")) {
+    await overrideMarket();
+  }
 
   // Load scripts
   fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
@@ -114,10 +122,6 @@ Hooks.once("init", async function () {
 });
 
 Hooks.once("babele.ready", async () => {
-  await RobakMarketWfrp4e.loadRegions();
-});
-
-Hooks.once("ready", async () => {
   game.socket.on("module.wfrp4e-macros-and-more", async ({type, data}) => {
     Utility.log("Received transfer object", data);
     if (!game.user.isUniqueGM) {

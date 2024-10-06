@@ -1,5 +1,3 @@
-import RobakMarketWfrp4e from "./market.mjs";
-
 export default class Utility {
   static #OWNERSHIP_OWNER = 3;
   static #OWNERSHIP_OBSERVER = 2;
