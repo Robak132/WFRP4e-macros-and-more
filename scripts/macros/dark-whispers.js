@@ -86,10 +86,6 @@ async function formDarkWhispers() {
         </div>
         <div class="form-group">
           <textarea id="message" name="message" rows="4" cols="50">${message}</textarea>
-        </div>
-        <div class="form-group">
-          <input type="checkbox" id="sendToOwners" name="sendToOwners">
-          <label for="sendToOwners">${game.i18n.localize("GMTOOLKIT.Dialog.DarkWhispers.SendToOwners")}</label>
         </div>`,
       buttons: {
         cancel: {
@@ -99,16 +95,14 @@ async function formDarkWhispers() {
         whisper: {
           label: game.i18n.localize("GMTOOLKIT.Dialog.DarkWhispers.SendWhisper"),
           callback: (html) => {
-            const sendToOwners = html.find('[name="sendToOwners"]')[0].checked;
             const message = html.find('[name="message"]')[0].value;
-            characters = characters.filter((c) => html.find(`[name = "${c.actorId}"]`)[0].checked);
+            characters = characters.filter((c) => html.find($(`[name = "${c.actorId}"]`))[0].checked);
             if (!characters.length || !message) return abortWhisper();
 
             let data = {
               currentUser: game.user,
               message,
-              characters,
-              sendToOwners
+              characters
             };
             if (data.currentUser.isGM) {
               game.robakMacros.utils.acceptDarkWhispersRequest(data);

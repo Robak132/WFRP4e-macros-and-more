@@ -3,7 +3,7 @@ import Utility from "./utility.mjs";
 
 export default class CurrencyApp extends FormApplication {
   /**
-   * @param {Currency[]} currencies - Given currencies.
+   * @param {CurrencySet[]} currencies - Given currencies.
    * @param {number} needed - The amount of requested currency needed.
    * @param {Region} requestedRegion - The region to convert currency to.
    * @param {Function} resolve - The resolve function to call on form submission.
