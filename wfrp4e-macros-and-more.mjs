@@ -1,7 +1,6 @@
 import ItemTransfer from "./modules/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
-import {RollTracker, RollTrackerDialog} from "./modules/roll-tracker.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
 import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
@@ -67,15 +66,6 @@ async function registerSettings() {
     onChange: debouncedReload,
     restricted: true
   });
-  await game.settings.register("wfrp4e-macros-and-more", "gm_see_players", {
-    name: `MACROS-AND-MORE.settings.gm_see_players.Name`,
-    default: true,
-    type: Boolean,
-    scope: "world",
-    config: true,
-    hint: `MACROS-AND-MORE.settings.gm_see_players.Hint`,
-    onChange: () => ui.players.render()
-  });
 }
 
 async function registerHandlebars() {
@@ -104,8 +94,7 @@ Hooks.once("init", async function () {
     maintenance: MaintenanceWrapper,
     experienceVerificator: ExperienceVerificator,
     utils: Utility,
-    configurableDialog: ConfigurableDialog,
-    rollTracker: new RollTracker()
+    configurableDialog: ConfigurableDialog
   };
 
   // Load regions
@@ -154,13 +143,10 @@ Hooks.once("devModeReady", ({registerPackageDebugFlag}) => {
   registerPackageDebugFlag("wfrp4e-macros-and-more");
 });
 
-Hooks.on("updateCombat", (combat, updates, _, __) => {
-  if (
-    game.settings.get("wfrp4e-macros-and-more", "losing-advantage") &&
-    game.user.isUniqueGM &&
-    foundry.utils.hasProperty(updates, "round")
-  ) {
-    handleLosingGroupAdvantage(combat.combatants);
+Hooks.on("updateCombat", async (combat, updates, _, __) => {
+  let setting = game.settings.get("wfrp4e-macros-and-more", "losing-advantage");
+  if (setting && game.user.isUniqueGM && foundry.utils.hasProperty(updates, "round")) {
+    await handleLosingGroupAdvantage(combat.combatants);
   }
 });
 
@@ -170,68 +156,13 @@ Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
 
 Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
 
-Hooks.on("updateChatMessage", async (chatMessage) => {
-  const isBlind = chatMessage.blind;
-  if (!chatMessage.flags.testData) return;
-  if (
-    !isBlind ||
-    (isBlind && game.settings.get("wfrp4e-macros-and-more", "count_hidden")) ||
-    (isBlind && chatMessage.user.isGM)
-  ) {
-    await game.robakMacros.rollTracker.saveTrackedRoll(chatMessage.user.id, chatMessage);
-  }
-});
-
-Hooks.on("createChatMessage", async (chatMessage) => {
-  const isBlind = chatMessage.blind;
-  if (
-    !isBlind ||
-    (isBlind && game.settings.get("wfrp4e-macros-and-more", "count_hidden")) ||
-    (isBlind && chatMessage.user.isGM)
-  ) {
-    if (chatMessage.isRoll && chatMessage.rolls[0]?.dice[0]?.faces === 100) {
-      await game.robakMacros.rollTracker.saveSimpleRoll(chatMessage.user.id, chatMessage);
-    } else {
-      await game.robakMacros.rollTracker.saveReRoll(chatMessage.user.id, chatMessage);
-    }
-  }
-});
-
-Hooks.on("renderPlayerList", (playerList, html) => {
-  if (game.user.isGM) {
-    if (game.settings.get("wfrp4e-macros-and-more", "gm_see_players")) {
-      // This adds our icon to ALL players on the player list, if the setting is toggled
-      const tooltip = game.i18n.localize("MACROS-AND-MORE.button-title");
-      // create the button where we want it to be
-      for (let user of game.users) {
-        const buttonPlacement = html.find(`[data-user-id="${user.id}"]`);
-        buttonPlacement.append(
-          `<button type="button" title='${tooltip}' class="roll-tracker-item-button flex0" id="${user.id}"><i class="fas fa-dice-d20"></i></button>`
-        );
-        html.on("click", `#${user.id}`, () => {
-          new RollTrackerDialog(user.id).render(true);
-        });
-      }
-    } else {
-      // Put the roll tracker icon only beside the GM's name
-      const loggedInUser = html.find(`[data-user-id="${game.userId}"]`);
-      const tooltip = game.i18n.localize("MACROS-AND-MORE.button-title");
-      loggedInUser.append(
-        `<button type="button" title='${tooltip}' class="roll-tracker-item-button flex0" id="${game.userId}"><i class="fas fa-dice-d20"></i></button>`
-      );
-      html.on("click", `#${game.userId}`, () => {
-        new RollTrackerDialog(game.userId).render(true);
-      });
-    }
-  } else if (game.settings.get("wfrp4e-macros-and-more", "players_see_players")) {
-    // find the element which has our logged in user's id
-    const loggedInUser = html.find(`[data-user-id="${game.userId}"]`);
-    const tooltip = game.i18n.localize("MACROS-AND-MORE.button-title");
-    loggedInUser.append(
-      `<button type="button" title='${tooltip}' class="roll-tracker-item-button flex0" id="${game.userId}"><i class="fas fa-dice-d20"></i></button>`
-    );
-    html.on("click", `#${game.userId}`, () => {
-      new RollTrackerDialog(game.userId).render(true);
-    });
-  }
+Hooks.on("renderChatLog", (log, html, data) => {
+  html.on("click", ".apply-unstable-damage", async (event) => {
+    event.preventDefault();
+    if (!game.user.isGM) ui.notifications.notify(game.i18n.localize("MACROS-AND-MORE.NoPermission"));
+    const dmg = $(event.currentTarget).attr("data-damage");
+    const actor = game.actors.get($(event.currentTarget).attr("data-actor"));
+    await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
+    $(event.currentTarget).remove();
+  });
 });
