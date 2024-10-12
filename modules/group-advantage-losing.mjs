@@ -16,7 +16,7 @@ class Combatant {
     this.disposition = combatant.token.disposition;
     this.size = combatant.actor.sizeNum;
     this.drilled = combatant.actor.itemTypes.talent.some((t) => t.name === game.i18n.localize("NAME.Drilled"));
-    this.defeated = combatant.defeated;
+    this.defeated = combatant.defeated || combatant.actor.statuses.has("dead");
     this.unstable = combatant.actor.itemTypes.trait.some((t) => t.name === game.i18n.localize("NAME.Unstable"));
   }
 
@@ -38,8 +38,9 @@ export async function handleLosingGroupAdvantage(combatants) {
   chatMsg += addSection(neutral, game.i18n.localize("MACROS-AND-MORE.Neutral"));
   chatMsg += addSection(enemies, game.i18n.localize("MACROS-AND-MORE.Enemies"));
 
-  const alliesAdvantage = allies?.[0]?.actor?.system?.status?.advantage?.value ?? 0;
-  const notAlliesAdvantage = notAllies?.[0]?.actor?.system?.status?.advantage?.value ?? 0;
+  const advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
+  const alliesAdvantage = advantage.players;
+  const notAlliesAdvantage = advantage.enemies;
 
   let dmg = alliesAdvantage - notAlliesAdvantage;
   if (dmg > 0) {
@@ -72,12 +73,16 @@ function addSection(list, header) {
 }
 
 function addUnstableSection(list, dmg) {
-  list = list.filter((a) => a.unstable);
+  list = list.filter((a) => !!a.unstable);
   if (!list.length) return "";
   let item = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
 
-  let msg = `<h2>Some combatants may be Unstable:</h2><ul>`;
-  msg += list.map((a) => `<li>${a.actor.name}</li>`);
-  msg += `</ul><div style="text-align: center"><a class="apply-unstable-damage" data-token="${item.token.id}" data-damage="${dmg}">${game.i18n.localize("CHATOPT.ApplyDamage")}</a></div>`;
+  let msg = `<h2>Unstable Trait</h2><p>Some combatants are Unstable and may take damage:</p><ul>`;
+  msg += list
+    .map(
+      (a) => `<li><a class="unstable-actor" data-token="${item.token.id}" data-damage="${dmg}">${a.actor.name}</a></li>`
+    )
+    .join("");
+  msg += `</ul>`;
   return msg;
 }

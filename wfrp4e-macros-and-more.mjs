@@ -117,7 +117,7 @@ Hooks.once("init", async function () {
   }
 
   // Load scripts
-  fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
+  await fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
     .then((r) => r.json())
     .then(async (effects) => {
       mergeObject(game.wfrp4e.config.effectScripts, effects);
@@ -156,13 +156,16 @@ Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
 
 Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
 
-Hooks.on("renderChatLog", (log, html, data) => {
-  html.on("click", ".apply-unstable-damage", async (event) => {
+Hooks.on("renderChatLog", (log, html) => {
+  html.on("click", ".unstable-actor", async (event) => {
     event.preventDefault();
-    if (!game.user.isGM) ui.notifications.notify(game.i18n.localize("MACROS-AND-MORE.NoPermission"));
     const dmg = Number.fromString($(event.currentTarget).attr("data-damage"));
     const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
     await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
-    $(event.currentTarget).remove();
+  });
+  html.find(".unstable-actor").on("contextmenu", async (event) => {
+    event.preventDefault();
+    const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
+    actor.sheet?.render();
   });
 });
