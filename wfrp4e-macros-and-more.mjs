@@ -6,6 +6,7 @@ import {addActorContextOptions, addItemContextOptions} from "./modules/convert.m
 import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
+import {setupAutoEngaged} from "./modules/auto-engage.mjs";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -63,15 +64,6 @@ async function registerSettings() {
     type: MaintenanceWrapper,
     onChange: debouncedReload,
     restricted: true
-  });
-  await game.settings.register("wfrp4e-macros-and-more", "gm_see_players", {
-    name: `MACROS-AND-MORE.settings.gm_see_players.Name`,
-    default: true,
-    type: Boolean,
-    scope: "world",
-    config: true,
-    hint: `MACROS-AND-MORE.settings.gm_see_players.Hint`,
-    onChange: () => ui.players.render()
   });
 }
 
