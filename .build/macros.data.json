@@ -110,6 +110,13 @@
       "img": "icons/svg/dice-target.svg",
       "codeFile": "reveal-fow.js",
       "version": "1.0.0"
+    },
+    {
+      "name": "Dark Whispers",
+      "_id": "JWLG2NaYAkxoX2W8",
+      "img": "modules/wfrp4e-macros-and-more/assets/icons/dark-whispers.svg",
+      "codeFile": "dark-whispers.js",
+      "version": "1.0.0"
     }
   ]
 }
