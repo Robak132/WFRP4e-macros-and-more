@@ -70,6 +70,13 @@
       "name": "Sea Weather Generator"
     },
     {
+      "_id": "fg0YtewDtFu0tEnv",
+      "codeFile": "npc-advancement-tool.js",
+      "img": "icons/svg/dice-target.svg",
+      "name": "NPC Advancement Tool",
+      "version": "1.0.0"
+    },
+    {
       "_id": "luVmQCZiZSUTxBPa",
       "codeFile": "token-manipulator.js",
       "version": "2.0.0",
