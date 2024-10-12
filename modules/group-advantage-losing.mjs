@@ -44,7 +44,7 @@ export async function handleLosingGroupAdvantage(combatants) {
   let dmg = alliesAdvantage - notAlliesAdvantage;
   if (dmg > 0) {
     chatMsg += addUnstableSection(notAllies, dmg);
-  } else {
+  } else if (dmg < 0) {
     chatMsg += addUnstableSection(allies, -dmg);
   }
   await ChatMessage.create({content: chatMsg});
@@ -52,17 +52,21 @@ export async function handleLosingGroupAdvantage(combatants) {
 
 function addSection(list, header) {
   let chatMsg = "";
+  list = list.toSorted((a, b) => a.actor.name.localeCompare(b.actor.name));
   if (list.length) {
     const alliesValue = list.filter((a) => !a.defeated).reduce((a, c) => a + c.getValue(), 0);
-    chatMsg += `<h2>${header} [${alliesValue}]</h2>`;
+    chatMsg += `<h2>${header} [${alliesValue}]</h2><ul>`;
     for (const actor of list) {
-      chatMsg += actor.defeated ? "<p><s>" : "<p>";
+      chatMsg += "<li>";
+      chatMsg += actor.defeated ? "<s>" : "";
       chatMsg += `${actor.actor.name} `;
       chatMsg += actor.drilled ? `<abbr title="${game.i18n.localize("NAME.Drilled")}">` : "";
       chatMsg += `[${actor.getValue()}]`;
       chatMsg += actor.drilled ? "</abbr>" : "";
-      chatMsg += actor.defeated ? "</s></p>" : "</p>";
+      chatMsg += actor.defeated ? "</s>" : "";
+      chatMsg += "</li>";
     }
+    chatMsg += "</ul>";
   }
   return chatMsg;
 }
@@ -72,8 +76,8 @@ function addUnstableSection(list, dmg) {
   if (!list.length) return "";
   let item = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
 
-  let msg = `<h2>Unstable Trait</h2>`;
-  msg += `<p><b>${item.actor.name}</b> weakens.</p>`;
-  msg += `<a class="apply-unstable-damage" data-actor="${item.actor.id}" data-damage="${dmg}">${game.i18n.localize("CHATOPT.ApplyDamage")}</a>`;
+  let msg = `<h2>Some combatants may be Unstable:</h2><ul>`;
+  msg += list.map((a) => `<li>${a.actor.name}</li>`);
+  msg += `</ul><div style="text-align: center"><a class="apply-unstable-damage" data-token="${item.token.id}" data-damage="${dmg}">${game.i18n.localize("CHATOPT.ApplyDamage")}</a></div>`;
   return msg;
 }

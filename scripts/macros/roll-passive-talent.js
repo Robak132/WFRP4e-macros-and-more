@@ -6,16 +6,15 @@
 
 const PASSIVE_TALENTS = [
   {
+    skill: game.i18n.localize("NAME.Perception")
+  },
+  {
     talent: game.i18n.localize("NAME.SixthSense"),
     skill: game.i18n.localize("NAME.Intuition")
   },
   {
     talent: game.i18n.localize("NAME.Trapper"),
     skill: game.i18n.localize("NAME.Perception")
-  },
-  {
-    talent: game.i18n.localize("NAME.NoseForTrouble"),
-    skill: game.i18n.localize("NAME.Intuition")
   }
 ];
 
@@ -27,7 +26,11 @@ async function passiveTalentMacro() {
   let msg = "";
   for (const {skill, talent} of PASSIVE_TALENTS) {
     const targetGroup = game.actors.filter((a) => {
-      return a.hasPlayerOwner && a.type !== "vehicle" && a.itemTypes.talent.some((i) => i.name === talent);
+      return (
+        a.hasPlayerOwner &&
+        a.type !== "vehicle" &&
+        (talent == null || a.itemTypes.talent.some((i) => i.name === talent))
+      );
     });
     if (targetGroup.length === 0) {
       continue;
@@ -39,13 +42,13 @@ async function passiveTalentMacro() {
       if (actor == null) continue;
       let testResult = await runActorTest(actor, skill, talent);
       if (testResult.outcome === "success") {
-        contentMsg += `<i class='fas fa-check'></i> <strong>${actor.name}: ${testResult["SL"]} SL</strong> (${testResult.roll} vs ${testResult.target})</br>`;
+        contentMsg += `<span style="color: green"><i class='fas fa-check'></i> <strong>${actor.name}: ${testResult["SL"]} SL</strong> (${testResult.roll} vs ${testResult.target})</span></br>`;
         icon = `<i class='fas fa-check'></i>`;
       } else {
-        contentMsg += `<i class='fas fa-xmark'></i> <strong>${actor.name}: ${testResult["SL"]} SL</strong> (${testResult.roll} vs ${testResult.target})</br>`;
+        contentMsg += `<span style="color: red"><i class='fas fa-xmark'></i> <strong>${actor.name}: ${testResult["SL"]} SL</strong> (${testResult.roll} vs ${testResult.target})</span></br>`;
       }
     }
-    msg += `<h3>${icon} ${talent}</h3><p>${contentMsg}</p>`;
+    msg += `<h3>${icon} ${talent ? talent : skill}</h3><p>${contentMsg}</p>`;
   }
 
   await ChatMessage.create({
@@ -63,7 +66,7 @@ async function runActorTest(actor, skill, talent) {
       difficulty: "challenging"
     },
     passiveTest: true,
-    title: `${talent} (${actorSkill?.name})`
+    title: talent ? `${talent} (${actorSkill?.name})` : `${skill} (${actorSkill?.name}}`
   };
   if (actorSkill !== undefined) {
     let test = await actor.setupSkill(actorSkill, setupData);
@@ -72,7 +75,7 @@ async function runActorTest(actor, skill, talent) {
   } else {
     actorSkill = await game.wfrp4e.utility.findSkill(skill);
     const skillCharacteristic = game.wfrp4e.config.characteristics[actorSkill.characteristic.value];
-    setupData.title = `${talent} (${skillCharacteristic})`;
+    setupData.title = talent ? `${talent} (${skillCharacteristic})` : skillCharacteristic;
 
     let test = await actor.setupCharacteristic(actorSkill.characteristic.value, setupData);
     await test.roll();

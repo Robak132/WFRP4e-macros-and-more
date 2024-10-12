@@ -160,8 +160,8 @@ Hooks.on("renderChatLog", (log, html, data) => {
   html.on("click", ".apply-unstable-damage", async (event) => {
     event.preventDefault();
     if (!game.user.isGM) ui.notifications.notify(game.i18n.localize("MACROS-AND-MORE.NoPermission"));
-    const dmg = $(event.currentTarget).attr("data-damage");
-    const actor = game.actors.get($(event.currentTarget).attr("data-actor"));
+    const dmg = Number.fromString($(event.currentTarget).attr("data-damage"));
+    const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
     await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
     $(event.currentTarget).remove();
   });
