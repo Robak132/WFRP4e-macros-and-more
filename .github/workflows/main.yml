@@ -38,7 +38,7 @@ jobs:
           manifest: https://github.com/${{github.repository}}/releases/latest/download/module.json
           download: https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/${{steps.moduleID.outputs.prop}}.zip
 
-      - run: zip -r ./${{steps.moduleID.outputs.prop}}.zip assets/ css/ lang/ packs/ modules/ templates/ LICENSE README.md module.json ${{steps.moduleID.outputs.prop}}.mjs
+      - run: zip -r ./${{steps.moduleID.outputs.prop}}.zip assets/ css/ data/ lang/ packs/ modules/ templates/ LICENSE README.md module.json ${{steps.moduleID.outputs.prop}}.mjs
 
       - name: Update Release with Files
         id: create_version_release

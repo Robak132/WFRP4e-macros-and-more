@@ -7,7 +7,7 @@ import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import FinanceCalculator from "./modules/finance-calculator.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
-import {setupAutoEngaged} from "./modules/auto-engaged.mjs";
+import {setupAutoEngaged} from "./modules/auto-engage.mjs";
 
 async function registerSettings() {
   await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
