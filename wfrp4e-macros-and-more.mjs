@@ -115,7 +115,7 @@ Hooks.once("init", async function () {
   }
 
   // Load scripts
-  fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
+  await fetch("modules/wfrp4e-macros-and-more/packs/effects.json")
     .then((r) => r.json())
     .then(async (effects) => {
       mergeObject(game.wfrp4e.config.effectScripts, effects);
@@ -141,13 +141,10 @@ Hooks.once("devModeReady", ({registerPackageDebugFlag}) => {
   registerPackageDebugFlag("wfrp4e-macros-and-more");
 });
 
-Hooks.on("updateCombat", (combat, updates, _, __) => {
-  if (
-    game.settings.get("wfrp4e-macros-and-more", "losing-advantage") &&
-    game.user.isUniqueGM &&
-    foundry.utils.hasProperty(updates, "round")
-  ) {
-    handleLosingGroupAdvantage(combat.combatants);
+Hooks.on("updateCombat", async (combat, updates, _, __) => {
+  let setting = game.settings.get("wfrp4e-macros-and-more", "losing-advantage");
+  if (setting && game.user.isUniqueGM && foundry.utils.hasProperty(updates, "round")) {
+    await handleLosingGroupAdvantage(combat.combatants);
   }
 });
 
@@ -156,3 +153,12 @@ Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
 Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
 
 Hooks.on("renderActorSheetWfrp4e", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
+
+Hooks.on("renderChatLog", (log, html) => {
+  html.on("click", ".unstable-actor", async (event) => {
+    event.preventDefault();
+    const dmg = Number.fromString($(event.currentTarget).attr("data-damage"));
+    const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
+    await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
+  });
+});
