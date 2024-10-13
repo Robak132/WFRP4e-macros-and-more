@@ -75,14 +75,14 @@ function addSection(list, header) {
 function addUnstableSection(list, dmg) {
   list = list.filter((a) => !!a.unstable);
   if (!list.length) return "";
-  let item = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
-
+  const random = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
   let msg = `<h2>Unstable Trait</h2><p>Some combatants are Unstable and may take damage:</p><ul>`;
-  msg += list
-    .map(
-      (a) => `<li><a class="unstable-actor" data-token="${item.token.id}" data-damage="${dmg}">${a.actor.name}</a></li>`
-    )
-    .join("");
+  msg += list.map((a) => getLink(a.token.id, dmg, a.token.name)).join("");
+  msg += getLink(random.token.id, dmg, "<b>Random</b>");
   msg += `</ul>`;
   return msg;
+}
+
+function getLink(tokenId, dmg, label) {
+  return `<li><a class="unstable-actor" data-token="${tokenId}" data-damage="${dmg}">${label}</a></li>`;
 }
