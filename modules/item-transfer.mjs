@@ -4,12 +4,9 @@ export default class ItemTransfer {
   static setupItemHandler(sheet, html) {
     if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return;
 
-    $(
-      '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
-    ).insertAfter(html.find(".inventory .item-post"));
-    $(
-      '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>'
-    ).insertBefore(html.find(".inventory .item-remove"));
+    let link = '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>';
+    $(link).insertAfter(html.find(".inventory-list .item-post"));
+    $(link).insertBefore(html.find(".inventory-list .item-remove"));
     html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
   }
 
@@ -102,7 +99,7 @@ export default class ItemTransfer {
     }
 
     // Local Transfer
-    if (!(sourceActorId === targetActorId && item.system.quantity.value !== quantity) && targetContainerId !== "") {
+    if (sourceActorId === targetActorId || (sourceActorId !== targetActorId && targetContainerId !== "")) {
       Utility.log(`Transfer ${updatedItem._id} from ${sourceContainerId} to ${targetContainerId}`);
       const foundItem = this.#findItems(updatedItem, targetActor, quantity, targetContainerId);
       if (foundItem) {
