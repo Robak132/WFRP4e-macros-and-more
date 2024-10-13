@@ -163,9 +163,4 @@ Hooks.on("renderChatLog", (log, html) => {
     const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
     await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
   });
-  html.find(".unstable-actor").on("contextmenu", async (event) => {
-    event.preventDefault();
-    const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
-    actor.sheet?.render();
-  });
 });
