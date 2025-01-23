@@ -100,7 +100,7 @@ class ConsumeAlcohol extends Dialog {
           break;
         default:
           let beverage = ConsumeAlcohol.BEVERAGES.find((b) => b.id === selectedOptionId);
-          let userId = game.users.find((u) => u.character?.id === actor.id)?.id ?? "GM";
+          let userId = game.users.find((u) => u.character?.id === actor.id && u.active)?.id ?? "GM"
           for (let i = 0; i < beverage.tests; i++) {
             const test = await SocketHandlers.sendRollToUserAndWait(
               userId,
@@ -194,12 +194,12 @@ class ConsumeAlcohol extends Dialog {
         content: `<div class="directory">
             <ol class="directory-list">
               ${ConsumeAlcohol.BEVERAGES.map((item) => {
-                return `<a><li style="align-items: center;justify-content: center;display: flex" class="document flexrow" data-id="${item.id}">
+          return `<a><li style="align-items: center;justify-content: center;display: flex" class="document flexrow" data-id="${item.id}">
                     <h4 style="flex: 3"><b>${item.name}</b></h4>
                     <h4 style="flex: 3"><i>${item.strength}</i></h4>
                     <h4 style="flex: 5">${item.description}</h4>
                   </li></a>`;
-              }).join("")}
+        }).join("")}
             </ol>
             <hr>
             <ol class="directory-list">
