@@ -8,6 +8,7 @@ class ActorInventory {
   constructor(actor) {
     this.actor = actor;
     this.inventory = this.processItems();
+    console.log(this.inventory);
   }
 
   /**
@@ -68,8 +69,11 @@ class ActorInventory {
 
   /** @returns {{[p: string]: ContainerInventory}} **/
   processItems() {
-    let inventory = Object.fromEntries(this.actor.itemTypes.container.map((c) => [c.id, new ContainerInventory(c)]));
-    inventory[""] = new ContainerInventory();
+    let inventory = Object.fromEntries(
+      this.actor.itemTypes.container.map((c) => [c.id, new ContainerInventory(this, c)])
+    );
+    inventory[""] = new ContainerInventory(this);
+
     const items = [
       ...this.actor.itemTypes.weapon,
       ...this.actor.itemTypes.ammunition,
@@ -77,11 +81,18 @@ class ActorInventory {
       ...this.actor.itemTypes.money,
       ...this.actor.itemTypes.trapping
     ].map((i) => new InventoryEntry(i));
+
     const itemsCategorised = Utility.groupBy(items, (x) => x.location);
+
     for (const [key, value] of Object.entries(itemsCategorised)) {
-      inventory[key] = inventory[key] ?? new ContainerInventory(this.actor.items.get(key));
+      if (!inventory[key]) inventory[key] = new ContainerInventory(this.actor.items.get(key));
       inventory[key].items = value;
     }
+
+    Object.values(inventory).forEach((inventoryEntry) => {
+      inventoryEntry.items.forEach((itemEntry) => (itemEntry.sourceContainer = inventoryEntry));
+    });
+
     return inventory;
   }
 
@@ -105,9 +116,13 @@ class ActorInventory {
 }
 
 class ContainerInventory {
-  /** @param {object} [item] - The container object. */
-  constructor(item) {
+  /**
+   * @param {object} [item] - The container object.
+   * @param {ActorInventory} sourceActor - The source actor object.
+   */
+  constructor(sourceActor, item) {
     this.item = item;
+    this.sourceActor = sourceActor;
     this.items = [];
   }
 
@@ -171,12 +186,14 @@ class ContainerInventory {
 class InventoryEntry {
   /**
    * @param {object} item - The item object.
+   * @param {ContainerInventory | null} sourceContainer - The source container object.
    * @param {number | null} quantity - The quantity of the item.
    * @param {boolean | null} isEquipped - Whether the item is equipped.
    */
-  constructor(item, quantity = null, isEquipped = null) {
+  constructor(item, quantity = null, isEquipped = null, sourceContainer = null) {
     this.item = item;
     this.quantity = quantity ?? item.system.quantity.value;
+    this.sourceContainer = sourceContainer;
     this.isEquipped = isEquipped ?? item.system.isEquipped;
   }
 

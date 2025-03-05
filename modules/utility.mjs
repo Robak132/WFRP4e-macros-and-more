@@ -266,9 +266,10 @@ export default class Utility {
 
   /**
    * Groups a list of items by a specified function.
-   * @param {object[]} list - The list of items.
-   * @param {Function} func - The function to group by.
-   * @returns {object} - The grouped items.
+   * @template T, K
+   * @param {T[]} list - The list of items.
+   * @param {function(T): K} func - The function to group by.
+   * @returns {Object.<K, T[]>} - The grouped items.
    */
   static groupBy(list, func) {
     return list.reduce((rv, x) => {
@@ -279,13 +280,11 @@ export default class Utility {
   }
 
   static getContainers(actor) {
-    return actor.itemTypes.container.map((c) => {
-      return {
-        id: c.id,
-        name: c.name,
-        value: c
-      };
-    });
+    return actor.itemTypes.container.map((c) => ({
+      id: c.id,
+      name: c.name,
+      value: c
+    }));
   }
 
   static async rollFromCodeObject({table, dice = "1d10", modifier = 0, amount = 1}) {
