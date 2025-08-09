@@ -755,24 +755,31 @@ async function createMessage(content, visibility) {
 
 async function createJournal() {
   return await JournalEntry.create({
-    name: "Dziennik kapitański",
-    content: new TableHTML([
-      new RowHTML([
-        new CellHTML("<p><b>Day</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-        new CellHTML("<p><b>Precip.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-        new CellHTML("<p><b>Temp.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-        new CellHTML("<p><b>Visibility</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-        new CellHTML("<p><b>Winds</b></p>", {style: `${STYLE_MIDDLE_13}`, colspan: 4}),
-        new CellHTML("<p><b>Distance</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2})
-      ]),
-      new RowHTML([
-        new CellHTML("<p><b>Dawn</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-        new CellHTML("<p><b>Midday</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-        new CellHTML("<p><b>Dusk</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-        new CellHTML("<p><b>Midnight</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`})
-      ])
-    ]).toString()
-  });
+      name: "Logbook",
+      pages: [{
+        name: "Logbook",
+        type: "text",
+        text: {
+          content: new TableHTML([
+            new RowHTML([
+              new CellHTML("<p><b>Day</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+              new CellHTML("<p><b>Precip.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+              new CellHTML("<p><b>Temp.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+              new CellHTML("<p><b>Visibility</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+              new CellHTML("<p><b>Winds</b></p>", {style: `${STYLE_MIDDLE_13}`, colspan: 4}),
+              new CellHTML("<p><b>Distance</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2})
+            ]),
+            new RowHTML([
+              new CellHTML("<p><b>Dawn</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+              new CellHTML("<p><b>Midday</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+              new CellHTML("<p><b>Dusk</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+              new CellHTML("<p><b>Midnight</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`})
+            ])
+          ], {border: 1}).toString()
+        }
+      }],
+    }
+  );
 }
 
 async function fillJournal(options, weather, winds, totalDistance) {
