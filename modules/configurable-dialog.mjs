@@ -63,12 +63,12 @@ export default class ConfigurableDialog extends Dialog {
     confirmLabel = game.i18n.localize("Confirm"),
     cancelLabel = game.i18n.localize("Cancel"),
     buttons,
-    options
+    options = {}
   }) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html)
       },
       ignore: {
         label: cancelLabel,
@@ -95,12 +95,12 @@ export default class ConfigurableDialog extends Dialog {
     confirmLabel = game.i18n.localize("Confirm"),
     cancelLabel = game.i18n.localize("Cancel"),
     buttons,
-    options
+    options = {}
   }) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html)
       },
       ignore: {
         label: cancelLabel,
@@ -127,12 +127,12 @@ export default class ConfigurableDialog extends Dialog {
     confirmLabel = game.i18n.localize("Confirm"),
     cancelLabel = game.i18n.localize("Cancel"),
     buttons,
-    options
+    options = {}
   }) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
-        callback: (html) => ConfigurableDialog.parseResult(html, options?.forceList)
+        callback: (html) => ConfigurableDialog.parseResult(html)
       },
       ignore: {
         label: cancelLabel,
@@ -153,7 +153,7 @@ export default class ConfigurableDialog extends Dialog {
     );
   }
 
-  static parseResult(html, forceList = []) {
+  static parseResult(html, forceList = true) {
     let dataObject = new FormDataExtended(html.find("form")[0]).object;
     dataObject = Object.fromEntries(
       Object.entries(dataObject).map(([key, value]) => {
@@ -161,7 +161,7 @@ export default class ConfigurableDialog extends Dialog {
           value = Object.entries(value).map(([k, v]) => (value[k] = Number.isNumeric(v) ? Number(v) : v));
         }
         value = Number.isNumeric(value) ? Number(value) : value;
-        if (forceList.includes(key)) value = Array.isArray(value) ? value : [value];
+        if (forceList) value = Array.isArray(value) ? value : [value];
         return [key, value];
       })
     );

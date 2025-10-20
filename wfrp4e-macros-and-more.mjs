@@ -124,6 +124,7 @@ Hooks.once("init", async function () {
   SocketHandlers.sendRollToUserAndWait = async function (userId, actorId, skill, options) {
     return await SocketHandlers.executeOnUserAndWait(userId, "rollSkill", {actorId, skill, options});
   };
+
   SocketHandlers.rollSkill = async function ({actorId, skill, options}) {
     let actor = game.actors.get(actorId);
     let test = await actor.setupSkill(skill, options);
@@ -151,11 +152,14 @@ Hooks.on("updateCombat", async (combat, updates, _, __) => {
   }
 });
 
-Hooks.on("getItemDirectoryEntryContext", addItemContextOptions);
+Hooks.on("getActorContextOptions", addActorContextOptions);
 
-Hooks.on("getActorDirectoryEntryContext", addActorContextOptions);
-
-Hooks.on("renderActorSheetWFRP4eCharacter", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
+Hooks.on("getItemContextOptions", addItemContextOptions);
+  
+Hooks.on("renderActorSheetWFRP4eCharacter", (sheet, html, _) => {
+  console.log(sheet)
+  ItemTransfer.setupItemHandler(sheet, html)
+})
 
 Hooks.on("renderActorSheetWFRP4eCreature", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
 

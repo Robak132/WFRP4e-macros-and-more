@@ -9,22 +9,38 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 5;text-align:center">Reason</span>
-                <span style="flex: 3;text-align:center">Category</span>
-                <span style="flex: 1;text-align:center">Exp</span>
+                <span style="flex: 1;text-align:center">No{{#if (eq sortMode 0)}} ↓{{/if}}</span>
+                <span style="flex: 5;text-align:center">Name{{#if (eq sortMode 1)}} ↓{{/if}}</span>
+                <span style="flex: 3;text-align:center">Category{{#if (eq sortMode 3)}} ↓{{/if}}</span>
+                <span style="flex: 1;text-align:center">Exp{{#if (eq sortMode 2)}} ↓{{/if}}</span>
+                <span style="flex: 1;text-align:center"></span>
               </div>
             </th>
           </tr>
           {{#each spentLog as |entry index|}}
             <tr class="spent-exp-row" name="{{index}}" style="position: relative;">
+              {{#if entry.edit}}
+              <td style="position: relative; z-index: 1; padding: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
+                  <span style="flex: 5;text-align:center;color: {{entry.color}}"><input></input></span>
+                  <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
+                  <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
+                  <span style="flex: 1;text-align:center"><a class="fas fa-trash-o"></a></span>
+                </div>
+              </td>
+              {{else}}
               <td style="position: relative; z-index: 1; padding: 0;">
                 <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
                   <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}}{{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
                   <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
                   <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
+                  <span style="flex: 1;text-align:center"><a class="fas fa-trash-o"></a></span>
                 </div>
               </td>
+              {{/if}}
             </tr>
           {{/each}}
         </table>
@@ -39,7 +55,8 @@
           <tr>
             <th style="position: relative; z-index: 1; padding: 0;">
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 5;text-align:center">Reason</span>
+                <span style="flex: 1;text-align:center">No</span>
+                <span style="flex: 5;text-align:center">Name</span>
                 <span style="flex: 3;text-align:center">Category</span>
                 <span style="flex: 1;text-align:center">Exp</span>
               </div>
@@ -50,6 +67,7 @@
             <td style="position: relative; z-index: 1; padding: 0;">
               <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
               <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
+                <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
                 <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}} {{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
                 <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
                 <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>

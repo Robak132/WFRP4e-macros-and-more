@@ -1,12 +1,13 @@
 import ConfigurableDialog from "./configurable-dialog.mjs";
 
 class LogEntryGroup {
-  constructor(parent, type, category, customName = "") {
+  constructor(parent, type, category, customName = "", edit = false) {
     this.parent = parent;
     this.customName = customName;
     this.type = type;
     this.category = category;
     this.entries = [];
+    this.edit = edit;
   }
 
   get name() {
@@ -18,7 +19,7 @@ class LogEntryGroup {
 
   get color() {
     // Gained exp is always white
-    if (this.type === "total") return "#ffffff";
+    if (this.type === "total") return "#000000";
 
     let color = this.getColorFromCategory(this.category);
     if (this.parent.groupMode === 1 && this.parent.sortMode !== 0) {
@@ -34,11 +35,11 @@ class LogEntryGroup {
       case "Talent":
         return "hotpink";
       case "Characteristic":
-        return "#40E0D0";
+        return "#3300ff";
       case "Spell/Miracle":
-        return "#b2beb5";
+        return "#ff8000";
       case "Career Change":
-        return "#ffffff";
+        return "#000000";
       default:
         return "#dc143c";
     }
@@ -145,7 +146,7 @@ class LogEntry {
   static fromLog(parent, obj) {
     return new LogEntry(
       parent,
-      obj.reason,
+      typeof obj.reason === "string" ? obj.reason : obj.reason[0],
       obj.amount,
       obj.type,
       obj.category,
@@ -408,7 +409,7 @@ export default class ExperienceVerificator extends FormApplication {
         confirm: {
           label: "Confirm",
           callback: (html) => {
-            let result = ConfigurableDialog.parseResult(html, options.forceList);
+            let result = ConfigurableDialog.parseResult(html)
             entryGroup.entries
               .toSorted((a, b) => b.index - a.index)
               .forEach((entry, i) => {
@@ -519,6 +520,7 @@ export default class ExperienceVerificator extends FormApplication {
 
   activateListeners(html) {
     super.activateListeners(html);
+    const menu = document.getElementById("my-context-menu");
     html.on("click", `button[id="prev"]`, async () => {
       await this.save();
       const actors = game.actors.filter((a) => a.hasPlayerOwner && a.type === "character" && a.isOwner);
@@ -557,9 +559,15 @@ export default class ExperienceVerificator extends FormApplication {
       this.render(true);
     });
     html.on("click", ".spent-exp-row", (e) => this.editEntryGroup(e, this.spentGroupLog));
-    html.on("click", ".gained-exp-row", (e) => this.editEntryGroup(e, this.gainedGroupLog));
-    html.on("contextmenu", ".spent-exp-row", (e) => this.deleteEntryGroup(e, this.spentGroupLog));
-    html.on("contextmenu", ".gained-exp-row", (e) => this.deleteEntryGroup(e, this.gainedGroupLog));
+    html.on("contextmenu", ".spent-exp-row", (e) => {
+      let entryGroup = log[Number($(e.currentTarget).attr("name"))];
+      entryGroup.edit = true;
+    });
+    html.on("contextmenu", ".gained-exp-row", (e) => {
+      let entryGroup = log[Number($(e.currentTarget).attr("name"))];
+      entryGroup.edit = true;
+    });
+    html.on("click", ".gained-exp-row", (e) => this.editEntryGroup(e, this.gainedGroupLog))
   }
 
   async getData(options = {}) {
@@ -569,7 +577,9 @@ export default class ExperienceVerificator extends FormApplication {
 
     options.title = `Experience Verificator: ${this.actor.name}`;
     data.sortModeDesc = ExperienceVerificator.SORT_MODES[this.sortMode];
+    data.sortMode = this.sortMode;
     data.groupModeDesc = ExperienceVerificator.GROUP_MODES[this.groupMode];
+    data.groupMode = this.groupMode;
     data.editModeDesc = this.editMode ? ExperienceVerificator.VIEW_MODES[1] : ExperienceVerificator.VIEW_MODES[0];
     data.gainedLog = this.gainedGroupLog;
     data.spentLog = this.spentGroupLog;

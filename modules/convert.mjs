@@ -47,7 +47,7 @@ export async function addItemContextOptions(html, options) {
     icon: `<i class="far fa-exchange"></i>`,
     condition: () => game.user.isGM || game.user.isOwner,
     callback: async (header) => {
-      const itemId = header.data("document-id");
+      const itemId = header?.dataset?.entryId;
       const item = game.items.get(itemId);
       const originalTypeLocalised = localiseItemType(item.type);
       const options = Object.keys(CONFIG.Item.dataModels)
@@ -77,17 +77,17 @@ export async function addItemContextOptions(html, options) {
             callback: async (html) => {
               const convertType = html.find('[name="convert-type"]').val();
               let update = {
-                type: convertType
+                type: convertType,
+                system: item.system
               };
               if (hasDefaultIcon(item)) {
                 update.img = getDefaultIcon(convertType) ?? item.img;
               }
               try {
-                await item.update(update);
+                await actor.update(update, {recursive: false});
               } catch (e) {
-                // Ignoring error
+                console.error(e)
               }
-              window.foundry.utils.debouncedReload();
             }
           }
         },
@@ -103,7 +103,7 @@ export async function addActorContextOptions(html, options) {
     icon: `<i class="far fa-exchange"></i>`,
     condition: () => game.user.isGM || game.user.isOwner,
     callback: async (header) => {
-      const documentId = header.data("document-id");
+      const documentId = header?.dataset?.entryId;
       const actor = game.actors.get(documentId);
       const originalTypeLocalised = localiseActorType(actor.type);
       const options = Object.keys(CONFIG.Actor.dataModels)
@@ -133,13 +133,10 @@ export async function addActorContextOptions(html, options) {
             callback: async (html) => {
               const convertType = html.find('[name="convert-type"]').val();
               try {
-                await actor.update({
-                  type: convertType
-                });
+                await actor.update({type: convertType, system: actor.system}, {recursive: false});
               } catch (e) {
-                // Ignoring error
+                console.error(e)
               }
-              window.foundry.utils.debouncedReload();
             }
           }
         },
