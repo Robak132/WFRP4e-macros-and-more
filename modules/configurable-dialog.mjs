@@ -31,17 +31,23 @@ export default class ConfigurableDialog extends Dialog {
   static createCell(field, rowIndex, columnIndex = 0) {
     const fieldId = field?.id ?? `field-${rowIndex}-${columnIndex}`;
     switch (field.type ?? "label") {
+      case "icon":
+        return `<span ${field.style}>${field.value}</button>`;
+      case "button":
+        return `<button ${field.style}>${field.value}</button>`;
       case "label":
         return `<label ${field.style}>${field.value}</label>`;
-      case "input":
+      case "input": {
         let type = field.inputType ?? "text";
         return `<input ${field.style} id="${fieldId}" name="${fieldId}" type="${type}" value="${field.value}" />`;
-      case "select":
+      }
+      case "select": {
         let options = field.value.map((e) => {
           let selected = field.selected === e.value ? "selected" : "";
           return `<option value="${e.value ?? e.name}" ${selected}>${e.name}</option>`;
         });
         return `<select ${field.style} id="${fieldId}" name="${fieldId}">${options.join("")}</select>`;
+      }
       case "checkbox":
         return `<input ${field.style} id="${fieldId}" name="${fieldId}" type="checkbox" ${field.value ? "checked" : ""} />`;
     }

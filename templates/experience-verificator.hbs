@@ -5,86 +5,65 @@
         Spent: {{experienceSpent}} {{#if (not (eq experienceSpent experienceSpentCalculated))}}({{experienceSpentCalculated}}){{/if}}
       </h2>
       <div style="height: 500px;overflow-y: scroll">
-        <table>
-          <tr>
-            <th style="position: relative; z-index: 1; padding: 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">No{{#if (eq sortMode 0)}} ↓{{/if}}</span>
-                <span style="flex: 5;text-align:center">Name{{#if (eq sortMode 1)}} ↓{{/if}}</span>
-                <span style="flex: 3;text-align:center">Category{{#if (eq sortMode 3)}} ↓{{/if}}</span>
-                <span style="flex: 1;text-align:center">Exp{{#if (eq sortMode 2)}} ↓{{/if}}</span>
-                <span style="flex: 1;text-align:center"></span>
-              </div>
-            </th>
-          </tr>
+        <div class="exp-table">
+          <!-- header -->
+          <div class="exp-row header" style="display:flex; padding:5px; position: sticky; top: 0; background: rgb(240, 240, 224); z-index: 3;">
+            <div style="flex:1; text-align:center"><b>No</b>{{#if (eq sortMode 0)}} ↓{{/if}}</div>
+            <div style="flex:5; text-align:center"><b>Name</b>{{#if (eq sortMode 1)}} ↓{{/if}}</div>
+            <div style="flex:3; text-align:center"><b>Category</b>{{#if (eq sortMode 3)}} ↓{{/if}}</div>
+            <div style="flex:2; text-align:center"><b>Exp</b>{{#if (eq sortMode 2)}} ↓{{/if}}</div>
+          </div>
+
           {{#each spentLog as |entry index|}}
-            <tr class="spent-exp-row" name="{{index}}" style="position: relative;">
-              {{#if entry.edit}}
-              <td style="position: relative; z-index: 1; padding: 0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
-                  <span style="flex: 5;text-align:center;color: {{entry.color}}"><input></input></span>
-                  <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
-                  <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
-                  <span style="flex: 1;text-align:center"><a class="fas fa-trash-o"></a></span>
-                </div>
-              </td>
-              {{else}}
-              <td style="position: relative; z-index: 1; padding: 0;">
-                <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceSpentCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                  <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
-                  <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}}{{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
-                  <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
-                  <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
-                  <span style="flex: 1;text-align:center"><a class="fas fa-trash-o"></a></span>
-                </div>
-              </td>
-              {{/if}}
-            </tr>
+            <div class="spent-exp-row exp-row" name="{{index}}" style="position: relative; padding:0; margin:0;">
+              <div style="display:flex; align-items:center; padding:5px;">
+                <div style="flex:1; text-align:center; color: {{entry.color}}">{{entry.index}}</div>                  
+                <div style="flex:5; text-align:center; color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}}{{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</div>
+                <div style="flex:3; text-align:center; color: {{entry.color}}">{{entry.category}}</div>
+                <div style="flex:2; text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</div>
+              </div>
+            </div>
           {{/each}}
-        </table>
+        </div>
       </div>
     </div>
+
     <div style="flex: 1;padding: 5px">
       <h2 style="text-align: center;font-family: CaslonAntique,serif;font-variant: small-caps;font-weight: bold">
         Gained: {{experienceGained}} {{#if (not (eq experienceGained experienceGainedCalculated))}}({{experienceGainedCalculated}}):{{/if}}
       </h2>
       <div style="height: 500px;overflow-y: scroll">
-        <table>
-          <tr>
-            <th style="position: relative; z-index: 1; padding: 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center">No</span>
-                <span style="flex: 5;text-align:center">Name</span>
-                <span style="flex: 3;text-align:center">Category</span>
-                <span style="flex: 1;text-align:center">Exp</span>
-              </div>
-            </th>
-          </tr>
+        <div class="exp-table">
+          <!-- header -->
+          <div class="exp-row header" style="display:flex; padding:5px; border-bottom:1px solid rgba(0,0,0,0.1); position: sticky; top: 0; background: rgba(255,255,255,0.95); z-index: 3;">
+            <div style="flex:1; text-align:center"><b>No</b>{{#if (eq sortMode 0)}} ↓{{/if}}</div>
+            <div style="flex:5; text-align:center"><b>Name</b>{{#if (eq sortMode 1)}} ↓{{/if}}</div>
+            <div style="flex:3; text-align:center"><b>Category</b>{{#if (eq sortMode 3)}} ↓{{/if}}</div>
+            <div style="flex:2; text-align:center"><b>Exp</b>{{#if (eq sortMode 2)}} ↓{{/if}}</div>
+          </div>
+
           {{#each gainedLog as |entry index|}}
-          <tr class="gained-exp-row" name="{{index}}" style="position: relative;">
-            <td style="position: relative; z-index: 1; padding: 0;">
+            <div class="gained-exp-row exp-row" name="{{index}}" style="position: relative; padding:0; margin:0;">
               <div style="position: absolute; top: 0; left: 0; height: 100%; width: calc({{entry.value}} / {{../experienceGainedCalculated}} * 100%); background-color: rgba(0, 255, 0, 0.25); z-index: -1;"></div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 5px;">
-                <span style="flex: 1;text-align:center;color: {{entry.color}}">{{entry.index}}</span>
-                <span style="flex: 5;text-align:center;color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}} {{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</span>
-                <span style="flex: 3;text-align:center;color: {{entry.color}}">{{entry.category}}</span>
-                <span style="flex: 1;text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</span>
+              <div style="display:flex; align-items:center; padding:5px;">
+                <div style="flex:1; text-align:center; color: {{entry.color}}">{{entry.index}}</div>
+                <div style="flex:5; text-align:center; color: {{entry.color}}" title="{{entry.tooltip}}">{{entry.name}} {{#if (not (or (eq entry.count -1) (or (eq entry.count 0) (eq entry.count 1))))}} ({{entry.count}}){{/if}}</div>
+                <div style="flex:3; text-align:center; color: {{entry.color}}">{{entry.category}}</div>
+                <div style="flex:2; text-align:center" title="{{entry.entriesStr}}">{{entry.value}}</div>
               </div>
-            </td>
-          </tr>
+            </div>
           {{/each}}
-        </table>
+        </div>
       </div>
     </div>
   </div>
-  <div class="form-group">
+
+  <div class="form-group" style="margin-top:8px;">
     <button type="button" style="max-width: 5%" id="prev"><</button>
     <button type="button" id="verify">Verify</button>
     <button type="button" id="compact">{{groupModeDesc}}</button>
     <button type="button" id="group">{{sortModeDesc}}</button>
-    <button type="button" id="edit">{{editModeDesc}}</button>
+    <button type="button" id="save">Save</button>
     <button type="button" id="confirm">Close</button>
     <button type="button" style="max-width: 5%" id="next">></button>
   </div>

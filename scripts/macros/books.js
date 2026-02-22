@@ -4,10 +4,21 @@
 //   ============================================================ */
 
 // ---------------- RNG & Dice ----------------
+/**
+ * Roll a single die with n faces.
+ * @param {number} n
+ * @returns {Promise<number>}
+ */
 async function d(n) {
   return await xd(1, n);
 }
 
+/**
+ * Roll x dice with n faces, using Foundry Roll when available.
+ * @param {number} x
+ * @param {number} n
+ * @returns {Promise<number>}
+ */
 async function xd(x, n) {
   try {
     let roll = await new Roll(`${x}d${n}`).roll({allowInteractive: false});
@@ -72,12 +83,22 @@ async function rollFromTable(table, modifier = 0, dice = 100, checkFn = null, ma
   return lastResult;
 }
 
+/**
+ * Convert a word to a simple plural form.
+ * @param {string} word
+ * @returns {string}
+ */
 function pluralize(word) {
   if (word.endsWith("y")) return word.slice(0, -1) + "ies";
   if (word.endsWith("s")) return word;
   return word + "s";
 }
 
+/**
+ * Create a deep clone of arrays and plain objects.
+ * @param {*} value
+ * @returns {*}
+ */
 function clone(value) {
   if (Array.isArray(value)) return value.map((v) => clone(v));
   if (value && typeof value === "object") {
@@ -96,72 +117,17 @@ function clone(value) {
  * @property {(roll:number)=>Promise<T & Partial<Record<string, any>>>} data
  */
 
-/**
- * @typedef {Object} Book
- * @property {string} classification
- * @property {string} title
- * @property {string|null} [subtitle]
- * @property {string|null} [synopsis]
- * @property {string|null} [species]
- * @property {string|null} [speciesFocus]
- * @property {string|null} [topic]
- * @property {boolean} [insanity]
- * @property {string|null} [authorsSentiment]
- * @property {number} pages
- * @property {string} quality
- * @property {string} bookType
- * @property {number} encumbrance
- * @property {BookAge} age
- * @property {BookCondition} condition
- * @property {NotableFeature[]} notableFeatures
- * @property {PenmanshipPeculiarity[]} penmanshipPeculiarities
- * @property {string} language
- * @property {number} estimatedValueGC
- */
-
 // ---------------- Data Tables ---------------- //
 /** @type {TableEntry<{ value: string }>[] } */
 const CLASSIFICATION_TABLE = [
-  {
-    min: 1,
-    max: 25,
-    data: async () => ({value: "Biography"})
-  },
-  {
-    min: 26,
-    max: 30,
-    data: async () => ({value: "Bestiary"})
-  },
-  {
-    min: 31,
-    max: 50,
-    data: async () => ({value: "Cook Book"})
-  },
-  {
-    min: 51,
-    max: 60,
-    data: async () => ({value: "Fiction"})
-  },
-  {
-    min: 61,
-    max: 70,
-    data: async () => ({value: "Guidebook"})
-  },
-  {
-    min: 71,
-    max: 90,
-    data: async () => ({value: "Religious Doctrine"})
-  },
-  {
-    min: 91,
-    max: 98,
-    data: async () => ({value: "Scholarship"})
-  },
-  {
-    min: 99,
-    max: 100,
-    data: async () => ({value: "Forbidden"})
-  }
+  {min: 1, max: 25, data: async () => ({value: "Biography"})},
+  {min: 26, max: 30, data: async () => ({value: "Bestiary"})},
+  {min: 31, max: 50, data: async () => ({value: "Cook Book"})},
+  {min: 51, max: 60, data: async () => ({value: "Fiction"})},
+  {min: 61, max: 70, data: async () => ({value: "Guidebook"})},
+  {min: 71, max: 90, data: async () => ({value: "Religious Doctrine"})},
+  {min: 91, max: 98, data: async () => ({value: "Scholarship"})},
+  {min: 99, max: 100, data: async () => ({value: "Forbidden"})}
 ];
 
 /** @type {TableEntry<{ name: string, valueMod: number }>[] } */
@@ -191,56 +157,11 @@ const BOOK_TYPE_TABLE = [
  */
 /** @type {TableEntry<BookAge>[] } */
 const AGE_TABLE = [
-  {
-    min: 1,
-    max: 10,
-    data: async () => ({
-      label: "New",
-      condMod: -10,
-      age: await d(10),
-      unit: "month(s)"
-    })
-  },
-  {
-    min: 11,
-    max: 60,
-    data: async () => ({
-      label: "Contemporary",
-      condMod: 0,
-      age: await d(10),
-      unit: "year(s)"
-    })
-  },
-  {
-    min: 61,
-    max: 95,
-    data: async () => ({
-      label: "Recent",
-      condMod: +10,
-      age: (await d(10)) * 5,
-      unit: "year(s)"
-    })
-  },
-  {
-    min: 96,
-    max: 99,
-    data: async () => ({
-      label: "Old",
-      condMod: +20,
-      age: (await d(10)) * 25,
-      unit: "year(s)"
-    })
-  },
-  {
-    min: 100,
-    max: 100,
-    data: async () => ({
-      label: "Ancient",
-      condMod: +30,
-      age: (await d(10)) * 100,
-      unit: "year(s)"
-    })
-  }
+  {min: 1, max: 10, data: async () => ({label: "New", condMod: -10, age: await d(10), unit: "month(s)"})},
+  {min: 11, max: 60, data: async () => ({label: "Contemporary", condMod: 0, age: await d(10), unit: "year(s)"})},
+  {min: 61, max: 95, data: async () => ({label: "Recent", condMod: +10, age: (await d(10)) * 5, unit: "year(s)"})},
+  {min: 96, max: 99, data: async () => ({label: "Old", condMod: +20, age: (await d(10)) * 25, unit: "year(s)"})},
+  {min: 100, max: 100, data: async () => ({label: "Ancient", condMod: +30, age: (await d(10)) * 100, unit: "year(s)"})}
 ];
 
 /**
@@ -256,33 +177,9 @@ const AGE_TABLE = [
  */
 /** @type {TableEntry<BookCondition>[] } */
 const CONDITION_TABLE = [
-  {
-    min: 1,
-    max: 19,
-    data: async () => ({
-      label: "Mint",
-      valueMod: +100
-    })
-  },
-  {
-    min: 20,
-    max: 70,
-    data: async (roll) => ({
-      label: "Used",
-      oddSmell: roll === 22,
-      notes: roll === 33,
-      valueMod: 0
-    })
-  },
-  {
-    min: 71,
-    max: 80,
-    data: async (roll) => ({
-      label: "Poor",
-      missingPages: roll === 77 ? await d(10) : 0,
-      valueMod: -50
-    })
-  },
+  {min: 1, max: 19, data: async () => ({label: "Mint", valueMod: +100})},
+  {min: 20, max: 70, data: async (roll) => ({label: "Used", oddSmell: roll === 22, notes: roll === 33, valueMod: 0})},
+  {min: 71, max: 80, data: async (roll) => ({label: "Poor", missingPages: roll === 77 ? await d(10) : 0, valueMod: -50})},
   {
     min: 81,
     max: 100,
@@ -299,59 +196,20 @@ const CONDITION_TABLE = [
 
 /** @type {TableEntry<{ name: string, valueMod: number }>[] } */
 const LANGUAGE_TABLE = [
-  {
-    min: 1,
-    max: 2,
-    data: async () => ({name: "Breton", valueMod: 0})
-  },
-  {
-    min: 3,
-    max: 3,
-    data: async () => ({name: "Estalian", valueMod: 0})
-  },
-  {
-    min: 4,
-    max: 4,
-    data: async () => ({name: "Kislevian", valueMod: 0})
-  },
-  {
-    min: 5,
-    max: 5,
-    data: async () => ({name: "Tilean", valueMod: 0})
-  },
-  {
-    min: 6,
-    max: 6,
-    data: async () => ({name: "Norse", valueMod: 0})
-  },
-  {
-    min: 7,
-    max: 7,
-    data: async () => ({name: "Classical", valueMod: 50})
-  },
-  {
-    min: 8,
-    max: 8,
-    data: async () => ({name: "Khazalid", valueMod: 100})
-  },
-  {
-    min: 9,
-    max: 9,
-    data: async () => ({name: "Eltharin", valueMod: 100})
-  },
-  {
-    min: 10,
-    max: 10,
-    data: async () => ({name: "Other", valueMod: 200})
-  },
+  {min: 1, max: 2, data: async () => ({name: "Breton", valueMod: 0})},
+  {min: 3, max: 3, data: async () => ({name: "Estalian", valueMod: 0})},
+  {min: 4, max: 4, data: async () => ({name: "Kislevian", valueMod: 0})},
+  {min: 5, max: 5, data: async () => ({name: "Tilean", valueMod: 0})},
+  {min: 6, max: 6, data: async () => ({name: "Norse", valueMod: 0})},
+  {min: 7, max: 7, data: async () => ({name: "Classical", valueMod: 50})},
+  {min: 8, max: 8, data: async () => ({name: "Khazalid", valueMod: 100})},
+  {min: 9, max: 9, data: async () => ({name: "Eltharin", valueMod: 100})},
+  {min: 10, max: 10, data: async () => ({name: "Other", valueMod: 200})},
   {
     min: 11,
     max: 100,
     data: async (roll) => ({
-      name:
-        roll % 11 === 0 || roll === 100
-          ? `Reikspiel (${(await rollFromTable(LANGUAGE_TABLE, 0, 10)).name})`
-          : `Reikspiel`,
+      name: roll % 11 === 0 || roll === 100 ? `Reikspiel (${(await rollFromTable(LANGUAGE_TABLE, 0, 10)).name})` : `Reikspiel`,
       valueMod: 0
     })
   }
@@ -366,150 +224,29 @@ const LANGUAGE_TABLE = [
  */
 /** @type {TableEntry<NotableFeature>[] } */
 const NOTABLE_FEATURES_TABLE = [
-  {
-    min: 1,
-    max: 5,
-    data: async () => ({
-      description: "Lengthy foreword or dedication"
-    })
-  },
-  {
-    min: 6,
-    max: 10,
-    data: async () => ({
-      description: "Starts with a prayer to appropriate deity"
-    })
-  },
-  {
-    min: 11,
-    max: 15,
-    data: async () => ({
-      description: "First page has a portrait of the author"
-    })
-  },
-  {
-    min: 16,
-    max: 20,
-    data: async () => ({
-      description: "Book unfinished, ends abruptly after three-quarters"
-    })
-  },
-  {
-    min: 21,
-    max: 25,
-    data: async () => ({
-      description: `Contains ${await xd(1, 10)} magnificent pictures`
-    })
-  },
-  {
-    min: 26,
-    max: 30,
-    data: async () => ({
-      description: "Title does not match content"
-    })
-  },
-  {
-    min: 31,
-    max: 35,
-    data: async () => ({
-      description: `Part of a series of ${await xd(2, 10)} volumes`
-    })
-  },
-  {
-    min: 36,
-    max: 40,
-    data: async () => ({
-      description: "Bound in ornate leather"
-    })
-  },
-  {
-    min: 41,
-    max: 45,
-    data: async () => ({
-      description: "Colourful first page"
-    })
-  },
-  {
-    min: 46,
-    max: 50,
-    data: async () => ({
-      description: "Binding is plain and unadorned"
-    })
-  },
-  {
-    min: 51,
-    max: 55,
-    data: async () => ({
-      description: "Very ornate lettering throughout"
-    })
-  },
-  {
-    min: 56,
-    max: 60,
-    data: async () => ({
-      description: "Metal hinges and clasps",
-      encumbranceMultiplier: 2
-    })
-  },
-  {
-    min: 61,
-    max: 65,
-    data: async () => ({
-      description: "Metal hinges and clasps; book is also locked",
-      encumbranceMultiplier: 2,
-      locked: true
-    })
-  },
-  {
-    min: 66,
-    max: 70,
-    data: async () => ({
-      description: "Bound in heavy wooden frames",
-      encumbranceMultiplier: 2
-    })
-  },
-  {
-    min: 71,
-    max: 75,
-    data: async () => ({
-      description: "The book’s pages smell funky"
-    })
-  },
-  {
-    min: 76,
-    max: 80,
-    data: async () => ({
-      description: "Title embossed in large letters on cover"
-    })
-  },
-  {
-    min: 81,
-    max: 85,
-    data: async () => ({
-      description: "No binding – pages are in a box or cloth"
-    })
-  },
-  {
-    min: 86,
-    max: 90,
-    data: async () => ({
-      description: "Richly decorated pages"
-    })
-  },
-  {
-    min: 91,
-    max: 95,
-    data: async () => ({
-      description: "Something is found between two pages"
-    })
-  },
+  {min: 1, max: 5, data: async () => ({visible: "Lengthy foreword or dedication"})},
+  {min: 6, max: 10, data: async () => ({visible: "Starts with a prayer to appropriate deity"})},
+  {min: 11, max: 15, data: async () => ({visible: "First page has a portrait of the author"})},
+  {min: 16, max: 20, data: async () => ({hidden: "Book unfinished, ends abruptly after three-quarters"})},
+  {min: 21, max: 25, data: async () => ({visible: `Contains ${await xd(1, 10)} magnificent pictures`})},
+  {min: 26, max: 30, data: async () => ({hidden: "Title does not match content"})},
+  {min: 31, max: 35, data: async () => ({visible: `Part of a series of ${await xd(2, 10)} volumes`})},
+  {min: 36, max: 40, data: async () => ({visible: "Bound in ornate leather"})},
+  {min: 41, max: 45, data: async () => ({visible: "Colourful first page"})},
+  {min: 46, max: 50, data: async () => ({visible: "Binding is plain and unadorned"})},
+  {min: 51, max: 55, data: async () => ({visible: "Very ornate lettering throughout"})},
+  {min: 56, max: 60, data: async () => ({visible: "Metal hinges and clasps", encMult: 2})},
+  {min: 61, max: 65, data: async () => ({visible: "Metal hinges and clasps; book is also locked", encMult: 2, locked: true})},
+  {min: 66, max: 70, data: async () => ({visible: "Bound in heavy wooden frames", encMult: 2})},
+  {min: 71, max: 75, data: async () => ({visible: "The book’s pages smell funky"})},
+  {min: 76, max: 80, data: async () => ({visible: "Title embossed in large letters on cover"})},
+  {min: 81, max: 85, data: async () => ({visible: "No binding – pages are in a box or cloth"})},
+  {min: 86, max: 90, data: async () => ({visible: "Richly decorated pages"})},
+  {min: 91, max: 95, data: async () => ({visible: "Something is found between two pages"})},
   {
     min: 96,
     max: 100,
-    data: async () => ({
-      description: "Combine any two (or more) results",
-      combine: true
-    })
+    data: async () => [await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95), await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95)]
   }
 ];
 
@@ -521,115 +258,24 @@ const NOTABLE_FEATURES_TABLE = [
  */
 /** @type {TableEntry<PenmanshipPeculiarity>[] } */
 const PENMANSHIP_PECULIARITIES_TABLE = [
-  {
-    min: 1,
-    max: 25,
-    data: async () => ({
-      description: ""
-    })
-  },
-  {
-    min: 26,
-    max: 30,
-    data: async () => ({
-      description: "Tone of author is haughty and authoritative"
-    })
-  },
-  {
-    min: 31,
-    max: 35,
-    data: async () => ({
-      description: "Constant misuses of words and idioms"
-    })
-  },
-  {
-    min: 36,
-    max: 40,
-    data: async () => ({
-      description: "Obviously not written in the author’s mother tongue"
-    })
-  },
-  {
-    min: 41,
-    max: 45,
-    data: async () => ({
-      description: "Horrible spelling"
-    })
-  },
-  {
-    min: 46,
-    max: 50,
-    data: async () => ({
-      description: "Synthetically archaic grammar, wording and spelling"
-    })
-  },
-  {
-    min: 51,
-    max: 55,
-    data: async () => ({
-      description: "Simple, straightforward and unadorned language",
-      rwModifier: +20
-    })
-  },
-  {
-    min: 56,
-    max: 60,
-    data: async () => ({
-      description: "Unnecessarily convoluted grammar and vocabulary",
-      rwModifier: -10
-    })
-  },
-  {
-    min: 61,
-    max: 65,
-    data: async () => ({
-      description: "Text shows evidence of being the work of more than one author"
-    })
-  },
-  {
-    min: 66,
-    max: 70,
-    data: async () => ({
-      description: "Book is a compilation or anthology (author = editor)"
-    })
-  },
-  {
-    min: 71,
-    max: 75,
-    data: async () => ({
-      description: "Language is cryptic and archaic",
-      rwModifier: -10
-    })
-  },
-  {
-    min: 76,
-    max: 80,
-    data: async () => ({
-      description: "The dialect or social standing of the author is very obvious from the text"
-    })
-  },
-  {
-    min: 81,
-    max: 85,
-    data: async () => ({
-      description: "Interesting notes are scribbled here and there throughout the book"
-    })
-  },
-  {
-    min: 86,
-    max: 90,
-    data: async () => ({
-      description: "Lettering or handwriting is exceptionally ornate",
-      rwModifier: -10
-    })
-  },
+  {min: 1, max: 25, data: async () => ({})},
+  {min: 26, max: 30, data: async () => ({hidden: "Tone of author is haughty and authoritative"})},
+  {min: 31, max: 35, data: async () => ({hidden: "Constant misuses of words and idioms"})},
+  {min: 36, max: 40, data: async () => ({hidden: "Obviously not written in the author’s mother tongue"})},
+  {min: 41, max: 45, data: async () => ({hidden: "Horrible spelling"})},
+  {min: 46, max: 50, data: async () => ({hidden: "Synthetically archaic grammar, wording and spelling"})},
+  {min: 51, max: 55, data: async () => ({hidden: "Simple, straightforward and unadorned language", rwModifier: +20})},
+  {min: 56, max: 60, data: async () => ({hidden: "Unnecessarily convoluted grammar and vocabulary", rwModifier: -10})},
+  {min: 61, max: 65, data: async () => ({hidden: "Text shows evidence of being the work of more than one author"})},
+  {min: 66, max: 70, data: async () => ({hidden: "Book is a compilation or anthology (author = editor)"})},
+  {min: 71, max: 75, data: async () => ({hidden: "Language is cryptic and archaic", rwModifier: -10})},
+  {min: 76, max: 80, data: async () => ({hidden: "The dialect or social standing of the author is very obvious from the text"})},
+  {min: 81, max: 85, data: async () => ({hidden: "Interesting notes are scribbled here and there throughout the book"})},
+  {min: 86, max: 90, data: async () => ({hidden: "Lettering or handwriting is exceptionally ornate", rwModifier: -10})},
   {
     min: 91,
     max: 100,
-    data: async () => ({
-      description: "Combine any two (or more) results",
-      combine: true
-    })
+    data: async () => [await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90), await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90)]
   }
 ];
 
@@ -676,6 +322,11 @@ const ORIGIN_TABLE = [
   {min: 100, max: 100, data: async () => ({name: "Great Forest"})}
 ];
 
+/**
+ * @typedef {Object} Career
+ * @property {string} name
+ */
+/** @type {TableEntry<Career>[] } */
 const BASIC_CAREERS = [
   {min: 1, max: 2, data: async () => ({name: "Agitator"})},
   {min: 3, max: 4, data: async () => ({name: "Apprentice Wizard"})},
@@ -1712,7 +1363,7 @@ const FORBIDDEN_ELEM_II = [
   {min: 97, max: 100, data: async () => ({text: "Words"})}
 ];
 
-/** @type {TableEntry<{ text: string, insanity?: boolean, grimoires?: boolean }>[] } */
+/** @type {TableEntry<{ topic: string, insanity?: boolean, grimoires?: boolean }>[] } */
 const FORBIDDEN_TOPIC = [
   {min: 1, max: 4, data: async () => ({topic: "Daemonology", insanity: true})},
   {min: 5, max: 8, data: async () => ({topic: "Necromancy", insanity: true})},
@@ -1809,7 +1460,7 @@ const FORBIDDEN_TOPIC = [
   }
 ];
 
-/** @type {TableEntry<number>[] } */
+/** @type {TableEntry<{ number: number}>[] } */
 const SPELL_NUMBER = [
   {min: 1, max: 40, data: async () => ({number: 3})},
   {min: 41, max: 80, data: async () => ({number: 4})},
@@ -1817,7 +1468,7 @@ const SPELL_NUMBER = [
   {min: 96, max: 100, data: async () => ({number: 6})}
 ];
 
-/** @type {TableEntry<{ number: string}>[] } */
+/** @type {TableEntry<{ number: number}>[] } */
 const SPELL_CN = [
   {min: 1, max: 30, data: async () => ({number: 3})},
   {min: 31, max: 50, data: async () => ({number: 4})},
@@ -1843,6 +1494,10 @@ const TITLE_GENERATORS = {
   Forbidden: () => generateForbiddenData()
 };
 
+/**
+ * Build title data for a biography.
+ * @returns {Promise<{title: string, subtitle: string, authorsSentiment: string}>}
+ */
 async function generateBiographyData() {
   let e1 = await rollFromTable(BIO_ELEM_I);
   if (e1.reroll) {
@@ -1875,6 +1530,10 @@ async function generateBiographyData() {
   };
 }
 
+/**
+ * Build title data for a bestiary.
+ * @returns {Promise<{title: string, subtitle: string, species: string, speciesFocus: string}>}
+ */
 async function generateBestiaryData() {
   let e1 = await rollFromTable(BEST_ELEM_I);
   let e2 = await rollFromTable(BEST_ELEM_II);
@@ -1904,6 +1563,10 @@ async function generateBestiaryData() {
   };
 }
 
+/**
+ * Build title data for a cookbook.
+ * @returns {Promise<{title: string, subtitle?: string}>}
+ */
 async function generateCookbookData() {
   let e1 = await rollFromTable(COOK_ELEM_I);
   let e2 = await rollFromTable(COOK_ELEM_II);
@@ -1924,6 +1587,10 @@ async function generateCookbookData() {
   };
 }
 
+/**
+ * Build title data for a guidebook.
+ * @returns {Promise<{title: string, subtitle?: string}>}
+ */
 async function generateGuidebookData() {
   let e1 = await rollFromTable(GUIDE_ELEM_I);
   let e2 = await rollFromTable(GUIDE_ELEM_II);
@@ -1947,6 +1614,10 @@ async function generateGuidebookData() {
   };
 }
 
+/**
+ * Build title data for a fiction book.
+ * @returns {Promise<{title: string, synopsis: string}>}
+ */
 async function generateFictionData() {
   const e1 = await rollFromTable(FICTION_ELEM_I);
   const e2 = await rollFromTable(FICTION_ELEM_II);
@@ -1961,6 +1632,10 @@ async function generateFictionData() {
   };
 }
 
+/**
+ * Build title data for a religious text.
+ * @returns {Promise<{title: string}>}
+ */
 async function generateReligiousData() {
   let e1 = await rollFromTable(REL_ELEM_I);
   let e2 = await rollFromTable(REL_ELEM_II);
@@ -1976,6 +1651,10 @@ async function generateReligiousData() {
   return {title: `${e1.text} ${e2.text} of ${e3.text}`};
 }
 
+/**
+ * Build title data for a scholarly text.
+ * @returns {Promise<{title: string}>}
+ */
 async function generateScholarshipData() {
   let e1 = await rollFromTable(SCHOLAR_ELEM_I);
   let e2 = await rollFromTable(SCHOLAR_ELEM_II);
@@ -1988,6 +1667,10 @@ async function generateScholarshipData() {
   return {title: `${e1.text} ${e2.text} ${e3.text}`};
 }
 
+/**
+ * Build title data for a forbidden text.
+ * @returns {Promise<{title: string, topic: string, insanity: boolean}>}
+ */
 async function generateForbiddenData() {
   let e1 = await rollFromTable(FORBIDDEN_ELEM_I);
   let e2 = await rollFromTable(FORBIDDEN_ELEM_II);
@@ -1995,6 +1678,10 @@ async function generateForbiddenData() {
   return {title: `${e1.text} ${e2.text}`, topic: e3.topic, insanity: e3.insanity || false};
 }
 
+/**
+ * Generate an author name.
+ * @returns {Promise<string>}
+ */
 async function generateName() {
   try {
     return NameGenWfrp.generateName({species: "human"});
@@ -2003,35 +1690,62 @@ async function generateName() {
   }
 }
 
+/**
+ * Roll an origin location.
+ * @returns {Promise<string>}
+ */
 async function generateOrigin() {
   return (await rollFromTable(ORIGIN_TABLE)).name;
 }
 
+/**
+ * Roll a language name.
+ * @returns {Promise<string>}
+ */
 async function generateLanguage() {
   return (await rollFromTable(LANGUAGE_TABLE)).name;
 }
 
+/**
+ * Roll notable features, including any combined results.
+ * @returns {Promise<(*&{roll: number})[]>}
+ */
 async function generateNotableFeatures() {
   const feature = await rollFromTable(NOTABLE_FEATURES_TABLE);
-  if (feature.combine) {
-    return [await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95), await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95)];
-  }
-
-  return [feature];
+  return typeof feature === "object" ? [feature] : feature;
 }
 
+/**
+ * Roll penmanship peculiarities, including any combined results.
+ * @returns {Promise<(*&{roll: number})[]>}
+ */
 async function generatePenmanshipPeculiarity() {
   const feature = await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE);
-  let features = [feature];
-  if (feature.combine) {
-    features = [
-      await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90),
-      await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90)
-    ];
-  }
-  return features.filter((f) => f.description !== "");
+  return typeof feature === "object" ? [feature] : feature;
 }
 
+/**
+ * @typedef {Object} Book
+ * @property {string} classification
+ * @property {string} title
+ * @property {string|null} [subtitle]
+ * @property {string|null} [synopsis]
+ * @property {string|null} [species]
+ * @property {string|null} [speciesFocus]
+ * @property {string|null} [topic]
+ * @property {boolean} [insanity]
+ * @property {string|null} [authorsSentiment]
+ * @property {number} pages
+ * @property {string} quality
+ * @property {string} bookType
+ * @property {number} encumbrance
+ * @property {BookAge} age
+ * @property {BookCondition} condition
+ * @property {NotableFeature[]} notableFeatures
+ * @property {PenmanshipPeculiarity[]} penmanshipPeculiarities
+ * @property {string} language
+ * @property {number} estimatedValueGC
+ */
 /**
  * @param options
  * @returns {Promise<Book>}
@@ -2040,24 +1754,16 @@ async function generateBook(options = {}) {
   const classification = options?.classification ?? (await rollFromTable(CLASSIFICATION_TABLE).value);
   const quality = await rollFromTable(QUALITY_TABLE);
   const age = options?.minAge
-    ? await rollFromTable(
-        AGE_TABLE,
-        0,
-        100,
-        (a) => a.age >= options?.minAge && a.unit === (options?.minAgeUnit ?? "year(s)")
-      )
+    ? await rollFromTable(AGE_TABLE, 0, 100, (a) => a.age >= options?.minAge && a.unit === (options?.minAgeUnit ?? "year(s)"))
     : await rollFromTable(AGE_TABLE);
   // Forbidden books are never printed
   // Printing only started less than 200 years ago
-  const type =
-    classification === "Forbidden" || (age.age >= 200 && age.unit === "year(s)")
-      ? BOOK_TYPE_ILLUMINATED
-      : await rollFromTable(BOOK_TYPE_TABLE);
+  const type = classification === "Forbidden" || (age.age >= 200 && age.unit === "year(s)") ? BOOK_TYPE_ILLUMINATED : await rollFromTable(BOOK_TYPE_TABLE);
   const condition = await rollFromTable(CONDITION_TABLE, age.condMod);
   const language = await rollFromTable(LANGUAGE_TABLE);
   const notableFeatures = await generateNotableFeatures();
   const penmanshipPeculiarities = await generatePenmanshipPeculiarity();
-  const encMult = notableFeatures.reduce((a, f) => a + ((f.encumbranceMultiplier ?? 1) - 1), 0);
+  const encMult = notableFeatures.reduce((a, f) => a + ((f.encMult ?? 1) - 1), 0);
   const author = await generateName();
   const origin = await generateOrigin();
   let titleData = await TITLE_GENERATORS[classification]();
@@ -2077,10 +1783,7 @@ async function generateBook(options = {}) {
     origin,
     author,
     language: language.name,
-    price: Math.max(
-      0,
-      type.baseValue * (1 + quality.valueMod / 100) * (1 + condition.valueMod / 100) * (1 + language.valueMod / 100)
-    )
+    price: Math.max(0, type.baseValue * (1 + quality.valueMod / 100) * (1 + condition.valueMod / 100) * (1 + language.valueMod / 100))
   };
 }
 
@@ -2146,6 +1849,13 @@ const LIBRARY_TYPES = {
   }
 };
 
+/**
+ * Generate a library of books by topic distribution.
+ * @param {string} typeKey
+ * @param {number} size
+ * @param {object} [options]
+ * @returns {Promise<{name: string, topics: object}>}
+ */
 async function generateLibrary(typeKey, size, options = {}) {
   const {name, topics} = clone(LIBRARY_TYPES[typeKey]);
 
@@ -2175,11 +1885,21 @@ async function generateLibrary(typeKey, size, options = {}) {
   return {name, topics};
 }
 
+/**
+ * Render the player-facing HTML description.
+ * @param {Book} book
+ * @returns {string}
+ */
 function presentDescription(book) {
   const items = [];
 
-  items.push(`<li><strong>Classification:</strong> ${book.classification}</li>`);
-  items.push(`<li><strong>Type:</strong> ${book.bookType}</li>`);
+  items.push(
+    `<li><strong>Classification:</strong> ${book.classification}</li>`,
+    `<li><strong>Pages:</strong> ${book.pages}</li>`,
+    `<li><strong>Age:</strong> ${book.age.label} (${book.age.age} ${book.age.unit})</li>`,
+    `<li><strong>Author:</strong> ${book.author}</li>`,
+    `<li><strong>Origin:</strong> ${book.origin}</li>`
+  );
   let conditionFeatures = [
     book.condition?.oddSmell ? `odd Smell` : null,
     book.condition?.notes ? `notes scribbled on some of the pages` : null,
@@ -2191,12 +1911,7 @@ function presentDescription(book) {
     .filter(Boolean)
     .join(", ");
   if (conditionFeatures) conditionFeatures = ` (${conditionFeatures})`;
-  items.push(`<li><strong>Pages:</strong> ${book.pages}</li>`);
   items.push(`<li><strong>Condition:</strong> ${book.condition.label}${conditionFeatures}</li>`);
-  items.push(`<li><strong>Age:</strong> ${book.age.label} (${book.age.age} ${book.age.unit})</li>`);
-  items.push(`<li><strong>Language:</strong> ${book.language}</li>`);
-  items.push(`<li><strong>Author:</strong> ${book.author}</li>`);
-  items.push(`<li><strong>Origin:</strong> ${book.origin}</li>`);
   if (book.topic) items.push(`<li><strong>Primary topic:</strong> ${book.topic}</li>`);
   items.push(
     `<li><strong>Notable features:</strong> ${book.notableFeatures
@@ -2207,6 +1922,11 @@ function presentDescription(book) {
   return `<ul>${items.join("")}</ul>`;
 }
 
+/**
+ * Render the GM-only HTML description.
+ * @param {Book} book
+ * @returns {string}
+ */
 function presentGMDescription(book) {
   const items = [];
   items.push(`<li><strong>Quality:</strong> ${book.quality}</li>`);
@@ -2230,43 +1950,47 @@ function presentGMDescription(book) {
   return `<ul>${items.join("")}</ul>`;
 }
 
-function main() {
-  generateLibrary("FORBIDDEN", 25, {minAge: 200}).then(async (library) => {
-    const books = Object.values(library.topics)
-      .reduce((acc, info) => acc.concat(info.books || []), [])
-      .toSorted((a, b) => a.title.localeCompare(b.title));
-    console.log(books);
-    const libraryFolder = await Folder.create({
-      name: "Library",
-      type: "Item"
-    });
-    for (let [topic, info] of Object.entries(library.topics)) {
-      let bookFolder = game.folders.find((f) => f.name === topic);
-      if (!bookFolder) {
-        bookFolder = await Folder.create({
-          name: topic,
-          type: "Item",
-          folder: libraryFolder?.id
-        });
-      }
-      for (const bookData of info.books) {
-        await Item.create({
-          name: bookData.title,
-          img: "modules/wfrp4e-core/icons/equipment/trapping.png",
-          type: "trapping",
-          "system.encumbrance.value": bookData.encumbrance,
-          "system.price.gc": Math.floor(bookData.price),
-          "system.price.ss": Math.floor((bookData.price * 20) % 20),
-          "system.price.bp": Math.floor((bookData.price * 240) % 12),
-          "system.description.value": presentDescription(bookData),
-          "system.gmdescription.value": presentGMDescription(bookData),
-          "system.trappingType.value": "booksAndDocuments",
-          folder: bookFolder.id
-        });
-      }
+async function saveLibrary(typeKey, size, options = {}) {
+  const library = await generateLibrary(typeKey, size, options);
+  const books = Object.values(library.topics)
+    .reduce((acc, info) => acc.concat(info.books || []), [])
+    .toSorted((a, b) => a.title.localeCompare(b.title));
+  console.log(books);
+  const libraryFolder = await Folder.create({name: "Library", type: "Item"});
+  for (let [topic, info] of Object.entries(library.topics)) {
+    let bookFolder = game.folders.find((f) => f.name === topic);
+    if (!bookFolder) {
+      bookFolder = await Folder.create({
+        name: topic,
+        type: "Item",
+        folder: libraryFolder?.id
+      });
     }
-    // console.log(JSON.stringify(library, null, 2))
-  });
+    for (const book of info.books) {
+      await Item.create({
+        name: book.title,
+        img: "icons/sundries/books/book-worn-brown-grey.webp",
+        type: "trapping",
+        "system.encumbrance.value": book.encumbrance,
+        "system.price.gc": Math.floor(book.price),
+        "system.price.ss": Math.floor((book.price * 20) % 20),
+        "system.price.bp": Math.floor((book.price * 240) % 12),
+        "system.description.value": presentDescription(book),
+        "system.gmdescription.value": presentGMDescription(book),
+        "system.trappingType.value": "booksAndDocuments",
+        folder: bookFolder.id
+      });
+    }
+  }
+  // console.log(JSON.stringify(library, null, 2))
+}
+
+/**
+ * Entry point for generating and creating items.
+ * @returns {void}
+ */
+async function main() {
+  await saveLibrary("FORBIDDEN", 25, {minAge: 200});
 }
 
 main();

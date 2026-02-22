@@ -2,14 +2,15 @@ import ItemTransfer from "./modules/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
-import {addActorContextOptions, addItemContextOptions} from "./modules/convert.mjs";
+import {CHANGE_ACTOR_TYPE_CONTEXT, CHANGE_ITEM_TYPE_CONTEXT} from "./modules/convert.mjs";
+import {getUpgradeItemContext} from "./modules/upgrade-item.mjs";
 import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
 import {setupAutoEngaged} from "./modules/auto-engage.mjs";
 
 async function registerSettings() {
-  await game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
+  game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
     name: "Enable Transfer Item",
     hint: "Enables Transfer Item button in character sheets.",
     scope: "world",
@@ -17,7 +18,7 @@ async function registerSettings() {
     default: false,
     type: Boolean
   });
-  await game.settings.register("wfrp4e-macros-and-more", "losing-advantage", {
+  game.settings.register("wfrp4e-macros-and-more", "losing-advantage", {
     name: 'Enable "Losing Advantage" rule',
     hint: 'Prints reminder of "Losing Advantage" rule every combat round if using Group Advantage.',
     scope: "world",
@@ -25,7 +26,7 @@ async function registerSettings() {
     default: false,
     type: Boolean
   });
-  await game.settings.register("wfrp4e-macros-and-more", "currency-market", {
+  game.settings.register("wfrp4e-macros-and-more", "currency-market", {
     name: "[Experimental] Currencies in Pay/Credit commands",
     hint: "Enables advanced currency handling in Pay/Credit commands.",
     scope: "world",
@@ -35,7 +36,7 @@ async function registerSettings() {
     restricted: true,
     type: Boolean
   });
-  await game.settings.register("wfrp4e-macros-and-more", "current-region", {
+  game.settings.register("wfrp4e-macros-and-more", "current-region", {
     name: "Current region",
     hint: "Current region for currency conversion.",
     scope: "world",
@@ -46,7 +47,7 @@ async function registerSettings() {
     choices: RobakMarketWfrp4e.getKeyValueRegions(),
     type: String
   });
-  await game.settings.register("wfrp4e-macros-and-more", "auto-engaged", {
+  game.settings.register("wfrp4e-macros-and-more", "auto-engaged", {
     name: "Enable Auto-Engaging",
     hint: "Automatically set 'Engaged' condition when rolling attacks.",
     scope: "world",
@@ -56,7 +57,7 @@ async function registerSettings() {
     restricted: true,
     type: Boolean
   });
-  await game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
+  game.settings.registerMenu("wfrp4e-macros-and-more", "menu-maintenance", {
     name: "MACROS-AND-MORE.SettingsMaintenanceMenuName",
     label: "MACROS-AND-MORE.SettingsMaintenanceMenuLabel",
     hint: "MACROS-AND-MORE.SettingsMaintenanceMenuHint",
@@ -122,7 +123,7 @@ Hooks.once("init", async function () {
     });
 
   SocketHandlers.sendRollToUserAndWait = async function (userId, actorId, skill, options) {
-    return await SocketHandlers.executeOnUserAndWait(userId, "rollSkill", {actorId, skill, options});
+    return SocketHandlers.executeOnUserAndWait(userId, "rollSkill", {actorId, skill, options});
   };
 
   SocketHandlers.rollSkill = async function ({actorId, skill, options}) {
@@ -148,18 +149,22 @@ Hooks.once("init", async function () {
 Hooks.on("updateCombat", async (combat, updates, _, __) => {
   let setting = game.settings.get("wfrp4e-macros-and-more", "losing-advantage");
   if (setting && game.user.isUniqueGM && foundry.utils.hasProperty(updates, "round")) {
-    await handleLosingGroupAdvantage(combat.combatants);
+    handleLosingGroupAdvantage(combat.combatants);
   }
 });
 
-Hooks.on("getActorContextOptions", addActorContextOptions);
+Hooks.on("getActorContextOptions", (_, options) => {
+  options.push(CHANGE_ACTOR_TYPE_CONTEXT());
+});
 
-Hooks.on("getItemContextOptions", addItemContextOptions);
-  
+Hooks.on("getItemContextOptions", (_, options) => {
+  options.push(CHANGE_ITEM_TYPE_CONTEXT(), getUpgradeItemContext());
+});
+
 Hooks.on("renderActorSheetWFRP4eCharacter", (sheet, html, _) => {
-  console.log(sheet)
-  ItemTransfer.setupItemHandler(sheet, html)
-})
+  console.log(sheet);
+  ItemTransfer.setupItemHandler(sheet, html);
+});
 
 Hooks.on("renderActorSheetWFRP4eCreature", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
 
@@ -173,6 +178,6 @@ Hooks.on("renderChatLog", (log, html) => {
     if (!game.user.isGM) return;
     const dmg = Number.fromString($(event.currentTarget).attr("data-damage"));
     const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
-    await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
+    actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
   });
 });

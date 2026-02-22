@@ -9,7 +9,7 @@ export default class MaintenanceWrapper extends FormApplication {
     let hash = 0;
     if (str.length === 0) return hash;
     for (let i = 0; i < str.length; i++) {
-      let char = str.charCodeAt(i);
+      let char = str.codePointAt(i);
       hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
@@ -47,7 +47,7 @@ export default class MaintenanceWrapper extends FormApplication {
   }
 
   toArray(variable) {
-    return variable == null ? [] : [].concat(variable);
+    return variable == null ? [] : [variable].flat();
   }
 
   async _updateObject(event, formData) {
