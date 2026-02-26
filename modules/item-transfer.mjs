@@ -204,7 +204,7 @@ export default class ItemTransfer {
           label: "Transfer Item",
           callback: (html) => {
             let quantity = document.getElementById("quantity").value;
-            if (isNaN(quantity)) {
+            if (Number.isNaN(quantity)) {
               Utility.log("Item quantity invalid");
               return ui.notifications.error("Item quantity invalid.");
             } else {

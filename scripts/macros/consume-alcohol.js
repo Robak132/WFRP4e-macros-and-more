@@ -95,11 +95,11 @@ class ConsumeAlcohol extends Dialog {
           await this.removeModifier(actor);
           break;
         case "remove_all":
-          const effects = actor.effects.filter((e) => e.conditionId?.startsWith("consumealcohol")).map((e) => e.id);
+          { const effects = actor.effects.filter((e) => e.conditionId?.startsWith("consumealcohol")).map((e) => e.id);
           await actor.deleteEmbeddedDocuments("ActiveEffect", effects);
-          break;
+          break; }
         default:
-          let beverage = ConsumeAlcohol.BEVERAGES.find((b) => b.id === selectedOptionId);
+          { let beverage = ConsumeAlcohol.BEVERAGES.find((b) => b.id === selectedOptionId);
           let userId = game.users.find((u) => u.character?.id === actor.id && u.active)?.id ?? "GM"
           for (let i = 0; i < beverage.tests; i++) {
             const test = await SocketHandlers.sendRollToUserAndWait(
@@ -115,7 +115,7 @@ class ConsumeAlcohol extends Dialog {
             if (test.data.result.outcome === "failure") {
               await this.addModifier(actor);
             }
-          }
+          } }
       }
     }
   }

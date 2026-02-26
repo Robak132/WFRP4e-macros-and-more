@@ -187,7 +187,7 @@ Hooks.on("renderChatMessageHTML", async (app, html) => {
 
         const token = canvas.tokens.get(tokenId);
         const actor = token.actor;
-        await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
+        await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e?.config?.DAMAGE_TYPE?.IGNORE_ALL});
       } catch (err) {
         console.error("Error handling unstable-actor click", err);
         ui.notifications.error("Error applying damage");

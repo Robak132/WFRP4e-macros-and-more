@@ -285,12 +285,7 @@ class Wind {
   }
 
   static from(wind) {
-    return new Wind(
-      WindStrength.from(wind.windStrength),
-      Direction.from(wind.windDirection),
-      Direction.from(wind.shipDirection),
-      wind.changeRoll
-    );
+    return new Wind(WindStrength.from(wind.windStrength), Direction.from(wind.windDirection), Direction.from(wind.shipDirection), wind.changeRoll);
   }
 
   static getRelativeName(shipDirection, windDirection) {
@@ -315,10 +310,7 @@ class Wind {
     if (this.changeRoll > 1) return newWind;
 
     const strengthIncrease = Math.ceil(CONFIG.Dice.randomUniform() * 2) === 2;
-    if (
-      this.windStrength === WindStrength.DOLDRUMS ||
-      (strengthIncrease && this.windStrength !== WindStrength.VIOLENT_STORM)
-    ) {
+    if (this.windStrength === WindStrength.DOLDRUMS || (strengthIncrease && this.windStrength !== WindStrength.VIOLENT_STORM)) {
       newWind.windStrength = this.windStrength.increase();
     } else {
       newWind.windStrength = this.windStrength.decrease();
@@ -328,10 +320,10 @@ class Wind {
   }
 
   getFullName() {
-    if (this.windStrength !== WindStrength.DOLDRUMS) {
-      return `${this.windDirection.getAdj()} ${this.windStrength.getName().toLowerCase()} (${Wind.getRelativeName(this.shipDirection, this.windDirection)})`;
-    } else {
+    if (this.windStrength === WindStrength.DOLDRUMS) {
       return `${this.windStrength.getName()}`;
+    } else {
+      return `${this.windDirection.getAdj()} ${this.windStrength.getName().toLowerCase()} (${Wind.getRelativeName(this.shipDirection, this.windDirection)})`;
     }
   }
 
@@ -349,7 +341,7 @@ class Wind {
           harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> 0 mi (0%)</p>`
         };
-      case "TACK":
+      case "TACK": {
         const tack = game.robakMacros.utils.round(shiftDistance * (windEffect?.modifier - 1), 2);
         return {
           normal: shiftDistance,
@@ -358,6 +350,7 @@ class Wind {
           harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> ${shiftDistance} mi (100%)</p><p><b>Distance Travelled (Tack):</b> +${tack} mi (+${modifier}%)</p>`
         };
+      }
       case "BATTEN_DOWN":
         const relativeName = Wind.getRelativeName(this.shipDirection, this.windDirection);
         const driftDistance = game.robakMacros.utils.round(shiftDistance * 0.25, 2);
@@ -409,16 +402,16 @@ class Wind {
     const seasonModifier = getSeasonModifier(options.season);
 
     const windDirection =
-      options.windDirection !== "Random"
-        ? Direction.fromValue(options.windDirection)
-        : await Direction.randomWindDirection(options.prevailingWind);
+      options.windDirection === "Random" ? await Direction.randomWindDirection(options.prevailingWind) : Direction.fromValue(options.windDirection);
     let windStrength;
-    if (options.windStrength !== "Random") {
-      windStrength = WindStrength.fromValue(options.windStrength);
-    } else if (options.lastWindStrength !== "Random") {
-      windStrength = WindStrength.fromValue(options.lastWindStrength);
+    if (options.windStrength === "Random") {
+      if (options.lastWindStrength !== "Random") {
+        windStrength = WindStrength.fromValue(options.lastWindStrength);
+      } else {
+        windStrength = await WindStrength.random(seasonModifier);
+      }
     } else {
-      windStrength = await WindStrength.random(seasonModifier);
+      windStrength = WindStrength.fromValue(options.windStrength);
     }
 
     return new Wind(windStrength, windDirection, Direction.fromValue(options.shipDirection));
@@ -484,7 +477,7 @@ class Precipitation {
   }
 
   getFullNameStriped() {
-    let descriptionStripped = this.getDescription().replace(/(<([^>]+)>)/gi, "");
+    let descriptionStripped = this.getDescription().replaceAll(/(<([^>]+)>)/gi, "");
     return `${this.getName()}\n${descriptionStripped}`;
   }
 
@@ -558,7 +551,7 @@ class Temperature {
   }
 
   getFullNameStriped() {
-    let descriptionStripped = this.getDescription().replace(/(<([^>]+)>)/gi, "");
+    let descriptionStripped = this.getDescription().replaceAll(/(<([^>]+)>)/gi, "");
     return `${this.getName()}\n${descriptionStripped}`;
   }
 }
@@ -625,7 +618,7 @@ class Visibility {
   }
 
   getFullNameStriped() {
-    let descriptionStripped = this.getDescription().replace(/(<([^>]+)>)/gi, "");
+    let descriptionStripped = this.getDescription().replaceAll(/(<([^>]+)>)/gi, "");
     return `${this.getName()}\n${descriptionStripped}`;
   }
 }
@@ -641,18 +634,11 @@ class Weather {
     const seasonModifier = getSeasonModifier(options.season);
     const seaTemperatureModifier = options.seaTemperature === "Cold" ? 0 : -2;
 
-    const precipitation =
-      options.precipitation !== "Random"
-        ? Precipitation.fromValue(options.precipitation)
-        : await Precipitation.random(seasonModifier);
+    const precipitation = options.precipitation !== "Random" ? Precipitation.fromValue(options.precipitation) : await Precipitation.random(seasonModifier);
     const temperature =
-      options.temperature !== "Random"
-        ? Temperature.fromValue(options.temperature)
-        : await Temperature.random(seasonModifier, seaTemperatureModifier);
+      options.temperature === "Random" ? await Temperature.random(seasonModifier, seaTemperatureModifier) : Temperature.fromValue(options.temperature);
     const visibility =
-      options.visibility !== "Random"
-        ? Visibility.fromValue(options.visibility)
-        : await Visibility.random(seasonModifier, seaTemperatureModifier);
+      options.visibility === "Random" ? await Visibility.random(seasonModifier, seaTemperatureModifier) : Visibility.fromValue(options.visibility);
     return new Weather(precipitation, temperature, visibility);
   }
 
@@ -670,9 +656,7 @@ class Weather {
   async applyModifiers(ship) {
     await ship.deleteEmbeddedDocuments(
       "ActiveEffect",
-      ship.effects
-        .filter((e) => e.flags["wfrp4e-soc"]?.precipitation || e.flags["wfrp4e-soc"]?.visibility)
-        .map((e) => e._id)
+      ship.effects.filter((e) => e.flags["wfrp4e-soc"]?.precipitation || e.flags["wfrp4e-soc"]?.visibility).map((e) => e._id)
     );
 
     if (this.precipitation !== Precipitation.NONE) {
@@ -708,7 +692,7 @@ function getDistanceReport(totalDistance, options) {
   const standardEffects = Wind.getWindDirectionEffects(options, Direction.fromValue(options.prevailingWind));
   const standardModifiers = Object.values(standardEffects)
     .filter((e) => !!e.modifier)
-    .map((e) => parseFloat(e.modifier));
+    .map((e) => Number.parseFloat(e.modifier));
   const minTime = Math.ceil(options.distance / (options.shipSpeed * 18 * Math.max(...standardModifiers)));
   const maxTime = Math.ceil(options.distance / (options.shipSpeed * 18 * Math.min(...standardModifiers)));
   const estTime = maxTime === minTime ? maxTime : `${minTime}-${maxTime}`;
@@ -755,36 +739,39 @@ async function createMessage(content, visibility) {
 
 async function createJournal() {
   return await JournalEntry.create({
-      name: "Logbook",
-      pages: [{
+    name: "Logbook",
+    pages: [
+      {
         name: "Logbook",
         type: "text",
         text: {
-          content: new TableHTML([
-            new RowHTML([
-              new CellHTML("<p><b>Day</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-              new CellHTML("<p><b>Precip.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-              new CellHTML("<p><b>Temp.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-              new CellHTML("<p><b>Visibility</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
-              new CellHTML("<p><b>Winds</b></p>", {style: `${STYLE_MIDDLE_13}`, colspan: 4}),
-              new CellHTML("<p><b>Distance</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2})
-            ]),
-            new RowHTML([
-              new CellHTML("<p><b>Dawn</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-              new CellHTML("<p><b>Midday</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-              new CellHTML("<p><b>Dusk</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
-              new CellHTML("<p><b>Midnight</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`})
-            ])
-          ], {border: 1}).toString()
+          content: new TableHTML(
+            [
+              new RowHTML([
+                new CellHTML("<p><b>Day</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+                new CellHTML("<p><b>Precip.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+                new CellHTML("<p><b>Temp.</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+                new CellHTML("<p><b>Visibility</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2}),
+                new CellHTML("<p><b>Winds</b></p>", {style: `${STYLE_MIDDLE_13}`, colspan: 4}),
+                new CellHTML("<p><b>Distance</b></p>", {style: `${STYLE_MIDDLE_13}`, rowspan: 2})
+              ]),
+              new RowHTML([
+                new CellHTML("<p><b>Dawn</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+                new CellHTML("<p><b>Midday</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+                new CellHTML("<p><b>Dusk</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`}),
+                new CellHTML("<p><b>Midnight</b></p>", {style: `${STYLE_MIDDLE_13};width: 9%`})
+              ])
+            ],
+            {border: 1}
+          ).toString()
         }
-      }],
-    }
-  );
+      }
+    ]
+  });
 }
 
 async function fillJournal(options, weather, winds, totalDistance) {
-  const logbook =
-    options.logbookJournal === "Generate" ? await createJournal(weather) : game.journal.get(options.logbookJournal);
+  const logbook = options.logbookJournal === "Generate" ? await createJournal(weather) : game.journal.get(options.logbookJournal);
   const content = logbook?.pages?.contents[0]?.text?.content;
   if (content == null) {
     ui.notifications.error("Journal not found!");
@@ -792,9 +779,9 @@ async function fillJournal(options, weather, winds, totalDistance) {
   }
 
   let title = `Base: ${totalDistance.normal} mi`;
-  title += totalDistance.tack !== 0 ? `\nTack: +${totalDistance.tack} mi` : ``;
-  title += totalDistance.favorableDrift !== 0 ? `\nFavorable Drift: +${totalDistance.favorableDrift} mi` : ``;
-  title += totalDistance.harmfulDrift !== 0 ? `\nHarmful Drift: -${totalDistance.harmfulDrift} mi` : ``;
+  title += totalDistance.tack === 0 ? `` : `\nTack: +${totalDistance.tack} mi`;
+  title += totalDistance.favorableDrift === 0 ? `` : `\nFavorable Drift: +${totalDistance.favorableDrift} mi`;
+  title += totalDistance.harmfulDrift === 0 ? `` : `\nHarmful Drift: -${totalDistance.harmfulDrift} mi`;
 
   const table = TableHTML.parse(content);
   table.content.push(

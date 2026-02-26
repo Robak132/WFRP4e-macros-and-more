@@ -186,18 +186,18 @@ class SimplePursuit {
   }
 
   getDistanceMoved(character) {
-    if (character.testSL !== undefined) {
-      return character.testSL;
-    } else {
+    if (character.testSL === undefined) {
       return 0;
+    } else {
+      return character.testSL;
     }
   }
 
   getObstacleNavigateTest(object) {
-    if (object.navigateNotPerceived != null) {
-      return object.navigatePerceived + "/" + object.navigateNotPerceived;
-    } else {
+    if (object.navigateNotPerceived == null) {
       return object.navigatePerceived;
+    } else {
+      return object.navigatePerceived + "/" + object.navigateNotPerceived;
     }
   }
 
@@ -240,10 +240,10 @@ class SimplePursuit {
     let messages = "";
     const characterDistance = [];
     const debugCharacterDistance = [];
-    for (let i = 0; i < quarry.length; i++) {
+    for (const element of quarry) {
       const row = [];
       const debugRow = [];
-      let lastDistance = quarry[i].distance;
+      let lastDistance = element.distance;
       let isLost = false;
 
       for (let j = pursuers.length - 1; j >= 0; j--) {
@@ -531,7 +531,7 @@ class SimplePursuit {
     // Limit distance if pursuer run past query
     const maxQueryDistance = this.getQuarry().reduce((a, b) => (a.distance > b.distance ? a : b)).distance;
     for (const pursuer of this.getPursuers()) {
-      pursuer.distance = pursuer.distance > maxQueryDistance ? maxQueryDistance : pursuer.distance;
+      pursuer.distance = Math.min(pursuer.distance, maxQueryDistance);
     }
   }
 

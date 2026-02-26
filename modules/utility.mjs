@@ -13,8 +13,8 @@ export default class Utility {
 
     static getAttributes(content) {
       let attributes = {};
-      for (let i = 0; i < content.attributes.length; i++) {
-        attributes[content.attributes[i].name] = content.attributes[i].value;
+      for (const element of content.attributes) {
+        attributes[element.name] = element.value;
       }
       return attributes;
     }
@@ -145,10 +145,7 @@ export default class Utility {
     let charactersId = JSON.stringify(characters.map((c) => c.actorId));
     await ChatMessage.create({
       content: `
-        ${game.i18n.format(
-          `GMTOOLKIT.Settings.DarkWhispers.message.${game.settings.get("wfrp4e-gm-toolkit", "messageDarkWhispers")}`,
-          {message}
-        )}
+        ${game.i18n.format(`GMTOOLKIT.Settings.DarkWhispers.message.${game.settings.get("wfrp4e-gm-toolkit", "messageDarkWhispers")}`, {message})}
         <span class="chat-card-button-area">
           <a class="chat-card-button robak-darkwhisper-button" 
             data-button="actOnWhisper" 
@@ -209,9 +206,7 @@ export default class Utility {
   }
 
   static getMethods(obj) {
-    return Array.from(new Set(Utility.getMethodsRecursive(obj))).filter(
-      (name) => name !== "constructor" && !~name.indexOf("__")
-    );
+    return Array.from(new Set(Utility.getMethodsRecursive(obj))).filter((name) => name !== "constructor" && !~name.indexOf("__"));
   }
 
   static getMethodsRecursive(x) {
@@ -219,7 +214,7 @@ export default class Utility {
       x &&
       x !== Object.prototype &&
       Object.getOwnPropertyNames(x)
-        .filter((name) => (Object.getOwnPropertyDescriptor(x, name) || {}).get || typeof x[name] === "function")
+        .filter((name) => Object.getOwnPropertyDescriptor(x, name)?.get || typeof x[name] === "function")
         .concat(Utility.getMethodsRecursive(Object.getPrototypeOf(x)) || [])
     );
   }

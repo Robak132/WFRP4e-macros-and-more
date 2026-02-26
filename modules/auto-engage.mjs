@@ -16,7 +16,7 @@ export function setupAutoEngaged() {
     if (game.user.isGM) {
       if (data.x > 0 || data.y > 0) {
         let token = game.canvas.tokens.get(tokenDocument.id);
-        if (!token || !token.hitArea) return;
+        if (!token?.hitArea) return;
 
         let originalTokenX = token.x;
         let originalTokenY = token.y;
@@ -33,31 +33,21 @@ export function setupAutoEngaged() {
         let gridY = game.canvas.grid.grid.h;
 
         let oldSurroundings = [];
-        oldSurroundings.push({x: originalTokenX - gridX, y: originalTokenY - gridY});
-        oldSurroundings.push({x: originalTokenX + hitAreaX, y: originalTokenY + hitAreaY});
-        oldSurroundings.push({x: originalTokenX - gridX, y: originalTokenY + hitAreaY});
-        oldSurroundings.push({x: originalTokenX + hitAreaX, y: originalTokenY - gridY});
+        oldSurroundings.push({x: originalTokenX - gridX, y: originalTokenY - gridY}, {x: originalTokenX + hitAreaX, y: originalTokenY + hitAreaY}, {x: originalTokenX - gridX, y: originalTokenY + hitAreaY}, {x: originalTokenX + hitAreaX, y: originalTokenY - gridY});
         for (let i = 0; i < wx; i++) {
-          oldSurroundings.push({x: originalTokenX + gridX * i, y: originalTokenY - gridY});
-          oldSurroundings.push({x: originalTokenX + gridX * i, y: originalTokenY + hitAreaY});
+          oldSurroundings.push({x: originalTokenX + gridX * i, y: originalTokenY - gridY}, {x: originalTokenX + gridX * i, y: originalTokenY + hitAreaY});
         }
         for (let i = 0; i < hy; i++) {
-          oldSurroundings.push({x: originalTokenX - gridX, y: originalTokenY + gridY * i});
-          oldSurroundings.push({x: originalTokenX + hitAreaX, y: originalTokenY + gridY * i});
+          oldSurroundings.push({x: originalTokenX - gridX, y: originalTokenY + gridY * i}, {x: originalTokenX + hitAreaX, y: originalTokenY + gridY * i});
         }
 
         let surroundings = [];
-        surroundings.push({x: tokenX - gridX, y: tokenY - gridY});
-        surroundings.push({x: tokenX + hitAreaX, y: tokenY + hitAreaY});
-        surroundings.push({x: tokenX - gridX, y: tokenY + hitAreaY});
-        surroundings.push({x: tokenX + hitAreaX, y: tokenY - gridY});
+        surroundings.push({x: tokenX - gridX, y: tokenY - gridY}, {x: tokenX + hitAreaX, y: tokenY + hitAreaY}, {x: tokenX - gridX, y: tokenY + hitAreaY}, {x: tokenX + hitAreaX, y: tokenY - gridY});
         for (let i = 0; i < wx; i++) {
-          surroundings.push({x: tokenX + gridX * i, y: tokenY - gridY});
-          surroundings.push({x: tokenX + gridX * i, y: tokenY + hitAreaY});
+          surroundings.push({x: tokenX + gridX * i, y: tokenY - gridY}, {x: tokenX + gridX * i, y: tokenY + hitAreaY});
         }
         for (let i = 0; i < hy; i++) {
-          surroundings.push({x: tokenX - gridX, y: tokenY + gridY * i});
-          surroundings.push({x: tokenX + hitAreaX, y: tokenY + gridY * i});
+          surroundings.push({x: tokenX - gridX, y: tokenY + gridY * i}, {x: tokenX + hitAreaX, y: tokenY + gridY * i});
         }
 
         let tokenIds = [];
@@ -81,9 +71,9 @@ export function setupAutoEngaged() {
               }
             }
           }
-          let originalTokenIds = collisions.filter((x) => x.actor && x.actor.hasCondition("engaged")).map((x) => x.id);
-          for (let i = 0; i < originalTokenIds.length; i++) {
-            tokenIds.push(originalTokenIds[i]);
+          let originalTokenIds = collisions.filter((x) => x.actor?.hasCondition("engaged")).map((x) => x.id);
+          for (const element of originalTokenIds) {
+            tokenIds.push(element);
           }
         });
 
@@ -108,7 +98,7 @@ export function setupAutoEngaged() {
               }
             }
           }
-          let collision = collisions.find((x) => x.actor && x.actor.hasCondition("engaged") && tokenIds.includes(x.id));
+          let collision = collisions.find((x) => x.actor?.hasCondition("engaged") && tokenIds.includes(x.id));
           if (collision) {
             remove = false;
           }

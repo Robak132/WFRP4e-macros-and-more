@@ -1,7 +1,7 @@
 if (!game.user.isUniqueGM) return;
 
-effectsToCreate = [];
-effectsToDelete = [];
+let effectsToCreate = [];
+let effectsToDelete = [];
 for (let weapon of this.actor.itemTypes.weapon ?? []) {
   const effect = this.actor.effects.find((v) => v.name === weapon.name && v.description === `<p>${weapon.id}</p>`);
   if (weapon?.equipped?.value && effect === undefined) {
