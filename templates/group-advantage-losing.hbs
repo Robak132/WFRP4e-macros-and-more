@@ -60,16 +60,14 @@
     <div class="description"><span>{{localize "MACROS-AND-MORE.UnstableMaySuffer"}}</span></div>
     <ul class="wfrp4e-advantage-list">
       {{#each unstable.items}}
-        <li>
-          <a class="unstable-actor" data-token="{{tokenId}}" data-damage="{{dmg}}">
-            {{#if isRandom}}<strong>{{label}}</strong>{{else}}{{label}}{{/if}}
-          </a>
-        </li>
+        <li><a class="unstable-actor" data-token="{{tokenId}}" data-damage="{{dmg}}">{{label}}</a></li>
       {{/each}}
     </ul>
   {{/if}}
+  <div class="test-title">Resolution</div>
+  <div class="description"><strong>{{resolution}}</strong></div>
   <span class="chat-buttons">
-    <button class="chat">Posłuchaj Szeptu</button>
-    <button class="chat">Odrzuć Mrocznych Bogów</button>
+    <button class="{{ifThen (eq priority 1) "priority" "chat"}} advantage-button" data-action="enemies">Add Advantage to Enemies</button>
+    <button class="{{ifThen (eq priority -1) "priority" "chat"}} advantage-button" data-action="allies">Add Advantage to Allies</button>
   </span>
 </div>

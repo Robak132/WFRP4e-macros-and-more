@@ -36,6 +36,18 @@ export async function handleLosingGroupAdvantage(combatants) {
   const alliesSection = buildSection(allies);
   const neutralSection = buildSection(neutral);
   const enemiesSection = buildSection(enemies);
+  let resolution;
+  let priority = 0;
+
+  if (alliesSection.total > neutralSection.total + enemiesSection.total) {
+    resolution = `Players win by ${alliesSection.total - neutralSection.total + enemiesSection.total}`;
+    priority = 1;
+  } else if (alliesSection.total < neutralSection.total + enemiesSection.total) {
+    resolution = `Enemies win by ${neutralSection.total + enemiesSection.total - alliesSection.total}`;
+    priority = -1;
+  } else {
+    resolution = "Tie";
+  }
 
   const advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
   const alliesAdvantage = advantage.players;
@@ -53,7 +65,9 @@ export async function handleLosingGroupAdvantage(combatants) {
     alliesSection,
     neutralSection,
     enemiesSection,
-    unstable
+    unstable,
+    resolution,
+    priority
   };
 
   await ChatMessage.create({content: await renderTemplate("modules/wfrp4e-macros-and-more/templates/group-advantage-losing.hbs", cardData)});
@@ -63,7 +77,7 @@ function buildSection(list) {
   list = list.slice().sort((a, b) => a.actor.name.localeCompare(b.actor.name));
   const totalValue = list.filter((a) => !a.defeated).reduce((a, c) => a + c.getValue(), 0);
   return {
-    total: totalValue,
+    total: totalValue ?? 0,
     items: list.map((actor) => {
       const value = actor.getValue();
       return {
@@ -79,22 +93,41 @@ function buildSection(list) {
 function buildUnstableSection(list, dmg) {
   list = list.filter((a) => !!a.unstable);
   if (!list.length) return null;
-
-  const random = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
   const items = list.map((actor) => ({
     tokenId: actor.token.id,
     dmg,
-    label: actor.token.name,
-    isRandom: false
+    label: actor.token.name
   }));
+  const random = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
   items.push({
     tokenId: random.token.id,
     dmg,
-    label: game.i18n.localize("MACROS-AND-MORE.Random"),
-    isRandom: true
+    label: `<strong>${game.i18n.localize("MACROS-AND-MORE.Random")}</strong>`
   });
 
   return {
     items
   };
 }
+
+Hooks.on("renderChatMessageHTML", (chatMessage, html) => {
+  const advantageButton = html.querySelectorAll(".advantage-button");
+  advantageButton.forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (!game.user.isGM) return;
+      let advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
+      switch ($(event.currentTarget).attr("data-action")) {
+        case "enemies":
+          advantage.enemies += 1;
+          advantage.players = Math.max(0, advantage.players - 1);
+          break;
+        case "allies":
+          advantage.players += 1;
+          advantage.enemies = Math.max(0, advantage.enemies - 1);
+          break;
+      }
+      await game.settings.set("wfrp4e", "groupAdvantageValues", advantage);
+    });
+  });
+});
