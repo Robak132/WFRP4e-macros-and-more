@@ -206,9 +206,9 @@ async function onDropMoney(dragData) {
   if (type === "b") {
     amt = Math.round(moneyString.slice(0, -1));
   } else if (type === "s") {
-    amt = Number.fromString(moneyString.slice(0, -1)) * 20;
+    amt = Number.parseInt(moneyString.slice(0, -1)) * 20;
   } else if (type === "g") {
-    amt = Number.fromString(moneyString.slice(0, -1)) * 240;
+    amt = Number.parseInt(moneyString.slice(0, -1)) * 240;
   }
   let requestedRegion = RobakMarketWfrp4e.currentRegion;
   let {currencies} = RobakMarketWfrp4e.groupMoney(this.actor, requestedRegion);

@@ -31,6 +31,11 @@ Allows for easy browsing players' experience logs. Verifies that there are no mi
 ### Change Actors' and Items' Type
 Activated by "Change Type" option in context menu. Allows for changing actors' and items' type. Useful when you want to change NPC to PC or Trapping to Weapon.
 
+### Auto-Engage
+When enabled in module settings, melee weapon/trait tests automatically add the `engaged` condition to attacker and targets.
+The module now keeps an in-memory engagement registry grouped by "engagements" (token groups that are currently fighting in melee).
+If a token moves and is no longer adjacent to any token in its remembered engagement group, `engaged` is removed.
+
 ## Macros
 
 ### Add EXP

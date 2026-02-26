@@ -40,7 +40,7 @@ export async function handleLosingGroupAdvantage(combatants) {
   let priority = 0;
 
   if (alliesSection.total > neutralSection.total + enemiesSection.total) {
-    resolution = `Players win by ${alliesSection.total - neutralSection.total + enemiesSection.total}`;
+    resolution = `Players win by ${alliesSection.total - neutralSection.total - enemiesSection.total}`;
     priority = 1;
   } else if (alliesSection.total < neutralSection.total + enemiesSection.total) {
     resolution = `Enemies win by ${neutralSection.total + enemiesSection.total - alliesSection.total}`;
