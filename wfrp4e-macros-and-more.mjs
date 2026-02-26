@@ -9,7 +9,7 @@ import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
 import {setupAutoEngaged} from "./modules/auto-engage.mjs";
 
-async function registerSettings() {
+function registerSettings() {
   game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
     name: "Enable Transfer Item",
     hint: "Enables Transfer Item button in character sheets.",
@@ -68,17 +68,17 @@ async function registerSettings() {
   });
 }
 
-async function registerHandlebars() {
-  await Handlebars.registerHelper("isOne", (value) => value === 1);
-  await Handlebars.registerHelper("isTwo", (value) => value === 2);
-  await Handlebars.registerHelper("isThreePlus", (value) => value > 2);
-  await Handlebars.registerHelper("isTie", (value) => value.length > 1);
-  await Handlebars.registerHelper("isLast", (index, length) => {
+function registerHandlebars() {
+  Handlebars.registerHelper("isOne", (value) => value === 1);
+  Handlebars.registerHelper("isTwo", (value) => value === 2);
+  Handlebars.registerHelper("isThreePlus", (value) => value > 2);
+  Handlebars.registerHelper("isTie", (value) => value.length > 1);
+  Handlebars.registerHelper("isLast", (index, length) => {
     if (length - index === 1) {
       return true;
     }
   });
-  await Handlebars.registerHelper("isSecondLast", (index, length) => {
+  Handlebars.registerHelper("isSecondLast", (index, length) => {
     if (length - index === 2) {
       return true;
     }
@@ -100,10 +100,10 @@ Hooks.once("init", async function () {
   await RobakMarketWfrp4e.loadRegions();
 
   // Register settings
-  await registerSettings();
+  registerSettings();
 
   // Register handlebars
-  await registerHandlebars();
+  registerHandlebars();
 
   // Register
   if (game.settings.get("wfrp4e-macros-and-more", "auto-engaged")) {
@@ -149,7 +149,7 @@ Hooks.once("init", async function () {
 Hooks.on("updateCombat", async (combat, updates, _, __) => {
   let setting = game.settings.get("wfrp4e-macros-and-more", "losing-advantage");
   if (setting && game.user.isUniqueGM && foundry.utils.hasProperty(updates, "round")) {
-    handleLosingGroupAdvantage(combat.combatants);
+    await handleLosingGroupAdvantage(combat.combatants);
   }
 });
 
@@ -172,12 +172,26 @@ Hooks.on("renderActorSheetWFRP4eNPC", (sheet, html, _) => ItemTransfer.setupItem
 
 Hooks.on("renderActorSheetWFRP4eVehicle", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
 
-Hooks.on("renderChatLog", (log, html) => {
-  html.on("click", ".unstable-actor", async (event) => {
-    event.preventDefault();
-    if (!game.user.isGM) return;
-    const dmg = Number.fromString($(event.currentTarget).attr("data-damage"));
-    const actor = canvas.tokens.get($(event.currentTarget).attr("data-token")).actor;
-    actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
-  });
+Hooks.on("renderChatMessageHTML", async (app, html) => {
+  let unstableActor = html.querySelector(".unstable-actor");
+  if (unstableActor) {
+    unstableActor.addEventListener("click", async (event) => {
+      event.preventDefault();
+      try {
+        if (!game.user.isGM) return;
+
+        const $target = $(event.currentTarget);
+        const dmgRaw = $target.data("damage") ?? $target.attr("data-damage");
+        const dmg = Number(dmgRaw) || 0;
+        const tokenId = $target.data("token") ?? $target.attr("data-token");
+
+        const token = canvas.tokens.get(tokenId);
+        const actor = token.actor;
+        await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e.config.DAMAGE_TYPE.IGNORE_ALL});
+      } catch (err) {
+        console.error("Error handling unstable-actor click", err);
+        ui.notifications.error("Error applying damage");
+      }
+    });
+  }
 });

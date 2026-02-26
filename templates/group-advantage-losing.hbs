@@ -1,0 +1,75 @@
+<div class="wfrp4e chat-card">
+  <div class="test-title">{{localize "MACROS-AND-MORE.LosingAdvantage"}}</div>
+
+  {{#if alliesSection.items.length}}
+    <div class="description"><strong>{{localize "MACROS-AND-MORE.Allies"}} [{{alliesSection.total}}]</strong></div>
+    <ul class="wfrp4e-advantage-list">
+      {{#each alliesSection.items}}
+        <li>
+          {{#if defeated}}<s>{{/if}}
+          {{name}}
+          {{#if drilled}}
+            <abbr title="{{localize NAME.Drilled}}">[{{value}}]</abbr>
+          {{else}}
+            [{{value}}]
+          {{/if}}
+          {{#if defeated}}</s>{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+
+  {{#if neutralSection.items.length}}
+    <div class="description"><strong>{{localize "MACROS-AND-MORE.Neutral"}} [{{neutralSection.total}}]</strong></div>
+    <ul class="wfrp4e-advantage-list">
+      {{#each neutralSection.items}}
+        <li>
+          {{#if defeated}}<s>{{/if}}
+          {{name}}
+          {{#if drilled}}
+            <abbr title="{{localize NAME.Drilled}}">[{{value}}]</abbr>
+          {{else}}
+            [{{value}}]
+          {{/if}}
+          {{#if defeated}}</s>{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+
+  {{#if enemiesSection.items.length}}
+    <div class="description"><strong>{{localize "MACROS-AND-MORE.Enemies"}} [{{enemiesSection.total}}]</strong></div>
+    <ul class="wfrp4e-advantage-list">
+      {{#each enemiesSection.items}}
+        <li>
+          {{#if defeated}}<s>{{/if}}
+          {{name}}
+          {{#if drilled}}
+            <abbr title="{{localize NAME.Drilled}}">[{{value}}]</abbr>
+          {{else}}
+            [{{value}}]
+          {{/if}}
+          {{#if defeated}}</s>{{/if}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+
+  {{#if unstable}}
+    <div class="description"><strong>{{localize "NAME.Unstable"}}</strong></div>
+    <div class="description"><span>{{localize "MACROS-AND-MORE.UnstableMaySuffer"}}</span></div>
+    <ul class="wfrp4e-advantage-list">
+      {{#each unstable.items}}
+        <li>
+          <a class="unstable-actor" data-token="{{tokenId}}" data-damage="{{dmg}}">
+            {{#if isRandom}}<strong>{{label}}</strong>{{else}}{{label}}{{/if}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+  <span class="chat-buttons">
+    <button class="chat">Posłuchaj Szeptu</button>
+    <button class="chat">Odrzuć Mrocznych Bogów</button>
+  </span>
+</div>

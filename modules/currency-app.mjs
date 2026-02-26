@@ -43,8 +43,7 @@ export default class CurrencyApp extends FormApplication {
       width: 400,
       template: "modules/wfrp4e-macros-and-more/templates/currency-dialog.hbs"
     });
-    options.classes.push("dialog");
-    options.classes.push("item-dialog");
+    options.classes.push("dialog", "item-dialog");
     return options;
   }
 

@@ -27,62 +27,74 @@ class Combatant {
 }
 
 export async function handleLosingGroupAdvantage(combatants) {
-  const combatantList = combatants.map((c) => new Combatant(c));
+  const combatantList = combatants.filter((c) => c?.actor && c?.token).map((c) => new Combatant(c));
   const allies = combatantList.filter((c) => c.disposition === 1);
   const neutral = combatantList.filter((c) => c.disposition === 0);
   const enemies = combatantList.filter((c) => c.disposition === -1);
   const notAllies = [...neutral, ...enemies];
 
-  let chatMsg = `<h1>${game.i18n.localize("MACROS-AND-MORE.LosingAdvantage")}</h1>`;
-  chatMsg += addSection(allies, game.i18n.localize("MACROS-AND-MORE.Allies"));
-  chatMsg += addSection(neutral, game.i18n.localize("MACROS-AND-MORE.Neutral"));
-  chatMsg += addSection(enemies, game.i18n.localize("MACROS-AND-MORE.Enemies"));
+  const alliesSection = buildSection(allies);
+  const neutralSection = buildSection(neutral);
+  const enemiesSection = buildSection(enemies);
 
   const advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
   const alliesAdvantage = advantage.players;
   const notAlliesAdvantage = advantage.enemies;
 
   let dmg = alliesAdvantage - notAlliesAdvantage;
+  let unstable = null;
   if (dmg > 0) {
-    chatMsg += addUnstableSection(notAllies, dmg);
+    unstable = buildUnstableSection(notAllies, dmg);
   } else if (dmg < 0) {
-    chatMsg += addUnstableSection(allies, -dmg);
+    unstable = buildUnstableSection(allies, -dmg);
   }
-  await ChatMessage.create({content: chatMsg});
+
+  const cardData = {
+    alliesSection,
+    neutralSection,
+    enemiesSection,
+    unstable
+  };
+
+  await ChatMessage.create({content: await renderTemplate("modules/wfrp4e-macros-and-more/templates/group-advantage-losing.hbs", cardData)});
 }
 
-function addSection(list, header) {
-  let chatMsg = "";
-  list = list.toSorted((a, b) => a.actor.name.localeCompare(b.actor.name));
-  if (list.length) {
-    const alliesValue = list.filter((a) => !a.defeated).reduce((a, c) => a + c.getValue(), 0);
-    chatMsg += `<h2>${header} [${alliesValue}]</h2><ul>`;
-    for (const actor of list) {
-      chatMsg += "<li>";
-      chatMsg += actor.defeated ? "<s>" : "";
-      chatMsg += `${actor.actor.name} `;
-      chatMsg += actor.drilled ? `<abbr title="${game.i18n.localize("NAME.Drilled")}">` : "";
-      chatMsg += `[${actor.getValue()}]`;
-      chatMsg += actor.drilled ? "</abbr>" : "";
-      chatMsg += actor.defeated ? "</s>" : "";
-      chatMsg += "</li>";
-    }
-    chatMsg += "</ul>";
-  }
-  return chatMsg;
+function buildSection(list) {
+  list = list.slice().sort((a, b) => a.actor.name.localeCompare(b.actor.name));
+  const totalValue = list.filter((a) => !a.defeated).reduce((a, c) => a + c.getValue(), 0);
+  return {
+    total: totalValue,
+    items: list.map((actor) => {
+      const value = actor.getValue();
+      return {
+        name: actor.actor.name,
+        value,
+        drilled: actor.drilled,
+        defeated: actor.defeated
+      };
+    })
+  };
 }
 
-function addUnstableSection(list, dmg) {
+function buildUnstableSection(list, dmg) {
   list = list.filter((a) => !!a.unstable);
-  if (!list.length) return "";
-  const random = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
-  let msg = `<h2>Unstable Trait</h2><p>Some combatants are Unstable and may take damage:</p><ul>`;
-  msg += list.map((a) => getLink(a.token.id, dmg, a.token.name)).join("");
-  msg += getLink(random.token.id, dmg, "<b>Random</b>");
-  msg += `</ul>`;
-  return msg;
-}
+  if (!list.length) return null;
 
-function getLink(tokenId, dmg, label) {
-  return `<li><a class="unstable-actor" data-token="${tokenId}" data-damage="${dmg}">${label}</a></li>`;
+  const random = list[Math.floor(CONFIG.Dice.randomUniform() * list.length)];
+  const items = list.map((actor) => ({
+    tokenId: actor.token.id,
+    dmg,
+    label: actor.token.name,
+    isRandom: false
+  }));
+  items.push({
+    tokenId: random.token.id,
+    dmg,
+    label: game.i18n.localize("MACROS-AND-MORE.Random"),
+    isRandom: true
+  });
+
+  return {
+    items
+  };
 }

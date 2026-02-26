@@ -115,9 +115,7 @@ export default class MaintenanceWrapper extends FormApplication {
     }
 
     // Sorting
-    macros = Object.fromEntries(
-      Object.entries(macros).sort(([_, a], [__, b]) => this.getName(a).localeCompare(this.getName(b)))
-    );
+    macros = Object.fromEntries(Object.entries(macros).sort(([_, a], [__, b]) => this.getName(a).localeCompare(this.getName(b))));
 
     let content = {
       updated: [],
@@ -137,14 +135,8 @@ export default class MaintenanceWrapper extends FormApplication {
       if (macro.existing?.name !== macro.compendium?.name || macro.existing?.hash !== macro.compendium?.hash) {
         if (macro.existing && macro.compendium) {
           content.updated.push({
-            name:
-              macro.existing.name === macro.compendium.name
-                ? macro.existing.name
-                : `${macro.existing.name} -> ${macro.compendium.name}`,
-            hash:
-              macro.existing.hash === macro.compendium.hash
-                ? macro.existing.hash
-                : `(${macro.existing.hash}) -> (${macro.compendium.hash})`,
+            name: macro.existing.name === macro.compendium.name ? macro.existing.name : `${macro.existing.name} -> ${macro.compendium.name}`,
+            hash: macro.existing.hash === macro.compendium.hash ? macro.existing.hash : `(${macro.existing.hash}) -> (${macro.compendium.hash})`,
             img: macro.existing.img,
             existing: macro.existing,
             compendium: macro.compendium
