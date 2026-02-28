@@ -2,12 +2,12 @@ import Utility from "./utility.mjs";
 
 export default class ItemTransfer {
   static setupItemHandler(sheet, html) {
-    if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return;
-
-    let link = '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>';
-    $(link).insertAfter(html.find(".inventory .inventory-list .item-post"));
-    $(link).insertBefore(html.find(".inventory .inventory-list .item-remove"));
-    html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
+    // if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return;
+    //
+    // let link = '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>';
+    // $(link).insertAfter(html.find(".inventory .inventory-list .item-post"));
+    // $(link).insertBefore(html.find(".inventory .inventory-list .item-remove"));
+    // html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
   }
 
   static transferItemHandler(e) {
@@ -21,21 +21,19 @@ export default class ItemTransfer {
     for (const transferObject of transferObjects) {
       if (game.user.isGM) {
         await this.handleTransfer(transferObject);
-      } else if (!game.users.find((u) => u.active && u.isGM)) {
-        return ui.notifications.error("You cannot offer item to other player's actor when is GM not present");
-      } else {
+      } else if (game.users.some((u) => u.active && u.isGM)) {
         await game.socket.emit(`module.wfrp4e-macros-and-more`, {
           type: "transferItem",
           payload: transferObject
         });
+      } else {
+        return ui.notifications.error("You cannot offer item to other player's actor when is GM not present");
       }
 
       if (transferObject.sourceActorId === transferObject.targetActorId) {
         continue;
       }
-      const obj = groupedObjects.find(
-        (o) => o.sourceActorId === transferObject.sourceActorId && o.targetActorId === transferObject.targetActorId
-      );
+      const obj = groupedObjects.find((o) => o.sourceActorId === transferObject.sourceActorId && o.targetActorId === transferObject.targetActorId);
       if (obj === undefined) {
         groupedObjects.push({
           sourceActorId: transferObject.sourceActorId,
@@ -162,9 +160,7 @@ export default class ItemTransfer {
 
       dupActorItem.system.location.value = Utility.clean(dupActorItem.system.location.value);
       dupSourceItem.system.location.value = Utility.clean(containerId);
-      if (
-        Utility.isObjectEqual(dupActorItem.system, dupSourceItem.system, ["quantity.value", "equipped", "worn.value"])
-      ) {
+      if (Utility.isObjectEqual(dupActorItem.system, dupSourceItem.system, ["quantity.value", "equipped", "worn.value"])) {
         return actorItem;
       }
     }
@@ -254,7 +250,7 @@ export default class ItemTransfer {
                   label="&nbsp;&nbsp;&nbsp;&nbsp;${container.name}">`;
       }
     }
-    const isGMActive = !!game.users.find((u) => u.active && u.isGM);
+    const isGMActive = !!game.users.some((u) => u.active && u.isGM);
     const otherActors = Utility.getTransferableActors().map(
       (actor) => `
           <option style="font-weight: bold;"

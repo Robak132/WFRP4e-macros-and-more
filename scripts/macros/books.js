@@ -3,7 +3,8 @@
 //   Liber Fanatica III/IV
 //   ============================================================ */
 
-// ---------------- RNG & Dice ----------------
+const rollFromTable = game.robakMacros.utils.rollFromTable;
+
 /**
  * Roll a single die with n faces.
  * @param {number} n
@@ -30,57 +31,6 @@ async function xd(x, n) {
     }
     return total;
   }
-}
-
-/**
- * @template T
- * @param {TableEntry<T>[]} table
- * @param {number} [modifier=0]
- * @param {number} [dice=100]
- * @returns {Promise<T & { roll: number }>} **/
-
-/**
- * @param {Array} table
- * @param {number} [modifier=0]
- * @param {number} [dice=100]
- * @param {(result: any) => boolean} [checkFn]
- * @param {number} [maxTries=20]
- */
-async function rollFromTable(table, modifier = 0, dice = 100, checkFn = null, maxTries = 1000) {
-  let lastResult = null;
-
-  for (let attempt = 0; attempt < maxTries; attempt++) {
-    let roll = await d(dice);
-    roll += modifier;
-
-    const tableMin = Math.min(...table.map((e) => e.min));
-    const tableMax = Math.max(...table.map((e) => e.max));
-
-    let entry;
-    if (roll < tableMin) {
-      entry = table.find((e) => e.min === tableMin);
-    } else if (roll > tableMax) {
-      entry = table.find((e) => e.max === tableMax);
-    } else {
-      entry = table.find((e) => roll >= e.min && roll <= e.max);
-    }
-    if (!entry) throw new Error(`No table entry for roll ${roll}`);
-
-    const {min, max, data, ...meta} = entry;
-    const result = {
-      roll,
-      ...meta,
-      ...(await data(roll))
-    };
-
-    lastResult = result;
-
-    if (!checkFn || checkFn(result)) {
-      return result;
-    }
-  }
-  console.error(`Max tries exceeded in ${table}, returning last result`);
-  return lastResult;
 }
 
 /**
@@ -209,7 +159,7 @@ const LANGUAGE_TABLE = [
     min: 11,
     max: 100,
     data: async (roll) => ({
-      name: roll % 11 === 0 || roll === 100 ? `Reikspiel (${(await rollFromTable(LANGUAGE_TABLE, 0, 10)).name})` : `Reikspiel`,
+      name: roll % 11 === 0 || roll === 100 ? `Reikspiel (${(await rollFromTable(LANGUAGE_TABLE, {dice: 10})).name})` : `Reikspiel`,
       valueMod: 0
     })
   }
@@ -246,7 +196,7 @@ const NOTABLE_FEATURES_TABLE = [
   {
     min: 96,
     max: 100,
-    data: async () => [await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95), await rollFromTable(NOTABLE_FEATURES_TABLE, 0, 95)]
+    data: async () => [await rollFromTable(NOTABLE_FEATURES_TABLE, {dice: 95}), await rollFromTable(NOTABLE_FEATURES_TABLE, {dice: 95})]
   }
 ];
 
@@ -275,7 +225,7 @@ const PENMANSHIP_PECULIARITIES_TABLE = [
   {
     min: 91,
     max: 100,
-    data: async () => [await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90), await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, 0, 90)]
+    data: async () => [await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, {dice: 90}), await rollFromTable(PENMANSHIP_PECULIARITIES_TABLE, {dice: 90})]
   }
 ];
 
@@ -1029,7 +979,7 @@ const REL_ELEM_I = [
   {min: 91, max: 92, data: async () => ({text: "Ultimate"})},
   {min: 93, max: 94, data: async () => ({text: "Unconditional"})},
   {min: 95, max: 96, data: async () => ({text: "Virtuous"})},
-  {min: 97, max: 98, data: async () => ({text: `Most ${await rollFromTable(REL_ELEM_I, 0, 96).text}`})},
+  {min: 97, max: 98, data: async () => ({text: `Most ${await rollFromTable(REL_ELEM_I, {dice: 96}).text}`})},
   {min: 99, max: 100, data: async () => ({combine: true})}
 ];
 
@@ -1501,12 +1451,12 @@ const TITLE_GENERATORS = {
 async function generateBiographyData() {
   let e1 = await rollFromTable(BIO_ELEM_I);
   if (e1.reroll) {
-    e1 = await rollFromTable(BIO_ELEM_I, 0, 96);
+    e1 = await rollFromTable(BIO_ELEM_I, {dice: 96});
     e1.reversed = true;
   }
   let e2 = await rollFromTable(BIO_ELEM_II);
   if (e2.reroll) {
-    e2 = await rollFromTable(BIO_ELEM_II, 0, 96);
+    e2 = await rollFromTable(BIO_ELEM_II, {dice: 96});
     e2.reversed = true;
   }
 
@@ -1539,16 +1489,16 @@ async function generateBestiaryData() {
   let e2 = await rollFromTable(BEST_ELEM_II);
   let title = `${e1.text} ${e2.text}`;
   if (e1.combine || e2.combine) {
-    let e1a = await rollFromTable(BEST_ELEM_I, 0, 97);
-    let e1b = await rollFromTable(BEST_ELEM_II, 0, 97);
-    let e2a = await rollFromTable(BEST_ELEM_I, 0, 97);
-    let e2b = await rollFromTable(BEST_ELEM_II, 0, 97);
+    let e1a = await rollFromTable(BEST_ELEM_I, {dice: 97});
+    let e1b = await rollFromTable(BEST_ELEM_II, {dice: 97});
+    let e2a = await rollFromTable(BEST_ELEM_I, {dice: 97});
+    let e2b = await rollFromTable(BEST_ELEM_II, {dice: 97});
     title = `${e1a.text} ${e1b.text} and ${e2a.text} ${e2b.text}`;
   }
   let e3 = await rollFromTable(BEST_ELEM_III);
   if (e3.combine) {
-    e3 = await rollFromTable(BEST_ELEM_III, 0, 97);
-    const e3b = await rollFromTable(BEST_ELEM_III, 0, 97);
+    e3 = await rollFromTable(BEST_ELEM_III, {dice: 97});
+    const e3b = await rollFromTable(BEST_ELEM_III, {dice: 97});
     e3.text = `${e3.text} and ${e3b.text}`;
     e3.species = `${e3.species}; ${e3b.species}`;
   }
@@ -1572,10 +1522,10 @@ async function generateCookbookData() {
   let e2 = await rollFromTable(COOK_ELEM_II);
   let title = `${e1.text} ${e2.text}`;
   if (e1.combine || e2.combine) {
-    let e1a = await rollFromTable(COOK_ELEM_I, 0, 95);
-    let e1b = await rollFromTable(COOK_ELEM_II, 0, 95);
-    let e2a = await rollFromTable(COOK_ELEM_I, 0, 95);
-    let e2b = await rollFromTable(COOK_ELEM_II, 0, 95);
+    let e1a = await rollFromTable(COOK_ELEM_I, {dice: 95});
+    let e1b = await rollFromTable(COOK_ELEM_II, {dice: 95});
+    let e2a = await rollFromTable(COOK_ELEM_I, {dice: 95});
+    let e2b = await rollFromTable(COOK_ELEM_II, {dice: 95});
     title = `${e1a.text} ${e1b.text} and ${e2a.text} ${e2b.text}`;
   }
   let e3 = await rollFromTable(COOK_ELEM_III);
@@ -1596,10 +1546,10 @@ async function generateGuidebookData() {
   let e2 = await rollFromTable(GUIDE_ELEM_II);
   let title = `${e1.text} ${e2.text}`;
   if (e1.combine || e2.combine) {
-    let e1a = await rollFromTable(GUIDE_ELEM_I, 0, 96);
-    let e1b = await rollFromTable(GUIDE_ELEM_II, 0, 96);
-    let e2a = await rollFromTable(GUIDE_ELEM_I, 0, 96);
-    let e2b = await rollFromTable(GUIDE_ELEM_II, 0, 96);
+    let e1a = await rollFromTable(GUIDE_ELEM_I, {dice: 96});
+    let e1b = await rollFromTable(GUIDE_ELEM_II, {dice: 96});
+    let e2a = await rollFromTable(GUIDE_ELEM_I, {dice: 96});
+    let e2b = await rollFromTable(GUIDE_ELEM_II, {dice: 96});
     title = `${e1a.text} ${e1b.text} and ${e2a.text} ${e2b.text}`;
   }
   title = title.trim().replace("from and", "and");
@@ -1641,11 +1591,11 @@ async function generateReligiousData() {
   let e2 = await rollFromTable(REL_ELEM_II);
   let e3 = await rollFromTable(REL_ELEM_III);
   if (e1.combine || e2.combine || e3.combine) {
-    let e1a = await rollFromTable(REL_ELEM_I, 0, 98);
-    let e1b = await rollFromTable(REL_ELEM_II, 0, 98);
-    let e2a = await rollFromTable(REL_ELEM_I, 0, 98);
-    let e2b = await rollFromTable(REL_ELEM_II, 0, 98);
-    let e3 = await rollFromTable(REL_ELEM_III, 0, 98);
+    let e1a = await rollFromTable(REL_ELEM_I, {dice: 98});
+    let e1b = await rollFromTable(REL_ELEM_II, {dice: 98});
+    let e2a = await rollFromTable(REL_ELEM_I, {dice: 98});
+    let e2b = await rollFromTable(REL_ELEM_II, {dice: 98});
+    let e3 = await rollFromTable(REL_ELEM_III, {dice: 98});
     return {title: `${e1a.text} ${e2a.text} of ${e1b.text} ${e2b.text} of ${e3.text}`};
   }
   return {title: `${e1.text} ${e2.text} of ${e3.text}`};
@@ -1660,8 +1610,8 @@ async function generateScholarshipData() {
   let e2 = await rollFromTable(SCHOLAR_ELEM_II);
   let e3 = await rollFromTable(SCHOLAR_ELEM_III);
   if (e3.combine) {
-    let e3a = await rollFromTable(SCHOLAR_ELEM_III, 0, 98);
-    let e3b = await rollFromTable(SCHOLAR_ELEM_III, 0, 98);
+    let e3a = await rollFromTable(SCHOLAR_ELEM_III, {dice: 98});
+    let e3b = await rollFromTable(SCHOLAR_ELEM_III, {dice: 98});
     return {title: `${e1.text} ${e2.text} ${e3a.text} and ${e3b.text}`};
   }
   return {title: `${e1.text} ${e2.text} ${e3.text}`};
@@ -1754,7 +1704,7 @@ async function generateBook(options = {}) {
   const classification = options?.classification ?? (await rollFromTable(CLASSIFICATION_TABLE).value);
   const quality = await rollFromTable(QUALITY_TABLE);
   const age = options?.minAge
-    ? await rollFromTable(AGE_TABLE, 0, 100, (a) => a.age >= options?.minAge && a.unit === (options?.minAgeUnit ?? "year(s)"))
+    ? await rollFromTable(AGE_TABLE, {dice: 100, checkFn: (a) => a.age >= options?.minAge && a.unit === (options?.minAgeUnit ?? "year(s)")})
     : await rollFromTable(AGE_TABLE);
   // Forbidden books are never printed
   // Printing only started less than 200 years ago

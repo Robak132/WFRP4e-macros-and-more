@@ -57,20 +57,13 @@ export default class ConfigurableDialog extends Dialog {
    * Creates and displays a configurable dialog.
    * @param title {string} The title of the dialog.
    * @param data {Array<Array<Object>>} The data for the dialog fields.
-   * @param confirmLabel {string} The label for the confirm button.
+   * @param confirmLabel {string} The label for the confirmation button.
    * @param cancelLabel {string} The label for the cancel button.
    * @param buttons {Object} The buttons for the dialog.
    * @param options {Object} The options for the dialog.
    * @returns {Promise<Dialog>} The created dialog.
    */
-  static async create({
-    title,
-    data = [],
-    confirmLabel = game.i18n.localize("Confirm"),
-    cancelLabel = game.i18n.localize("Cancel"),
-    buttons,
-    options = {}
-  }) {
+  static async create({title, data = [], confirmLabel = game.i18n.localize("Confirm"), cancelLabel = game.i18n.localize("Cancel"), buttons, options = {}}) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
@@ -84,9 +77,7 @@ export default class ConfigurableDialog extends Dialog {
     return await Dialog.wait(
       {
         title: title,
-        content: `<form>${data
-          .map((fields, index) => `<div class="form-group">${this.createRow(fields, index)}</div>`)
-          .join("")}</form>`,
+        content: `<form>${data.map((fields, index) => `<div class="form-group">${this.createRow(fields, index)}</div>`).join("")}</form>`,
         buttons,
         default: "confirm",
         close: () => null
@@ -95,14 +86,7 @@ export default class ConfigurableDialog extends Dialog {
     );
   }
 
-  static async oneColumn({
-    title,
-    data = [],
-    confirmLabel = game.i18n.localize("Confirm"),
-    cancelLabel = game.i18n.localize("Cancel"),
-    buttons,
-    options = {}
-  }) {
+  static async oneColumn({title, data = [], confirmLabel = game.i18n.localize("Confirm"), cancelLabel = game.i18n.localize("Cancel"), buttons, options = {}}) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
@@ -116,9 +100,7 @@ export default class ConfigurableDialog extends Dialog {
     return await Dialog.wait(
       {
         title: title,
-        content: `<form>${data
-          .map((field, index) => `<div class="form-group">${this.createCell(field, index, 0)}</div>`)
-          .join("")}</form>`,
+        content: `<form>${data.map((field, index) => `<div class="form-group">${this.createCell(field, index, 0)}</div>`).join("")}</form>`,
         buttons,
         default: "confirm",
         close: () => null
@@ -127,14 +109,7 @@ export default class ConfigurableDialog extends Dialog {
     );
   }
 
-  static async oneRow({
-    title,
-    data = [],
-    confirmLabel = game.i18n.localize("Confirm"),
-    cancelLabel = game.i18n.localize("Cancel"),
-    buttons,
-    options = {}
-  }) {
+  static async oneRow({title, data = [], confirmLabel = game.i18n.localize("Confirm"), cancelLabel = game.i18n.localize("Cancel"), buttons, options = {}}) {
     buttons ??= {
       confirm: {
         label: confirmLabel,
@@ -148,9 +123,7 @@ export default class ConfigurableDialog extends Dialog {
     return await Dialog.wait(
       {
         title: title,
-        content: `<form><div class="form-group">${data
-          .map((field, index) => `${this.createCell(field, index, 0)}`)
-          .join("")}</div></form>`,
+        content: `<form><div class="form-group">${data.map((field, index) => `${this.createCell(field, index, 0)}`).join("")}</div></form>`,
         buttons,
         default: "confirm",
         close: () => null

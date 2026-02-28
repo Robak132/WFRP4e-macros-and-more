@@ -22,8 +22,8 @@ class EngagementMemory {
     if (tokenIds.length < 2) return;
 
     const existingGroups = this.groups.filter((group) => tokenIds.some((tokenId) => group.contains(tokenId)));
-    const preferredGroups = existingGroups.filter((group) => preferredTokenIds.some((tokenId) => group.contains(tokenId)));
-    const group = preferredGroups[0] ?? existingGroups[0] ?? new Engagement();
+    const preferredGroup = existingGroups.find((group) => preferredTokenIds.some((tokenId) => group.contains(tokenId)));
+    const group = preferredGroup ?? existingGroups[0] ?? new Engagement();
     if (!existingGroups.length) {
       this.groups.push(group);
     }
@@ -147,15 +147,6 @@ function tokenBox(token, x = token.x, y = token.y) {
 }
 
 /**
- * @param {{x:number,y:number,w:number,h:number}} a
- * @param {{x:number,y:number,w:number,h:number}} b
- * @returns {boolean}
- */
-function intersects(a, b) {
-  return !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
-}
-
-/**
  * @param {Token} movedToken
  * @param {Token} otherToken
  * @param {number} movedX
@@ -167,16 +158,33 @@ function areAdjacent(movedToken, otherToken, movedX, movedY) {
 
   const gridX = canvas.grid?.grid?.w ?? canvas.grid?.size ?? 0;
   const gridY = canvas.grid?.grid?.h ?? canvas.grid?.size ?? 0;
-  const margin = 5;
   const a = tokenBox(movedToken, movedX, movedY);
   const b = tokenBox(otherToken);
-  const expanded = {
-    x: a.x - gridX + margin,
-    y: a.y - gridY + margin,
-    w: a.w + 2 * gridX - 2 * margin,
-    h: a.h + 2 * gridY - 2 * margin
-  };
-  return intersects(expanded, b);
+
+  const aRight = a.x + a.w;
+  const bRight = b.x + b.w;
+  const aBottom = a.y + a.h;
+  const bBottom = b.y + b.h;
+
+  let gapX;
+  if (a.x > bRight) {
+    gapX = a.x - bRight;
+  } else if (b.x > aRight) {
+    gapX = b.x - aRight;
+  } else {
+    gapX = 0;
+  }
+
+  let gapY;
+  if (a.y > bBottom) {
+    gapY = a.y - bBottom;
+  } else if (b.y > aBottom) {
+    gapY = b.y - aBottom;
+  } else {
+    gapY = 0;
+  }
+
+  return gapX <= gridX && gapY <= gridY;
 }
 
 /**
@@ -300,7 +308,7 @@ export function setupAutoEngaged() {
   Hooks.on("updateToken", async (tokenDocument, data) => {
     if (!game.user.isGM) return;
 
-    const moved = Object.prototype.hasOwnProperty.call(data, "x") || Object.prototype.hasOwnProperty.call(data, "y");
+    const moved = Object.hasOwn(data, "x") || Object.hasOwn(data, "y");
     if (!moved) return;
 
     const token = canvas.tokens.get(tokenDocument.id);
@@ -318,8 +326,8 @@ export function setupAutoEngaged() {
 
   Hooks.on("updateActiveEffect", (effect, changes) => {
     if (!isEngagedEffect(effect)) return;
-    const disabledChanged = Object.prototype.hasOwnProperty.call(changes, "disabled");
-    const statusRemoved = Object.prototype.hasOwnProperty.call(changes, "statuses") && !(changes.statuses ?? []).includes?.("engaged");
+    const disabledChanged = Object.hasOwn(changes, "disabled");
+    const statusRemoved = Object.hasOwn(changes, "statuses") && !(changes.statuses ?? []).includes?.("engaged");
     if ((disabledChanged && effect.disabled) || statusRemoved) {
       removeActorFromEngagements(effect.parent);
     }

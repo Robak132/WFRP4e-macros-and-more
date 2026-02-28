@@ -15,7 +15,8 @@
   "overrides": {
     "shelljs": "^0.8.5",
     "cross-spawn": "^6.0.6",
-    "tinymce": "^7.0.0"
+    "tinymce": "^7.0.0",
+    "js-yaml": "^4.1.1"
   },
   "pre-commit": [
     "pack"

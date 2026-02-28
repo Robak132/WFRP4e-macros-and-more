@@ -248,9 +248,7 @@ export default class Utility {
   }
 
   static getTransferableActors() {
-    return game.actors
-      .filter((a) => a.hasPlayerOwner)
-      .filter((a) => this.checkOwnership(a, this.#OWNERSHIP_LIMITED) && !this.isOwner(a));
+    return game.actors.filter((a) => a.hasPlayerOwner).filter((a) => this.checkOwnership(a, this.#OWNERSHIP_LIMITED) && !this.isOwner(a));
   }
 
   static getContainers(actor) {
@@ -261,6 +259,53 @@ export default class Utility {
         value: c
       };
     });
+  }
+
+  /**
+   * @template T
+   * @param {TableEntry<T>[]} table - The table to roll from. Each entry should have min, max, and data fields.
+   * @param {number} [modifier=0] - Value to add to the roll result.
+   * @param {number} [dice=100] - The maximum value for the dice roll (e.g., 100 for 1d100).
+   * @param {function([T & {roll: number}]): boolean} [checkFn=null] - Optional function to check if the result is valid. If not, rerolls.
+   * @param {number} [maxTries=1000] - Maximum number of attempts to get a valid result.
+   * @returns {Promise<T & { roll: number }>} The rolled entry, extended with the roll value.
+   * @throws {Error} If no table entry matches the roll or maxTries is exceeded. */
+  static async rollFromTable(table, {modifier = 0, dice = 100, checkFn = null, maxTries = 1000} = {}) {
+    let lastResult = null;
+
+    for (let attempt = 0; attempt < maxTries; attempt++) {
+      const rollFormula = `1d${dice}`;
+      const roll = (await new Roll(rollFormula).roll({allowInteractive: false})).total + modifier;
+
+      const tableMin = Math.min(...table.map((entry) => entry.min));
+      const tableMax = Math.max(...table.map((entry) => entry.max));
+
+      let entry;
+      if (roll < tableMin) {
+        entry = table.find((e) => e.min === tableMin);
+      } else if (roll > tableMax) {
+        entry = table.find((e) => e.max === tableMax);
+      } else {
+        entry = table.find((e) => roll >= e.min && roll <= e.max);
+      }
+      if (!entry) throw new Error(`No table entry for roll ${roll}`);
+
+      const {min, max, data, ...meta} = entry;
+      const resolvedData = typeof data === "function" ? await data(roll) : data;
+      const result = {
+        roll,
+        ...meta,
+        ...resolvedData
+      };
+
+      lastResult = result;
+      if (!checkFn || checkFn(result)) {
+        return result;
+      }
+    }
+
+    console.error(`Max tries exceeded in rollFromTable`, table);
+    return lastResult;
   }
 
   static async rollFromCodeObject({table, dice = "1d10", modifier = 0, amount = 1}) {

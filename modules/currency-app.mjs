@@ -63,7 +63,7 @@ export default class CurrencyApp extends FormApplication {
   }
 
   getData({options = {}}) {
-    let data = super.getData(options);
+    let data = super.getData();
     data.fields = this.fields;
     data.neededText = RobakMarketWfrp4e.formatMoney(this.needed, this.requestedRegion);
     data.totalText = RobakMarketWfrp4e.formatMoney(this.total, this.requestedRegion);
@@ -76,10 +76,10 @@ export default class CurrencyApp extends FormApplication {
       let document = $(ev.currentTarget).parents(".document")[0];
       if (document.classList.contains("active")) {
         this.fields[document.dataset.index].active = "";
-        this.total -= parseInt(document.dataset["converted"]);
+        this.total -= Number.parseInt(document.dataset["converted"]);
       } else {
         this.fields[document.dataset.index].active = "active";
-        this.total += parseInt(document.dataset["converted"]);
+        this.total += Number.parseInt(document.dataset["converted"]);
       }
       this.render(true);
     });

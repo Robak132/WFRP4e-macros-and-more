@@ -34,12 +34,12 @@ function updateActorXP(actor, XP, reason) {
 
 const XP = Number(game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultAmount"));
 const defaultReason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
-let reason = defaultReason !== "null" ? defaultReason : "";
+let reason = defaultReason === "null" ? "" : defaultReason;
 if (reason) {
   const session = game.gmtoolkit.utility.getSession();
   reason = game.settings.get("wfrp4e-gm-toolkit", "addXPDefaultReason");
   reason = session.date ? reason.replace("(%date%)", `(${getCurrentDate()})`) : reason.replace(" (%date%)", "");
-  reason = session.id !== "null" ? reason.replace("%session%", session.id) : (reason = reason.replace("%session%", ""));
+  reason = session.id === "null" ? reason.replace("%session%", "") : reason.replace("%session%", session.id);
 }
 
 let characterActors = game.users
@@ -50,7 +50,7 @@ let characterActors = game.users
   .sort((a, b) => a.character.name.localeCompare(b.character.name));
 
 let otherActors = game.actors
-  .filter((a) => a.hasPlayerOwner && a.type === "character" && !characterActors.find((ca) => ca.character === a))
+  .filter((a) => a.hasPlayerOwner && a.type === "character" && !characterActors.some((ca) => ca.character === a))
   .map((a) => ({character: a}))
   .sort((a, b) => a.character.name.localeCompare(b.character.name));
 
@@ -117,14 +117,8 @@ if (otherActors.length) {
 }
 data = data.concat([
   [{value: "Options"}],
-  [
-    {value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")},
-    {id: "xpNumber", type: "input", value: XP, inputType: "number"}
-  ],
-  [
-    {value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")},
-    {id: "xpReason", type: "input", value: reason, inputType: "text"}
-  ]
+  [{value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Prompt")}, {id: "xpNumber", type: "input", value: XP, inputType: "number"}],
+  [{value: game.i18n.localize("GMTOOLKIT.Dialog.AddXP.Reason")}, {id: "xpReason", type: "input", value: reason, inputType: "text"}]
 ]);
 
 let result = await ConfigurableDialog.create({

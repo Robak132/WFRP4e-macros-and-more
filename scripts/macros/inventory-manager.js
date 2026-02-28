@@ -29,13 +29,8 @@ class InventoryManager {
 
   formatItemEnc(x) {
     const sourceItem = x._source;
-    const lightweightBonus =
-      sourceItem.system.qualities != null && sourceItem.system.qualities.value.some((q) => q.name === "lightweight")
-        ? -1
-        : 0;
-    const fullValue = Number(
-      (Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value).toFixed(2)
-    );
+    const lightweightBonus = sourceItem.system.qualities?.value.some((q) => q.name === "lightweight") ? -1 : 0;
+    const fullValue = Number((Math.max(sourceItem.system.encumbrance.value + lightweightBonus, 0) * x.system.quantity.value).toFixed(2));
     const currentValue = Number((x.system.encumbrance.value * x.system.quantity.value).toFixed(2));
     if (fullValue === currentValue) {
       return `${currentValue}`;
@@ -71,13 +66,7 @@ class InventoryManager {
   }
 
   groupActorItems(actor) {
-    const items = [
-      ...actor.itemTypes.weapon,
-      ...actor.itemTypes.ammunition,
-      ...actor.itemTypes.armour,
-      ...actor.itemTypes.money,
-      ...actor.itemTypes.trapping
-    ]
+    const items = [...actor.itemTypes.weapon, ...actor.itemTypes.ammunition, ...actor.itemTypes.armour, ...actor.itemTypes.money, ...actor.itemTypes.trapping]
       .sort((a, b) => a.name.localeCompare(b.name, "pl"))
       .sort((a, b) => (a.encumbrance.value > b.encumbrance.value ? -1 : 1));
 
@@ -87,9 +76,7 @@ class InventoryManager {
       itemsCategorised[key] = Object.fromEntries(
         Object.entries(value).sort((a, b) => {
           if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
-            return game.i18n
-              .localize(WFRP4E.trappingCategories[b[0]])
-              .localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
+            return game.i18n.localize(WFRP4E.trappingCategories[b[0]]).localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
           }
           return this.getCategoryOrder(a[0]) < this.getCategoryOrder(b[0]) ? 1 : -1;
         })
@@ -108,10 +95,7 @@ class InventoryManager {
 
   getHTMLContainerHeader(containerItems, container, actorId) {
     let containerItemsEnc = Number(
-      Object.values(containerItems).reduce(
-        (sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)),
-        0
-      )
+      Object.values(containerItems).reduce((sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)), 0)
     );
     if (containerItemsEnc % 1 !== 0) {
       containerItemsEnc = containerItemsEnc.toFixed(2);

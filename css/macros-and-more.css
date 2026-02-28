@@ -102,3 +102,139 @@ context-menu[title]:before{
 context-menu:not([title]):before{
     content:"\2630";
 }
+#macros-and-more-maintenance .window-content {
+    background:
+      linear-gradient(180deg, rgba(8, 12, 18, 0.78) 0%, rgba(8, 12, 18, 0.86) 100%),
+      radial-gradient(circle at top right, rgba(201, 139, 55, 0.18) 0%, transparent 50%);
+}
+
+#macros-and-more-maintenance .mam-maintenance-form {
+    height: 100%;
+}
+
+#macros-and-more-maintenance .mam-maintenance {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 0.25rem;
+}
+
+#macros-and-more-maintenance .mam-section {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 7px;
+    background: rgba(0, 0, 0, 0.34);
+    overflow: hidden;
+}
+
+#macros-and-more-maintenance .mam-section__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0.4rem 0.55rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.28);
+}
+
+#macros-and-more-maintenance .mam-section__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+#macros-and-more-maintenance .mam-section__count {
+    min-width: 1.6rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    text-align: center;
+    color: #f6f1e5;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+#macros-and-more-maintenance .mam-list {
+    display: flex;
+    flex-direction: column;
+}
+
+#macros-and-more-maintenance .mam-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.35rem 0.55rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    transition: background-color 120ms ease;
+}
+
+#macros-and-more-maintenance .mam-row:first-child {
+    border-top: 0;
+}
+
+#macros-and-more-maintenance .mam-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+#macros-and-more-maintenance .mam-row__check {
+    margin: 0;
+    accent-color: #d99a2e;
+}
+
+#macros-and-more-maintenance .mam-row__icon {
+    width: 1.45rem;
+    height: 1.45rem;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+}
+
+#macros-and-more-maintenance .mam-row__name {
+    min-width: 0;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#macros-and-more-maintenance .mam-row__hash {
+    margin: 0;
+    padding: 0.1rem 0.32rem;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: #e9dfcf;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+#macros-and-more-maintenance .mam-section--added .mam-section__title,
+#macros-and-more-maintenance .mam-section--added .mam-row__name {
+    color: #8fd159;
+}
+
+#macros-and-more-maintenance .mam-section--updated .mam-section__title,
+#macros-and-more-maintenance .mam-section--updated .mam-row__name {
+    color: #72a9ff;
+}
+
+#macros-and-more-maintenance .mam-section--removed .mam-section__title,
+#macros-and-more-maintenance .mam-section--removed .mam-row__name {
+    color: #ff6f6f;
+}
+
+#macros-and-more-maintenance .mam-section--added .mam-row__hash {
+    color: #b8f292;
+}
+
+#macros-and-more-maintenance .mam-section--updated .mam-row__hash {
+    color: #a7cbff;
+}
+
+#macros-and-more-maintenance .mam-section--removed .mam-row__hash {
+    color: #ffadad;
+}

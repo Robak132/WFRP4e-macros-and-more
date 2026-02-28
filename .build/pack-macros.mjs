@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs from "node:fs";
 import {outputFileSync} from "fs-extra/esm";
-import path from "path";
+import path from "node:path";
 
 const inputPath = "scripts/macros";
 const jsonPath = "src/macros";
@@ -12,7 +12,6 @@ function transformData(macro) {
   macro.command = data.replaceAll("\r\n", "\n");
   macro.flags = {
     "wfrp4e-macros-and-more": {
-      version: macro.version,
       sourceId: macro._id
     }
   };
@@ -23,7 +22,6 @@ function transformData(macro) {
       return acc;
     }, {});
   macro._key = `!macros!${macro._id}`;
-  delete macro.version;
   delete macro.codeFile;
   return macro;
 }
@@ -52,7 +50,7 @@ for (let file of files) {
     continue;
   }
 
-  const fileName = `${macro.name.replace(/[^A-Za-z0-9]/gi, "_")}_${macro._id}.json`;
+  const fileName = `${macro.name.replaceAll(/[^A-Za-z0-9]/g, "_")}_${macro._id}.json`;
   let fileData = macrosData.common;
   fileData = Object.assign(fileData, macro);
   fileData = transformData(fileData);

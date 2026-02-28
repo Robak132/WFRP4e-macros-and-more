@@ -122,15 +122,24 @@ Hooks.once("init", async function () {
       foundry.utils.mergeObject(game.wfrp4e.config.effectScripts, effects);
     });
 
-  SocketHandlers.sendRollToUserAndWait = async function (userId, actorId, skill, options) {
-    return SocketHandlers.executeOnUserAndWait(userId, "rollSkill", {actorId, skill, options});
-  };
-
   SocketHandlers.rollSkill = async function ({actorId, skill, options}) {
     let actor = game.actors.get(actorId);
     let test = await actor.setupSkill(skill, options);
     await test.roll();
     return test;
+  };
+
+  SocketHandlers.register({rollSkill: SocketHandlers.rollSkill});
+
+  SocketHandlers.sendRollToUserAndWait = async function (userId, actorId, skill, options) {
+    const payload = {actorId, skill, options};
+
+    if (!userId || userId === game.user.id) {
+      return SocketHandlers.rollSkill(payload);
+    }
+
+    const result = await SocketHandlers.call("rollSkill", payload, userId);
+    return Array.isArray(result) ? result[0] : result;
   };
 
   game.socket.on(`module.wfrp4e-macros-and-more`, (data) => {

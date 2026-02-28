@@ -53,8 +53,7 @@ const PRESET_OBSTACLES = {
     perceived: "Challenging (+0) Perception Test",
     navigatePerceived: "Easy (+40) Athletics Test",
     navigateNotPerceived: "Hard (-20) Athletics Test",
-    consequences:
-      "Gain Entangled (S 2D10+20), each Round S increase by D10, after 6 Rounds pass Challenging (+0) Cool Test or start Drowning.",
+    consequences: "Gain Entangled (S 2D10+20), each Round S increase by D10, after 6 Rounds pass Challenging (+0) Cool Test or start Drowning.",
     stopping: true
   },
   goat_herd: {
@@ -74,8 +73,7 @@ const PRESET_OBSTACLES = {
     name: "Slick of Fish Guts",
     perceived: "Automatically",
     navigatePerceived: "Hard (-20) Athletics Test",
-    consequences:
-      "Gain Prone, -2 SL to all Fellowship Tests until they clean themselves, test for Festering Wounds if they have untreated wounds.",
+    consequences: "Gain Prone, -2 SL to all Fellowship Tests until they clean themselves, test for Festering Wounds if they have untreated wounds.",
     stopping: true
   },
   rotten_Floorboards: {
@@ -103,8 +101,7 @@ const PRESET_OBSTACLES = {
     name: "Unattended Cart Full of Cabbages",
     perceived: "Automatically",
     navigatePerceived: "Challenging (+0) Climb Test",
-    consequences:
-      "Average (+20) Initiative Test or gain Surprised. Replace with Unattended Cart and Scattered Mound of Cabbages obstacles.",
+    consequences: "Average (+20) Initiative Test or gain Surprised. Replace with Unattended Cart and Scattered Mound of Cabbages obstacles.",
     stopping: true
   },
   mound_cabbage: {
@@ -222,9 +219,7 @@ class SimplePursuit {
         </tr>`;
       } else {
         content += `
-          <td style="text-align:center" colspan=3"><i><b>${
-            object.perceived === "Automatically" ? object.name : "Unknown Obstacle"
-          }</b></i></td>
+          <td style="text-align:center" colspan=3"><i><b>${object.perceived === "Automatically" ? object.name : "Unknown Obstacle"}</b></i></td>
           <td style="text-align:center">${object.distance}</td>
         </tr>`;
       }
@@ -259,8 +254,8 @@ class SimplePursuit {
           lastDistance = pursuers[j].distance;
         }
       }
-      characterDistance.push(row.reverse());
-      debugCharacterDistance.push(debugRow.reverse());
+      characterDistance.push(row.toReversed());
+      debugCharacterDistance.push(debugRow.toReversed());
     }
 
     // Escapes
@@ -505,9 +500,7 @@ class SimplePursuit {
           <input tabindex="-1" name="active" type="checkbox" ${object.active ? "checked" : ""}>
         </div>
         <p style="flex: 6;${this.MAIN_STYLE}" 
-        title="Perceived: ${object.perceived}&#10;Test: ${this.getObstacleNavigateTest(
-          object
-        )}&#10;Consequences: ${object.consequences}">
+        title="Perceived: ${object.perceived}&#10;Test: ${this.getObstacleNavigateTest(object)}&#10;Consequences: ${object.consequences}">
           <i class='fas fa-road-barrier'></i> ${object.name}
         </p>
         <input name="SL" type="hidden" value="${object.testSL}" step="1">
@@ -659,9 +652,7 @@ class SimplePursuit {
             <option value="" selected></option>`;
     for (const [key, value] of Object.entries(PRESET_OBSTACLES)) {
       content += `
-        <option value="${key}" title="Perceived: ${value.perceived}&#10;Test: ${this.getObstacleNavigateTest(
-          value
-        )}&#10;Consequences: ${value.consequences}">
+        <option value="${key}" title="Perceived: ${value.perceived}&#10;Test: ${this.getObstacleNavigateTest(value)}&#10;Consequences: ${value.consequences}">
           ${value.name}
         </option>`;
     }
@@ -751,10 +742,7 @@ class SimplePursuit {
     const maxQuarryDistance = this.getQuarry().reduce((a, b) => (a.distance > b.distance ? a : b)).distance;
     for (const pursuer of this.getPursuers()) {
       for (const quarry of this.getQuarry()) {
-        if (
-          pursuer.distance > quarry.distance &&
-          pursuer.distance - pursuer.distanceMoved <= quarry.distance - quarry.distanceMoved
-        ) {
+        if (pursuer.distance > quarry.distance && pursuer.distance - pursuer.distanceMoved <= quarry.distance - quarry.distanceMoved) {
           if (
             maxQuarryDistance === quarry.distance ||
             (await PursuitDialogHelper.createPursuitDialogFormatted({
@@ -782,10 +770,7 @@ class SimplePursuit {
     // Encountering Obstacles
     for (const obstacle of this.getObstacles().reverse()) {
       for (const character of this.getCharacters().reverse()) {
-        if (
-          character.distance > obstacle.distance &&
-          character.distance - character.distanceMoved <= obstacle.distance
-        ) {
+        if (character.distance > obstacle.distance && character.distance - character.distanceMoved <= obstacle.distance) {
           const content =
             obstacle.perceived === "Automatically"
               ? `

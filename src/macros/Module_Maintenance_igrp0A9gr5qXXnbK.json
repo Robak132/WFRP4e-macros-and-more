@@ -4,7 +4,6 @@
   "command": "new game.robakMacros.maintenance().render(true);\n",
   "flags": {
     "wfrp4e-macros-and-more": {
-      "version": "1.0.0",
       "sourceId": "igrp0A9gr5qXXnbK"
     }
   },

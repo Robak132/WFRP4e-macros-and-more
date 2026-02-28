@@ -65,16 +65,16 @@ async function runActorTest(actor, skill, talent) {
     passiveTest: true,
     title: `${talent} (${actorSkill?.name})`
   };
-  if (actorSkill !== undefined) {
-    let test = await actor.setupSkill(actorSkill, setupData);
-    await test.roll();
-    return test.result;
-  } else {
+  if (actorSkill === undefined) {
     actorSkill = await game.wfrp4e.utility.findSkill(skill);
     const skillCharacteristic = game.wfrp4e.config.characteristics[actorSkill.characteristic.value];
     setupData.title = `${talent} (${skillCharacteristic})`;
 
     let test = await actor.setupCharacteristic(actorSkill.characteristic.value, setupData);
+    await test.roll();
+    return test.result;
+  } else {
+    let test = await actor.setupSkill(actorSkill, setupData);
     await test.roll();
     return test.result;
   }

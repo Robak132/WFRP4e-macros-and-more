@@ -1,43 +1,61 @@
-<form autocomplete="off" onsubmit="event.preventDefault();">
-  <div class="dialog-content">
-    <div>
-      {{#if added}}
-        <div class="form-group section-title">
-          <label class="section-title">Added</label>
+<form class="mam-maintenance-form" autocomplete="off" onsubmit="event.preventDefault();">
+  <div class="mam-maintenance">
+    {{#if added}}
+      <section class="mam-section mam-section--added">
+        <header class="mam-section__header">
+          <h3 class="mam-section__title">Added</h3>
+          <span class="mam-section__count">{{added.length}}</span>
+        </header>
+        <div class="mam-list">
+          {{#each added as |macro|}}
+            <label class="mam-row" for="added-{{macro.compendium._id}}">
+              <input class="mam-row__check" type="checkbox" name="added" value="{{macro.compendium._id}}" id="added-{{macro.compendium._id}}" checked>
+              <img class="mam-row__icon" src="{{macro.img}}" title="{{macro.name}}" alt="{{macro.name}}">
+              <span class="mam-row__name">{{macro.name}}</span>
+              <code class="mam-row__hash">{{macro.hash}}</code>
+            </label>
+          {{/each}}
         </div>
-      {{/if}}
-      {{#each added as |macro id|}}
-        <input style="vertical-align: bottom;" type="checkbox" name="added" id="{{macro.compendium._id}}" checked>
-        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
-        <span style="color: yellowgreen;font-weight: bold;">{{macro.name}}</span>
-        <span style="color: yellowgreen;">({{macro.hash}})</span>
-        <span style="color: yellowgreen;">(v{{macro.compendium.version}})</span><br>
-      {{/each}}
-      {{#if updated}}
-        <div class="form-group section-title">
-          <label class="section-title">Updated</label>
+      </section>
+    {{/if}}
+
+    {{#if updated}}
+      <section class="mam-section mam-section--updated">
+        <header class="mam-section__header">
+          <h3 class="mam-section__title">Updated</h3>
+          <span class="mam-section__count">{{updated.length}}</span>
+        </header>
+        <div class="mam-list">
+          {{#each updated as |macro|}}
+            <label class="mam-row" for="updated-{{macro.compendium._id}}">
+              <input class="mam-row__check" type="checkbox" name="updated" value="{{macro.compendium._id}}" id="updated-{{macro.compendium._id}}" checked>
+              <img class="mam-row__icon" src="{{macro.img}}" title="{{macro.name}}" alt="{{macro.name}}">
+              <span class="mam-row__name">{{macro.name}}</span>
+              <code class="mam-row__hash">{{macro.hash}}</code>
+            </label>
+          {{/each}}
         </div>
-      {{/if}}
-      {{#each updated as |macro id|}}
-        <input style="vertical-align: bottom;" type="checkbox" name="updated" id="{{macro.compendium._id}}" checked>
-        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
-        <span style="color: royalblue;font-weight: bold;">{{macro.name}}</span>
-        <span style="color: royalblue">{{macro.hash}}</span>
-        <span style="color: royalblue;">(v{{macro.existing.version}}) -> (v{{macro.compendium.version}})</span><br>
-      {{/each}}
-      {{#if removed}}
-        <div class="form-group section-title">
-          <label class="section-title">Removed</label>
+      </section>
+    {{/if}}
+
+    {{#if removed}}
+      <section class="mam-section mam-section--removed">
+        <header class="mam-section__header">
+          <h3 class="mam-section__title">Removed</h3>
+          <span class="mam-section__count">{{removed.length}}</span>
+        </header>
+        <div class="mam-list">
+          {{#each removed as |macro|}}
+            <label class="mam-row" for="removed-{{macro.existing._id}}">
+              <input class="mam-row__check" type="checkbox" name="removed" value="{{macro.existing._id}}" id="removed-{{macro.existing._id}}" checked>
+              <img class="mam-row__icon" src="{{macro.img}}" title="{{macro.name}}" alt="{{macro.name}}">
+              <span class="mam-row__name">{{macro.name}}</span>
+              <code class="mam-row__hash">{{macro.hash}}</code>
+            </label>
+          {{/each}}
         </div>
-      {{/if}}
-      {{#each removed as |macro id|}}
-        <input style="vertical-align: bottom;" type="checkbox" name="removed" id="{{macro.existing._id}}" checked>
-        <img style="vertical-align: bottom;max-height: 1.5em;" src="{{macro.img}}" title="{{macro.name}}" />
-        <span style="color: red;font-weight: bold;">{{macro.name}}</span>
-        <span style="color: red;">({{macro.hash}})</span>
-        <span style="color: red;">(v{{macro.existing.version}})</span><br>
-      {{/each}}
-      <button type="submit">Update Selected</button>
-    </div>
+      </section>
+    {{/if}}
   </div>
 </form>
+

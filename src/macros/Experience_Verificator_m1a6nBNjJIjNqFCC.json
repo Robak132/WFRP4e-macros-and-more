@@ -4,7 +4,6 @@
   "command": "new game.robakMacros.experienceVerificator(token?.actor).render(true);\n",
   "flags": {
     "wfrp4e-macros-and-more": {
-      "version": "1.0.0",
       "sourceId": "m1a6nBNjJIjNqFCC"
     }
   },

@@ -3,11 +3,13 @@
 * AUTHORS: @Reppumaru, @Robak132, @Tyka_f4ft
 * DESCRIPTION: Generate random weakness for Vampires.
 ========== */
+const rollFromTable = game.robakMacros.utils.rollFromTable;
 
-const WEAKNESS = [
+const WEAKNESS_TABLE = [
   {
     min: 1,
-    result: {
+    max: 5,
+    data: {
       value: "Barriers",
       description:
         "This Vampire cannot enter any other structure not owned by him unless he is first invited. Once the Vampire is invited, he may enter and exit freely. The Necrarchs typically have this vulnerability."
@@ -15,7 +17,8 @@ const WEAKNESS = [
   },
   {
     min: 6,
-    result: {
+    max: 10,
+    data: {
       value: "Counting",
       description:
         "These Vampires have a curious obsession with counting. Whenever confronted with a number of small objects, such as poppy seeds, coins, or pieces of string, the Vampire must succeed on a Hard (–20) Cool Test or count the objects — an act that usually takes 1d10 minutes. If the Vampire succeeds on the test, he takes a –20 penalty to all tests whilst the uncounted objects remain in view."
@@ -23,7 +26,8 @@ const WEAKNESS = [
   },
   {
     min: 11,
-    result: {
+    max: 20,
+    data: {
       value: "Daemonsroot and Witchbane",
       description:
         "Some Vampires are repelled by Daemonsroot and Witchbane. Vampires with this vulnerability must succeed on a psychology Fear (1) test originating from the plant or its holder."
@@ -31,7 +35,8 @@ const WEAKNESS = [
   },
   {
     min: 21,
-    result: {
+    max: 25,
+    data: {
       value: "Fire",
       description:
         "A few Vampires are vulnerable to purifying flame. These Vampires cannot use their Toughness Bonus to reduce damage from fire (magical or otherwise)."
@@ -39,7 +44,8 @@ const WEAKNESS = [
   },
   {
     min: 26,
-    result: {
+    max: 30,
+    data: {
       value: "Garlic",
       description:
         "Many Vampires have an unusual weakness for rare roots and plants, as can be see with Daemonsroot and Witchbane. A few are saddled with vulnerabilities to more common plants such as garlic. Such Vampires treat those plants as having Distracting Trait with AoE of 6 yards"
@@ -47,7 +53,8 @@ const WEAKNESS = [
   },
   {
     min: 31,
-    result: {
+    max: 35,
+    data: {
       value: "Gromril",
       description:
         "The touch of Dwarfen Gromril is anathema to some Vampires. Whenever such Vampires are injured by Gromril weapons, they may not use their Toughness Bonus to reduce the damage."
@@ -55,7 +62,8 @@ const WEAKNESS = [
   },
   {
     min: 36,
-    result: {
+    max: 40,
+    data: {
       value: "Ithilmar",
       description:
         "The silvery steel of the Elves is said to hold uncanny magical power. Whilst much of this material is used for armour and decorative items, the Elves are famed for their potent weapons wrought from this ore. Should the Vampire lose at least 1 Wound from an attack made with a weapon forged from Ithilmar, the Vampire must succeed on a Challenging (–20) Dodge Test or gain a number of Ablaze Conditions equal to Dodge test negative SL with a minimum of 1 Ablaze Condition."
@@ -63,7 +71,8 @@ const WEAKNESS = [
   },
   {
     min: 41,
-    result: {
+    max: 50,
+    data: {
       value: "No Relfection",
       description:
         "Many Vampires are cursed, so they can never behold their visage in the surface of a mirror or in a shadow cast by the moonlight. Mirrors or other reflective surfaces do not show the appearance of these Vampires."
@@ -71,7 +80,8 @@ const WEAKNESS = [
   },
   {
     min: 51,
-    result: {
+    max: 55,
+    data: {
       value: "Religious Symbols",
       description:
         "The power of belief is quite strong in the Old World, and mortals who present icons and symbols of their Gods can sometimes repel Vampires. A Vampire that is vulnerable to such items must succeed on a Psychology test to ignore Fear (3) trait of such Holy Symbol. As well a temple or grasping a religious icon is are treated as having Terror (1) / Fear (4). The GM may modify this test depending on the strength of faith of the temples believers or the icons wielder."
@@ -79,7 +89,8 @@ const WEAKNESS = [
   },
   {
     min: 56,
-    result: {
+    max: 60,
+    data: {
       value: "Sawdust",
       description:
         "A few Vampires can be repelled by the accoutrements of those who handle corpses, such as sawdust, holly water or embalming fluid. A Vampire with this vulnerability must make a Psychology Terror (2) against this item when he comes in contact with these substances."
@@ -87,7 +98,8 @@ const WEAKNESS = [
   },
   {
     min: 61,
-    result: {
+    max: 65,
+    data: {
       value: "Silver",
       description:
         "The mere touch of silver burns the flesh of Vampires with this weakness. If the Vampire loses at least 1 Wound from a silvered weapon, he additionally suffers 5 Wounds ignoring Armour and Toughness."
@@ -95,7 +107,8 @@ const WEAKNESS = [
   },
   {
     min: 66,
-    result: {
+    max: 70,
+    data: {
       value: "Stakes",
       description:
         "Plunging a stake through the heart of any creature is traumatic enough, but when used against Vampires with this weakness, any attack with a stake is enough to drive these creatures away. The stake must be fashioned from a special wood, such as ash, hawthorn, or rosewood. If the Vampire is struck by such a stake and takes at least 1 Wound, the Vampire suffers 3 Entangle Conditions, cant speak and its Regenerate trait is suspended, until the stake is removed (a free action)."
@@ -103,7 +116,8 @@ const WEAKNESS = [
   },
   {
     min: 71,
-    result: {
+    max: 80,
+    data: {
       value: "Sunlight",
       description:
         "A Vampire in direct sunlight halves all characteristics (rounded down) and suffers 1 Wound per minute of exposure, regardless of Toughness Bonus or armour. If a Vampire is reduced to 0 Wounds in this way, use the Sudden Death rules. (WFRP.173) This penalty does not occur if the day is significantly overcast (80% or more cloud cover), but a Vampire walking outside on such a day must roll 1d10 every hour. On a roll of 3 or lower, the sky clears enough to cause him damage. Each round a Vampire remains in direct sunlight, he must succeed on a Hard (-10) Endurance Test or gain ablaze condition."
@@ -111,7 +125,8 @@ const WEAKNESS = [
   },
   {
     min: 81,
-    result: {
+    max: 85,
+    data: {
       value: "Taers",
       description:
         "A rare few Vampires cannot suffer the tears of a virtuous mortal, and therefore, they never feed on innocents, preferring instead to feed on the corrupt, the vicious, or criminal. These Vampires often pose a number of questions to their victims to assess the quality of their morals before attacking."
@@ -119,7 +134,8 @@ const WEAKNESS = [
   },
   {
     min: 86,
-    result: {
+    max: 90,
+    data: {
       value: "Warpstone",
       description:
         "Warpstone is particularly loathsome to these Vampires. They cannot tolerate its presence, and if they come into contact with the substance, they experience dreadful changes. A Vampire must pass a Terror (2) test if it comes as close as 6 yards to warpstone. After each hour of contact, the Vampire must re-roll one of his Weaknesses and Optional Vampire Traits."
@@ -127,7 +143,8 @@ const WEAKNESS = [
   },
   {
     min: 91,
-    result: {
+    max: 100,
+    data: {
       value: "Running Water",
       description:
         "Some Vampires are unable to cross running water, receiving grievous damage if they attempt it. For the purpose of this curse, the water must be at least a yard across, a foot deep, and have a current. Simply splashing a Vampire with water is not enough, nor is rain, or dumping a bucking of water on a Vampires head. Attempting to cross such a body of water deals 1d10 Wounds per round spent in or on the water, regardless of Toughness Bonus or armour. If the Vampire is reduced to 0 Wounds, use the Sudden Death rules. Flying, jumping, or riding or using a vehicle or vessel to cross negates these penalties, as does using a bridge."
@@ -137,16 +154,22 @@ const WEAKNESS = [
 
 async function submit(html) {
   const {weakness_val} = new FormDataExtended(html[0].querySelector("form")).object;
+  const weaknessCount = Math.max(1, Number(weakness_val) || 1);
 
-  const weaknesses = await game.robakMacros.utils.rollFromCodeObject({
-    table: WEAKNESS,
-    dice: "1d100",
-    amount: weakness_val
-  });
-  let message = "<h1>Vampires Weaknesses</h1>";
-  message += weaknesses
-    .map((weakness, index) => `<p><b>Weakness ${index + 1}:</b> ${weakness.value}<br>${weakness.description}</p>`)
-    .join("");
+  const weaknesses = new Set();
+  const maxUnique = WEAKNESS_TABLE.length;
+  const amount = Math.min(weaknessCount, maxUnique);
+
+  for (let i = 0; i < amount; i++) {
+    const weakness = await rollFromTable(WEAKNESS_TABLE, {
+      dice: 100,
+      checkFn: (result) => !weaknesses.has(result)
+    });
+    weaknesses.add(weakness);
+  }
+
+  let message = "<div class='test-title'>Vampires Weaknesses</div>";
+  message += [...weaknesses].map((weakness, index) => `<p><b>Weakness ${index + 1}:</b> ${weakness.value}<br>${weakness.description}</p>`).join("");
   ChatMessage.create({
     content: message,
     whisper: game.users.filter((u) => u.isGM).map((u) => u.id)

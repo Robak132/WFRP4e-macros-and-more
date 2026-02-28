@@ -4,9 +4,7 @@ export const getUpgradeItemContext = () => ({
   condition: (header) => {
     const itemId = header?.dataset?.entryId;
     const item = game.items.get(itemId);
-    return (
-      (game.user.isGM || game.user.isOwner) && item?.type && [("weapon", "armour", "trapping")].includes(item.type)
-    );
+    return (game.user.isGM || game.user.isOwner) && item?.type && ["weapon", "armour", "trapping"].includes(item.type);
   },
   callback: async (header) => {
     const itemId = header?.dataset?.entryId;

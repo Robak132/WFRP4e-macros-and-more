@@ -14,9 +14,7 @@ class Direction {
   static values = [Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST];
 
   constructor(key, value, icon) {
-    this.key = key;
-    this.value = value;
-    this.icon = icon;
+    Object.assign(this, {key, value, icon});
   }
 
   static from(direction) {
@@ -133,9 +131,7 @@ class WindStrength {
   ];
 
   constructor(key, value, icon) {
-    this.key = key;
-    this.value = value;
-    this.icon = icon;
+    Object.assign(this, {key, value, icon});
   }
 
   static from(windStrength) {
@@ -351,7 +347,7 @@ class Wind {
           description: `<p><b>Distance Travelled:</b> ${shiftDistance} mi (100%)</p><p><b>Distance Travelled (Tack):</b> +${tack} mi (+${modifier}%)</p>`
         };
       }
-      case "BATTEN_DOWN":
+      case "BATTEN_DOWN": {
         const relativeName = Wind.getRelativeName(this.shipDirection, this.windDirection);
         const driftDistance = game.robakMacros.utils.round(shiftDistance * 0.25, 2);
         let favorableDrift = 0;
@@ -368,7 +364,8 @@ class Wind {
           harmfulDrift,
           description: `<p><b>Distance Travelled:</b> 0 mi (0%)</p><p><b>Distance Travelled (Drift):</b> ${favorableDrift} mi (25%)</p>`
         };
-      default:
+      }
+      default: {
         const normal = game.robakMacros.utils.round(shiftDistance * windEffect?.modifier, 2);
         return {
           normal,
@@ -377,6 +374,7 @@ class Wind {
           harmfulDrift: 0,
           description: `<p><b>Distance Travelled:</b> ${normal} mi (${modifier}%)</p>`
         };
+      }
     }
   }
 
@@ -404,14 +402,12 @@ class Wind {
     const windDirection =
       options.windDirection === "Random" ? await Direction.randomWindDirection(options.prevailingWind) : Direction.fromValue(options.windDirection);
     let windStrength;
-    if (options.windStrength === "Random") {
-      if (options.lastWindStrength !== "Random") {
-        windStrength = WindStrength.fromValue(options.lastWindStrength);
-      } else {
-        windStrength = await WindStrength.random(seasonModifier);
-      }
-    } else {
+    if (options.windStrength !== "Random") {
       windStrength = WindStrength.fromValue(options.windStrength);
+    } else if (options.lastWindStrength === "Random") {
+      windStrength = await WindStrength.random(seasonModifier);
+    } else {
+      windStrength = WindStrength.fromValue(options.lastWindStrength);
     }
 
     return new Wind(windStrength, windDirection, Direction.fromValue(options.shipDirection));
@@ -455,9 +451,7 @@ class Precipitation {
   static values = [Precipitation.NONE, Precipitation.LIGHT, Precipitation.HEAVY, Precipitation.VERY_HEAVY];
 
   constructor(key, value, icon) {
-    this.key = key;
-    this.value = value;
-    this.icon = icon;
+    Object.assign(this, {key, value, icon});
   }
 
   static fromValue(value) {
@@ -516,18 +510,10 @@ class Temperature {
     }
   ];
 
-  static values = [
-    Temperature.SWELTERING,
-    Temperature.HOT,
-    Temperature.COMFORTABLE,
-    Temperature.CHILLY,
-    Temperature.BITTER
-  ];
+  static values = [Temperature.SWELTERING, Temperature.HOT, Temperature.COMFORTABLE, Temperature.CHILLY, Temperature.BITTER];
 
   constructor(key, value, icon) {
-    this.key = key;
-    this.value = value;
-    this.icon = icon;
+    Object.assign(this, {key, value, icon});
   }
 
   static fromValue(value) {
@@ -634,7 +620,7 @@ class Weather {
     const seasonModifier = getSeasonModifier(options.season);
     const seaTemperatureModifier = options.seaTemperature === "Cold" ? 0 : -2;
 
-    const precipitation = options.precipitation !== "Random" ? Precipitation.fromValue(options.precipitation) : await Precipitation.random(seasonModifier);
+    const precipitation = options.precipitation === "Random" ? await Precipitation.random(seasonModifier) : Precipitation.fromValue(options.precipitation);
     const temperature =
       options.temperature === "Random" ? await Temperature.random(seasonModifier, seaTemperatureModifier) : Temperature.fromValue(options.temperature);
     const visibility =
@@ -771,7 +757,7 @@ async function createJournal() {
 }
 
 async function fillJournal(options, weather, winds, totalDistance) {
-  const logbook = options.logbookJournal === "Generate" ? await createJournal(weather) : game.journal.get(options.logbookJournal);
+  const logbook = options.logbookJournal === "Generate" ? await createJournal() : game.journal.get(options.logbookJournal);
   const content = logbook?.pages?.contents[0]?.text?.content;
   if (content == null) {
     ui.notifications.error("Journal not found!");

@@ -94,28 +94,36 @@ class ConsumeAlcohol extends Dialog {
         case "reduce":
           await this.removeModifier(actor);
           break;
-        case "remove_all":
-          { const effects = actor.effects.filter((e) => e.conditionId?.startsWith("consumealcohol")).map((e) => e.id);
+        case "remove_all": {
+          const effects = actor.effects.filter((e) => e.conditionId?.startsWith("consumealcohol")).map((e) => e.id);
           await actor.deleteEmbeddedDocuments("ActiveEffect", effects);
-          break; }
-        default:
-          { let beverage = ConsumeAlcohol.BEVERAGES.find((b) => b.id === selectedOptionId);
-          let userId = game.users.find((u) => u.character?.id === actor.id && u.active)?.id ?? "GM"
-          for (let i = 0; i < beverage.tests; i++) {
-            const test = await SocketHandlers.sendRollToUserAndWait(
-              userId,
-              actor.id,
-              game.i18n.localize("NAME.ConsumeAlcohol"),
-              {
-                fields: {
-                  difficulty: beverage.difficulty
-                }
-              }
-            );
-            if (test.data.result.outcome === "failure") {
-              await this.addModifier(actor);
-            }
-          } }
+          break;
+        }
+        default: {
+          let beverage = ConsumeAlcohol.BEVERAGES.find((b) => b.id === selectedOptionId);
+          await this.rollTest(beverage, actor);
+        }
+      }
+    }
+  }
+
+  async rollTest(beverage, actor) {
+    const actorUser = game.users.find((u) => u.character?.id === actor.id);
+    const gmUser = game.users.activeGM ?? game.users.find((u) => u.isGM && u.active);
+    const userId = actorUser?.active ? actorUser.id : (gmUser?.id ?? game.user.id);
+
+    if (actorUser && !actorUser.active) {
+      ui.notifications.info(`${actor.name}: player is offline, rolling Consume Alcohol as GM.`);
+    }
+
+    for (let i = 0; i < beverage.tests; i++) {
+      const test = await SocketHandlers.sendRollToUserAndWait(userId, actor.id, game.i18n.localize("NAME.ConsumeAlcohol"), {
+        fields: {
+          difficulty: beverage.difficulty
+        }
+      });
+      if (test.data.result.outcome === "failure") {
+        await this.addModifier(actor);
       }
     }
   }
@@ -194,12 +202,12 @@ class ConsumeAlcohol extends Dialog {
         content: `<div class="directory">
             <ol class="directory-list">
               ${ConsumeAlcohol.BEVERAGES.map((item) => {
-          return `<a><li style="align-items: center;justify-content: center;display: flex" class="document flexrow" data-id="${item.id}">
+                return `<a><li style="align-items: center;justify-content: center;display: flex" class="document flexrow" data-id="${item.id}">
                     <h4 style="flex: 3"><b>${item.name}</b></h4>
                     <h4 style="flex: 3"><i>${item.strength}</i></h4>
                     <h4 style="flex: 5">${item.description}</h4>
                   </li></a>`;
-        }).join("")}
+              }).join("")}
             </ol>
             <hr>
             <ol class="directory-list">

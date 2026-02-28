@@ -221,7 +221,7 @@ async function onNpcIncomeClick(event) {
   let dieAmount = game.wfrp4e.config.earningValues[WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers)][0];
   dieAmount = Number(dieAmount) * status[1];
   let moneyEarned;
-  if (WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers) == "g") {
+  if (WFRP_Utility.findKey(status[0], game.wfrp4e.config.statusTiers) === "g") {
     moneyEarned = dieAmount;
   } else {
     dieAmount = dieAmount + "d10";

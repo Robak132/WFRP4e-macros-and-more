@@ -10,7 +10,7 @@ class TokenManipulator extends Dialog {
       id: "show-weapons",
       name: "Show Weapons",
       function: async (token) => {
-        if (!token.actor.items.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect"))) {
+        if (!token.actor.items.some((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect"))) {
           await this.createShowWeaponsEffect(token);
         }
       }
@@ -26,10 +26,10 @@ class TokenManipulator extends Dialog {
       id: "toggle-weapons",
       name: "Toggle Weapons",
       function: async (token) => {
-        if (!token.actor.items.find((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect"))) {
-          await this.createShowWeaponsEffect(token);
-        } else {
+        if (token.actor.items.some((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect"))) {
           await this.removeShowWeaponsEffect(token);
+        } else {
+          await this.createShowWeaponsEffect(token);
         }
       }
     },
@@ -103,9 +103,8 @@ class TokenManipulator extends Dialog {
     {
       id: "toggle-infighting",
       name: "Toggle Infighting",
-      function: (token) => {
-        console.log(token.actor.effects);
-        if (token.actor.effects.find((e) => e.statuses.has("infighting"))) {
+      function: async (token) => {
+        if (token.actor.effects.some((e) => e.statuses.has("infighting"))) {
           token.actor.removeSystemEffect("infighting");
         } else {
           token.actor.addSystemEffect("infighting");
@@ -144,9 +143,7 @@ class TokenManipulator extends Dialog {
         let id = document.dataset.id;
         const operation = TokenManipulator.OPERATIONS.find((op) => op.id === id);
         await this.close();
-        for (let token of canvas.tokens.controlled) {
-          await operation.function(token);
-        }
+        for (let token of canvas.tokens.controlled) await operation.function(token);
       } else {
         return ui.notifications.error("Select one or more tokens on which you want to run this macro");
       }
@@ -163,9 +160,7 @@ class TokenManipulator extends Dialog {
   }
 
   static async removeShowWeaponsEffect(token) {
-    let items = token.actor.items
-      .filter((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect"))
-      .map((e) => e._id);
+    let items = token.actor.items.filter((e) => e.name === game.i18n.localize("MACROS-AND-MORE.ShowWeaponsEffect")).map((e) => e._id);
     if (items.length) {
       await token.actor.deleteEmbeddedDocuments("Item", items);
     }
