@@ -71,18 +71,6 @@
       "codeFile": "experience-verificator.js",
       "img": "modules/wfrp4e-macros-and-more/assets/icons/experience-verificator.svg",
       "name": "Experience Verificator"
-    },
-    {
-      "name": "Rescale Map",
-      "_id": "tVEB7ArgxwZbszvX",
-      "img": "icons/svg/dice-target.svg",
-      "codeFile": "rescale-map.js"
-    },
-    {
-      "name": "Reveal Fog of War",
-      "_id": "rcR8rDpEYe899SQc",
-      "img": "icons/svg/dice-target.svg",
-      "codeFile": "reveal-fow.js"
     }
   ]
 }

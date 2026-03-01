@@ -3,8 +3,6 @@ import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
 import {getChangeActorTypeContext, getChangeItemTypeContext} from "./modules/convert.mjs";
-import {getUpgradeItemContext} from "./modules/upgrade-item.mjs";
-import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
 import {setupAutoEngaged} from "./modules/auto-engage.mjs";
@@ -25,27 +23,6 @@ function registerSettings() {
     config: true,
     default: false,
     type: Boolean
-  });
-  game.settings.register("wfrp4e-macros-and-more", "currency-market", {
-    name: "[Experimental] Currencies in Pay/Credit commands",
-    hint: "Enables advanced currency handling in Pay/Credit commands.",
-    scope: "world",
-    config: true,
-    onChange: foundry.utils.debouncedReload,
-    default: false,
-    restricted: true,
-    type: Boolean
-  });
-  game.settings.register("wfrp4e-macros-and-more", "current-region", {
-    name: "Current region",
-    hint: "Current region for currency conversion.",
-    scope: "world",
-    config: true,
-    default: "empire",
-    onChange: foundry.utils.debouncedReload,
-    restricted: true,
-    choices: RobakMarketWfrp4e.getKeyValueRegions(),
-    type: String
   });
   game.settings.register("wfrp4e-macros-and-more", "auto-engaged", {
     name: "Enable Auto-Engaging",
@@ -96,9 +73,6 @@ Hooks.once("init", async function () {
     configurableDialog: ConfigurableDialog
   };
 
-  // Load regions
-  await RobakMarketWfrp4e.loadRegions();
-
   // Register settings
   registerSettings();
 
@@ -111,11 +85,6 @@ Hooks.once("init", async function () {
   // Register
   if (game.settings.get("wfrp4e-macros-and-more", "auto-engaged")) {
     setupAutoEngaged();
-  }
-
-  // Register market
-  if (game.settings.get("wfrp4e-macros-and-more", "currency-market")) {
-    await overrideMarket();
   }
 
   // Load scripts
@@ -151,9 +120,6 @@ Hooks.once("init", async function () {
       case "transferItem":
         Utility.log("Received transfer object", data);
         return ItemTransfer.handleTransfer(data.payload);
-      case "darkWhispers":
-        Utility.log("Received dark whispers", data);
-        return Utility.darkWhispersDialog(data.payload);
     }
   });
 });
@@ -167,7 +133,7 @@ Hooks.on("updateCombat", async (combat, updates, _, __) => {
 
 Hooks.on("getActorContextOptions", (_, options) => options.push(getChangeActorTypeContext()));
 
-Hooks.on("getItemContextOptions", (_, options) => options.push(getChangeItemTypeContext(), getUpgradeItemContext()));
+Hooks.on("getItemContextOptions", (_, options) => options.push(getChangeItemTypeContext()));
 
 Hooks.on("renderChatMessageHTML", async (app, html) => {
   let unstableActor = html.querySelector(".unstable-actor");
@@ -192,5 +158,3 @@ Hooks.on("renderChatMessageHTML", async (app, html) => {
     });
   }
 });
-
-
