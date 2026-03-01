@@ -5,7 +5,7 @@
 ========== */
 
 class InventoryManager {
-  constructor() {
+  run() {
     new Dialog(
       {
         title: "Inventory Manager",
@@ -72,9 +72,9 @@ class InventoryManager {
 
     const itemsCategorised = this.groupBy(items, (x) => game.robakMacros.utils.clean(x.location.value));
     for (let [key, value] of Object.entries(itemsCategorised)) {
-      value = this.groupBy(value, (x) => this.getItemType(x));
+      let newValue = this.groupBy(value, (x) => this.getItemType(x));
       itemsCategorised[key] = Object.fromEntries(
-        Object.entries(value).sort((a, b) => {
+        Object.entries(newValue).sort((a, b) => {
           if (this.getCategoryOrder(a[0]) === this.getCategoryOrder(b[0])) {
             return game.i18n.localize(WFRP4E.trappingCategories[b[0]]).localeCompare(game.i18n.localize(WFRP4E.trappingCategories[a[0]]), "pl");
           }
@@ -93,7 +93,7 @@ class InventoryManager {
       </h1>`;
   }
 
-  getHTMLContainerHeader(containerItems, container, actorId) {
+  getHTMLContainerHeader(containerItems, container) {
     let containerItemsEnc = Number(
       Object.values(containerItems).reduce((sum, cat) => sum + Number(cat.reduce((catSum, i) => catSum + Number(i.encumbrance.value), 0)), 0)
     );
@@ -111,7 +111,7 @@ class InventoryManager {
 
   getHTMLItemList(containerItems, containerId, actorId) {
     let form = "";
-    for (const [_, categoryList] of Object.entries(containerItems)) {
+    for (const [categoryList] of Object.values(containerItems)) {
       if (categoryList.length > 0) {
         let categoryEnc = Number(categoryList.reduce((acc, x) => acc + Number(x.encumbrance.value), 0));
         if (categoryEnc % 1 !== 0) {
@@ -155,7 +155,7 @@ class InventoryManager {
           continue;
         }
 
-        form += this.getHTMLContainerHeader(containerItems, container, actor.id);
+        form += this.getHTMLContainerHeader(containerItems, container);
         form += this.getHTMLItemList(containerItems, container.id, actor.id);
       }
     }
@@ -203,4 +203,4 @@ class InventoryManager {
   }
 }
 
-new InventoryManager();
+new InventoryManager().run();

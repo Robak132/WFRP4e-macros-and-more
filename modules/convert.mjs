@@ -33,15 +33,14 @@ function getDefaultIcon(type) {
 function hasDefaultIcon(item) {
   if (
     item.type === "weapon" &&
-    (item.img === "modules/wfrp4e-core/icons/equipment/melee-weapon.png" ||
-      "modules/wfrp4e-core/icons/equipment/ranged-weapon.png")
+    (item.img === "modules/wfrp4e-core/icons/equipment/melee-weapon.png" || "modules/wfrp4e-core/icons/equipment/ranged-weapon.png")
   ) {
     return true;
   }
   return item.img === getDefaultIcon(item.type);
 }
 
-export const CHANGE_ITEM_TYPE_CONTEXT = () => ({
+export const getChangeItemTypeContext = () => ({
   name: game.i18n.localize("MACROS-AND-MORE.ChangeItemType"),
   icon: `<i class="far fa-exchange"></i>`,
   condition: () => game.user.isGM || game.user.isOwner,
@@ -85,7 +84,7 @@ export const CHANGE_ITEM_TYPE_CONTEXT = () => ({
             try {
               await item.update(update, {recursive: false});
             } catch (e) {
-              console.error(e)
+              console.error(e);
             }
           }
         }
@@ -95,7 +94,7 @@ export const CHANGE_ITEM_TYPE_CONTEXT = () => ({
   }
 });
 
-export const CHANGE_ACTOR_TYPE_CONTEXT = () => ({
+export const getChangeActorTypeContext = () => ({
   name: game.i18n.localize("MACROS-AND-MORE.ChangeActorType"),
   icon: `<i class="far fa-exchange"></i>`,
   condition: () => game.user.isGM || game.user.isOwner,
@@ -132,7 +131,7 @@ export const CHANGE_ACTOR_TYPE_CONTEXT = () => ({
             try {
               await actor.update({type: convertType, system: actor.system}, {recursive: false});
             } catch (e) {
-              console.error(e)
+              console.error(e);
             }
           }
         }

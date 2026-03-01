@@ -1,27 +1,57 @@
 import Utility from "./utility.mjs";
 
 export default class ItemTransfer {
-  static setupItemHandler(sheet, html) {
-    // if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return;
-    //
-    // let link = '<a class="item-control item-transfer" title="Transfer Item"><i class="fas fa-hands-helping"></i></a>';
-    // $(link).insertAfter(html.find(".inventory .inventory-list .item-post"));
-    // $(link).insertBefore(html.find(".inventory .inventory-list .item-remove"));
-    // html.find(".item-control.item-transfer").on("click", ItemTransfer.transferItemHandler.bind(sheet.actor));
+  static ACTOR_CLASSES = ["ActorSheetWFRP4eCharacter", "ActorSheetWFRP4eCreature", "ActorSheetWFRP4eNPC", "ActorSheetWFRP4eVehicle"];
+  static MOVABLE_ITEM_TYPES = ["money", "trapping", "weapon", "armour"];
+
+  static patchSheetContextMenuOptions() {
+    for (const className of ItemTransfer.ACTOR_CLASSES) {
+      libWrapper.register(
+        "wfrp4e-macros-and-more",
+        `${className}.prototype._getContextMenuOptions`,
+        (wrapper, ...args) => ItemTransfer.getSheetContextMenuOption(wrapper, args),
+        "WRAPPER"
+      );
+    }
   }
 
-  static transferItemHandler(e) {
-    e.preventDefault();
-    const item = this.items.find((item) => item.id === e.currentTarget.closest(".item").dataset.itemId);
-    ItemTransfer.#createDialog(this, item);
+  static getSheetContextMenuOption(wrapper, args) {
+    const options = wrapper(...args) ?? [];
+    if (!game.settings.get("wfrp4e-macros-and-more", "transfer-item-gui")) return options;
+
+    options.push({
+      name: "Transfer Item",
+      icon: '<i class="fas fa-hands-helping"></i>',
+      condition: (li) => {
+        const uuid = li?.dataset?.uuid;
+        if (!uuid) return false;
+
+        const doc = fromUuidSync(uuid);
+        return doc?.documentName === "Item" && !!doc.actor && ItemTransfer.MOVABLE_ITEM_TYPES.includes(doc?.type);
+      },
+      callback: async (li) => {
+        const uuid = li?.dataset?.uuid;
+        if (!uuid) return ui.notifications.error("Item not found.");
+
+        const doc = fromUuidSync(uuid);
+        if (doc?.documentName !== "Item" || !doc?.actor) return ui.notifications.error("Item not found.");
+        ItemTransfer.createDialog(doc.actor, doc);
+      }
+    });
+
+    return options;
   }
 
+  /**
+   * @param {Array<Object>} transferObjects - List of transfer objects.
+   * @returns {Promise<void>}
+   */
   static async transferItems(transferObjects) {
     const groupedObjects = [];
     for (const transferObject of transferObjects) {
       if (game.user.isGM) {
         await this.handleTransfer(transferObject);
-      } else if (game.users.some((u) => u.active && u.isGM)) {
+      } else if ([...game.users].some((u) => u.active && u.isGM)) {
         await game.socket.emit(`module.wfrp4e-macros-and-more`, {
           type: "transferItem",
           payload: transferObject
@@ -47,11 +77,12 @@ export default class ItemTransfer {
 
     const msg = groupedObjects
       .map((group) => {
+        const itemList = group.value.map((o) => `<li>${o.item.name} (${o.quantity})</li>`).join("");
         return `
         <b>From: </b>${game.actors.get(group.sourceActorId).name}<br>
         <b>To: </b>${game.actors.get(group.targetActorId).name}<br>
         <b>Items: </b>
-        <ul>${group.value.map((o) => `<li>${o.item.name} (${o.quantity})</li>`).join("")}</ul>`;
+        <ul>${itemList}</ul>`;
       })
       .join("<hr>");
     if (msg !== "") {
@@ -64,62 +95,89 @@ export default class ItemTransfer {
     }
   }
 
+  /**
+   * @param {Object} payload - Transfer data object.
+   * @param {Item} payload.item - Source item document.
+   * @param {string} payload.targetActorId - Target actor id.
+   * @param {string} payload.targetContainerId - Target container id.
+   * @param {string} payload.sourceActorId - Source actor id.
+   * @param {string} payload.sourceContainerId - Source container id.
+   * @param {number|string} payload.quantity - Requested transfer quantity.
+   * @returns {Promise<void>}
+   */
   static async handleTransfer({item, targetActorId, targetContainerId, sourceActorId, sourceContainerId, quantity}) {
     const sourceActor = game.actors.get(sourceActorId);
     const targetActor = game.actors.get(targetActorId);
+    const transferQuantity = Number(quantity);
+
+    if (!Number.isFinite(transferQuantity) || transferQuantity <= 0) {
+      Utility.log(`Invalid transfer quantity: ${quantity}`);
+      return ui.notifications.error("Item quantity invalid.");
+    }
+    if (item.system.quantity.value < transferQuantity) {
+      Utility.log(`Transfer quantity ${transferQuantity} exceeds available quantity ${item.system.quantity.value}`);
+      return ui.notifications.error("Item quantity invalid.");
+    }
+
     let updatedItem = foundry.utils.duplicate(item);
 
     // Global Transfer
-    if (sourceActorId !== targetActorId || item.system.quantity.value !== quantity) {
+    if (sourceActorId !== targetActorId || item.system.quantity.value !== transferQuantity) {
       Utility.log(`Adding ${updatedItem._id} to ${targetActorId} (${targetContainerId})`);
-      const foundItem = this.#findItems(item, targetActor, quantity, targetContainerId);
+      const foundItem = this.findItems(item, targetActor, transferQuantity, targetContainerId);
       if (foundItem) {
         Utility.log(`Duplicate found: ${foundItem._id}`);
-        updatedItem = await this.#updateItem({
+        updatedItem = await this.updateItem({
           item: foundItem,
           actor: targetActor,
-          quantity: foundItem.system.quantity.value + quantity
+          quantity: foundItem.system.quantity.value + transferQuantity
         });
       } else {
         const createdItem = foundry.utils.duplicate(item);
-        createdItem.system.quantity.value = quantity;
+        createdItem.system.quantity.value = transferQuantity;
         createdItem.system.location.value = "";
 
         updatedItem = (await targetActor.createEmbeddedDocuments("Item", [createdItem]))[0];
         Utility.log(`Duplicate not found: Creating ${updatedItem._id}`);
       }
       Utility.log(`Removing ${item._id} from ${sourceActorId} (${sourceContainerId})`);
-      await this.#updateItem({
+      await this.updateItem({
         item,
         actor: sourceActor,
-        quantity: item.system.quantity.value - quantity
+        quantity: item.system.quantity.value - transferQuantity
       });
     }
 
     // Local Transfer
     if (sourceActorId === targetActorId || (sourceActorId !== targetActorId && targetContainerId !== "")) {
       Utility.log(`Transfer ${updatedItem._id} from ${sourceContainerId} to ${targetContainerId}`);
-      const foundItem = this.#findItems(updatedItem, targetActor, quantity, targetContainerId);
+      const foundItem = this.findItems(updatedItem, targetActor, transferQuantity, targetContainerId);
       if (foundItem) {
         Utility.log(`Duplicate found: ${foundItem._id}`);
-        await this.#updateItem({
+        await this.updateItem({
           item: foundItem,
           actor: targetActor,
-          quantity: foundItem.system.quantity.value + quantity
+          quantity: foundItem.system.quantity.value + transferQuantity
         });
-        await this.#updateItem({
+        await this.updateItem({
           item: updatedItem,
           actor: targetActor,
-          quantity: updatedItem.system.quantity.value - quantity
+          quantity: updatedItem.system.quantity.value - transferQuantity
         });
       } else {
         Utility.log(`Duplicate not found: Moving ${updatedItem._id}`);
-        await this.#moveItem(updatedItem, targetActor, targetContainerId);
+        await this.moveItem(updatedItem, targetActor, targetContainerId);
       }
     }
   }
 
-  static async #moveItem(item, actor, containerId) {
+  /**
+   * @param {Item} item - Item to move.
+   * @param {Actor} actor - Owning actor.
+   * @param {string} containerId - Destination container id.
+   * @returns {Promise<Item>}
+   */
+  static async moveItem(item, actor, containerId) {
     Utility.log(`Updating ${item._id}: changing location to ${containerId}`);
     const update = {
       _id: item._id,
@@ -130,7 +188,14 @@ export default class ItemTransfer {
     return (await actor.updateEmbeddedDocuments("Item", [update]))[0];
   }
 
-  static async #updateItem({item, actor, quantity}) {
+  /**
+   * @param {Object} args - Update arguments.
+   * @param {Item} args.item - Item to update.
+   * @param {Actor} args.actor - Owning actor.
+   * @param {number} args.quantity - New quantity.
+   * @returns {Promise<Item|null>}
+   */
+  static async updateItem({item, actor, quantity}) {
     Utility.log(`Updating ${item._id}: changing quantity to ${quantity}`);
     const update = {
       _id: item._id,
@@ -144,9 +209,17 @@ export default class ItemTransfer {
       await actor.deleteEmbeddedDocuments("Item", [item._id]);
       return null;
     }
+    return updatedItem;
   }
 
-  static #findItems(sourceItem, actor, quantity, containerId) {
+  /**
+   * @param {Item} sourceItem - Item used for comparison.
+   * @param {Actor} actor - Actor where item is searched.
+   * @param {number} quantity - Quantity delta used in safety check.
+   * @param {string} containerId - Expected container id.
+   * @returns {Item|null}
+   */
+  static findItems(sourceItem, actor, quantity, containerId) {
     for (const actorItem of actor.items) {
       const dupActorItem = foundry.utils.duplicate(actorItem);
       const dupSourceItem = foundry.utils.duplicate(sourceItem);
@@ -167,7 +240,11 @@ export default class ItemTransfer {
     return null;
   }
 
-  static #createDialog(actor, item) {
+  /**
+   * @param {Actor} actor - Source actor.
+   * @param {Item} item - Source item.
+   */
+  static createDialog(actor, item) {
     new Dialog({
       title: "Transfer Item",
       content: `
@@ -232,6 +309,11 @@ export default class ItemTransfer {
     }).render(true);
   }
 
+  /**
+   * @param {string} sourceActorId - Source actor id.
+   * @param {string} sourceContainerId - Source container id.
+   * @returns {string}
+   */
   static createSelectTag(sourceActorId, sourceContainerId) {
     const cleanedSourceContainerId = Utility.clean(sourceContainerId);
     let select = "";
@@ -250,14 +332,12 @@ export default class ItemTransfer {
                   label="&nbsp;&nbsp;&nbsp;&nbsp;${container.name}">`;
       }
     }
-    const isGMActive = !!game.users.some((u) => u.active && u.isGM);
     const otherActors = Utility.getTransferableActors().map(
-      (actor) => `
-          <option style="font-weight: bold;"
-                  data-target-container=""
-                  data-target-actor="${actor.id}"
-                  ${isGMActive ? "" : "disabled"}
-                  label="${actor.name}">`
+      (actor) => `<option style="font-weight: bold;"
+                          data-target-container=""
+                          data-target-actor="${actor.id}"
+                          ${game.users?.activeGM?.id ? "" : "disabled"}
+                          label="${actor.name}">`
     );
     if (otherActors.length !== 0) {
       select += "<option disabled>──────────</option>" + otherActors.join("");

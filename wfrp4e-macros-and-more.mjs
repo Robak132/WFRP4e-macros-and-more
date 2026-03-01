@@ -2,7 +2,7 @@ import ItemTransfer from "./modules/item-transfer.mjs";
 import {handleLosingGroupAdvantage} from "./modules/group-advantage-losing.mjs";
 import Utility from "./modules/utility.mjs";
 import MaintenanceWrapper from "./modules/maintenance.mjs";
-import {CHANGE_ACTOR_TYPE_CONTEXT, CHANGE_ITEM_TYPE_CONTEXT} from "./modules/convert.mjs";
+import {getChangeActorTypeContext, getChangeItemTypeContext} from "./modules/convert.mjs";
 import {getUpgradeItemContext} from "./modules/upgrade-item.mjs";
 import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
@@ -105,6 +105,9 @@ Hooks.once("init", async function () {
   // Register handlebars
   registerHandlebars();
 
+  // Register libWrapper patches
+  ItemTransfer.patchSheetContextMenuOptions();
+
   // Register
   if (game.settings.get("wfrp4e-macros-and-more", "auto-engaged")) {
     setupAutoEngaged();
@@ -162,24 +165,9 @@ Hooks.on("updateCombat", async (combat, updates, _, __) => {
   }
 });
 
-Hooks.on("getActorContextOptions", (_, options) => {
-  options.push(CHANGE_ACTOR_TYPE_CONTEXT());
-});
+Hooks.on("getActorContextOptions", (_, options) => options.push(getChangeActorTypeContext()));
 
-Hooks.on("getItemContextOptions", (_, options) => {
-  options.push(CHANGE_ITEM_TYPE_CONTEXT(), getUpgradeItemContext());
-});
-
-Hooks.on("renderActorSheetWFRP4eCharacter", (sheet, html, _) => {
-  console.log(sheet);
-  ItemTransfer.setupItemHandler(sheet, html);
-});
-
-Hooks.on("renderActorSheetWFRP4eCreature", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
-
-Hooks.on("renderActorSheetWFRP4eNPC", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
-
-Hooks.on("renderActorSheetWFRP4eVehicle", (sheet, html, _) => ItemTransfer.setupItemHandler(sheet, html));
+Hooks.on("getItemContextOptions", (_, options) => options.push(getChangeItemTypeContext(), getUpgradeItemContext()));
 
 Hooks.on("renderChatMessageHTML", async (app, html) => {
   let unstableActor = html.querySelector(".unstable-actor");
@@ -204,3 +192,5 @@ Hooks.on("renderChatMessageHTML", async (app, html) => {
     });
   }
 });
+
+
