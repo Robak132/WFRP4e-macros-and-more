@@ -83,6 +83,12 @@
       "_id": "rcR8rDpEYe899SQc",
       "img": "icons/svg/dice-target.svg",
       "codeFile": "reveal-fow.js"
+    },
+    {
+      "_id": "sN9k2Qp4Vt7LmX1R",
+      "codeFile": "apply-basic-damage.js",
+      "img": "icons/svg/blood.svg",
+      "name": "Apply Basic Damage"
     }
   ]
 }

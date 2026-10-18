@@ -7,7 +7,7 @@ import {getUpgradeItemContext} from "./modules/upgrade-item.mjs";
 import RobakMarketWfrp4e, {overrideMarket} from "./modules/market.mjs";
 import ExperienceVerificator from "./modules/experience-verificator.mjs";
 import ConfigurableDialog from "./modules/configurable-dialog.mjs";
-import {setupAutoEngaged} from "./modules/auto-engage.mjs";
+import {setupAutoEngaged, EngagementMemory} from "./modules/auto-engage.mjs";
 
 function registerSettings() {
   game.settings.register("wfrp4e-macros-and-more", "transfer-item-gui", {
@@ -93,7 +93,8 @@ Hooks.once("init", async function () {
     maintenance: MaintenanceWrapper,
     experienceVerificator: ExperienceVerificator,
     utils: Utility,
-    configurableDialog: ConfigurableDialog
+    configurableDialog: ConfigurableDialog,
+    engagementMemory: new EngagementMemory()
   };
 
   // Load regions
@@ -169,10 +170,27 @@ Hooks.on("getActorContextOptions", (_, options) => options.push(getChangeActorTy
 
 Hooks.on("getItemContextOptions", (_, options) => options.push(getChangeItemTypeContext(), getUpgradeItemContext()));
 
-Hooks.on("renderChatMessageHTML", async (app, html) => {
-  let unstableActor = html.querySelector(".unstable-actor");
-  if (unstableActor) {
-    unstableActor.addEventListener("click", async (event) => {
+Hooks.on("renderChatMessageHTML", (chatMessage, html) => {
+  html.querySelectorAll(".advantage-button").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (!game.user.isGM) return;
+      let advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
+      switch ($(event.currentTarget).attr("data-action")) {
+        case "enemies":
+          advantage.enemies += 1;
+          advantage.players = Math.max(0, advantage.players - 1);
+          break;
+        case "allies":
+          advantage.players += 1;
+          advantage.enemies = Math.max(0, advantage.enemies - 1);
+          break;
+      }
+      await game.settings.set("wfrp4e", "groupAdvantageValues", advantage);
+    });
+  });
+  html.querySelectorAll(".unstable-actor").forEach((button) => {
+    button.addEventListener("click", async (event) => {
       event.preventDefault();
       try {
         if (!game.user.isGM) return;
@@ -186,11 +204,9 @@ Hooks.on("renderChatMessageHTML", async (app, html) => {
         const actor = token.actor;
         await actor.applyBasicDamage(dmg, {damageType: game.wfrp4e?.config?.DAMAGE_TYPE?.IGNORE_ALL});
       } catch (err) {
-        console.error("Error handling unstable-actor click", err);
+        Utility.error("Error handling unstable-actor click", err);
         ui.notifications.error("Error applying damage");
       }
     });
-  }
+  });
 });
-
-

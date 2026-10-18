@@ -74,20 +74,24 @@ export async function handleLosingGroupAdvantage(combatants) {
 }
 
 function buildSection(list) {
-  list = list.slice().sort((a, b) => a.actor.name.localeCompare(b.actor.name));
+  list = list.slice().sort((a, b) => getDisplayName(a).localeCompare(getDisplayName(b)));
   const totalValue = list.filter((a) => !a.defeated).reduce((a, c) => a + c.getValue(), 0);
   return {
     total: totalValue ?? 0,
     items: list.map((actor) => {
       const value = actor.getValue();
       return {
-        name: actor.actor.name,
+        name: getDisplayName(actor),
         value,
         drilled: actor.drilled,
         defeated: actor.defeated
       };
     })
   };
+}
+
+function getDisplayName(combatant) {
+  return combatant?.token?.name ?? combatant?.actor?.name;
 }
 
 function buildUnstableSection(list, dmg) {
@@ -109,25 +113,3 @@ function buildUnstableSection(list, dmg) {
     items
   };
 }
-
-Hooks.on("renderChatMessageHTML", (chatMessage, html) => {
-  const advantageButton = html.querySelectorAll(".advantage-button");
-  advantageButton.forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.preventDefault();
-      if (!game.user.isGM) return;
-      let advantage = game.settings.get("wfrp4e", "groupAdvantageValues");
-      switch ($(event.currentTarget).attr("data-action")) {
-        case "enemies":
-          advantage.enemies += 1;
-          advantage.players = Math.max(0, advantage.players - 1);
-          break;
-        case "allies":
-          advantage.players += 1;
-          advantage.enemies = Math.max(0, advantage.enemies - 1);
-          break;
-      }
-      await game.settings.set("wfrp4e", "groupAdvantageValues", advantage);
-    });
-  });
-});

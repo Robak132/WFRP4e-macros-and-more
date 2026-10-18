@@ -178,6 +178,10 @@ export default class Utility {
     console.debug("Robak's macros | ", ...data);
   }
 
+  static error(...data) {
+    console.error("Robak's macros | ", ...data);
+  }
+
   static isObjectEqual(x, y, ignore, path = []) {
     const result = this.#isObjectEqualRaw(x, y, ignore, path);
     if (!result) {
@@ -330,4 +334,115 @@ export default class Utility {
     }
     return result;
   }
+
+  static getHitLocationOptions() {
+    const locations = game.wfrp4e.config.locations || {};
+    const options = [{label: "Roll", value: "roll"}];
+    for (const [key, value] of Object.entries(locations)) {
+      options.push({label: game.i18n.localize(value), value: key});
+    }
+    return options;
+  }
+
+  static async resolveHitLocation(loc, actor = null) {
+    if (loc !== "roll") {
+      return loc;
+    }
+    const table = actor?.details?.hitLocationTable?.value || "hitloc";
+    const rolled = await game.wfrp4e.tables.rollTable(table, {hideDSN: true});
+    return rolled?.result || "body";
+  }
+
+  static buildOpposeResult(actor, damage, hitLocation) {
+    const hitLocationLabel = game.i18n.localize(game.wfrp4e.config.locations?.[hitLocation] || hitLocation);
+
+    return {
+      damage: {
+        value: damage,
+        description: `<strong>${game.i18n.localize("Damage")}:</strong> ${damage}`
+      },
+      hitloc: {
+        value: hitLocation,
+        description: `<strong>${game.i18n.localize("ROLL.HitLocation")}:</strong> ${hitLocationLabel}`
+      },
+      other: [],
+      breakdown: {}
+    };
+  }
+
+  static buildTestData(actor, {unopposed = false} = {}) {
+    const speaker = actor.speakerData();
+    return {
+      preData: {
+        rollClass: "TestWFRP",
+        roll: 1,
+        target: 0,
+        SL: 0,
+        testModifier: 0,
+        testDifficulty: 0,
+        successBonus: 0,
+        slBonus: 0,
+        postOpposedModifiers: {
+          target: 0,
+          SL: 0
+        },
+        dualWielding: false,
+        item: {
+          name: "Basic Damage",
+          type: "weapon",
+          system: {},
+          properties: {
+            qualities: {},
+            flaws: {}
+          }
+        }
+      },
+      result: {
+        roll: 1,
+        SL: 0,
+        target: 0,
+        outcome: "success",
+        description: "",
+        tooltips: {}
+      },
+      context: {
+        speaker,
+        targets: [],
+        chatOptions: {speaker},
+        messageId: "",
+        unopposed
+      }
+    };
+  }
+
+  static async applyBasicDamage(actor, damage, hitLocation, {whisper = [], blind = false} = {}) {
+    const opposeResult = this.buildOpposeResult(actor, damage, hitLocation);
+
+    const opposedTest = {
+      data: {
+        attackerTestData: this.buildTestData(actor, {unopposed: false}),
+        defenderTestData: this.buildTestData(actor, {unopposed: true}),
+        opposeResult
+      },
+      result: opposeResult,
+      defender: actor
+    };
+
+    const options = {whisper, blind};
+    const handler = {message: {id: ""}};
+    const message = await CONFIG.ChatMessage.dataModels.opposed.create(opposedTest, options, handler);
+    await message.update({
+      "system.opposedTestData.attackerTestData.context.messageId": message.id,
+      "speaker.alias": actor?.name || message?.speaker?.alias
+    });
+
+    return message;
+  }
+
+  static sortObjectEntries(obj, {filterFn = () => true, sortFn = null} = {}) {
+    let entries = Object.entries(obj).filter((val) => filterFn(val));
+    if (sortFn) entries = entries.sort((a, b) => sortFn(a, b));
+    return Object.fromEntries(entries);
+  }
 }
+

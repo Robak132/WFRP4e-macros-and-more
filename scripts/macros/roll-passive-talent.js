@@ -3,6 +3,7 @@
 * AUTHOR: Robak132
 * DESCRIPTION: Allows for easier interaction with passive talents like Sixth Sense and Trapper.
 ========== */
+const Utility = game.robakMacros.utils;
 
 const PASSIVE_TALENTS = [
   {
@@ -29,6 +30,7 @@ async function passiveTalentMacro() {
     const targetGroup = game.actors.filter((a) => {
       return a.hasPlayerOwner && a.type !== "vehicle" && a.itemTypes.talent.some((i) => i.name === talent);
     });
+    Utility.log(talent, targetGroup);
     if (targetGroup.length === 0) {
       continue;
     }

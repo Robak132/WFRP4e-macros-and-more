@@ -1,7 +1,6 @@
 // Adapted from @silentmark repo
-// https://github.com/silentmark/wfrp4e-pl-addons/blob/main/scripts/auto-engaged.mjs
-
-class EngagementMemory {
+// https://github.com/silentmark/wfrp4e-pl-addons/blob/main/scripts/auto-engaged.mjs;
+export class EngagementMemory {
   constructor() {
     this.groups = [];
   }
@@ -15,10 +14,7 @@ class EngagementMemory {
    * @param {string[]} [preferredTokenIds]
    */
   add(tokens, preferredTokenIds = []) {
-    const tokenIds = [];
-    for (const tokenId of tokens.map((t) => t?.id).filter(Boolean)) {
-      if (!tokenIds.includes(tokenId)) tokenIds.push(tokenId);
-    }
+    const tokenIds = [...new Set(tokens.map((t) => t?.id).filter(Boolean))];
     if (tokenIds.length < 2) return;
 
     const existingGroups = this.groups.filter((group) => tokenIds.some((tokenId) => group.contains(tokenId)));
@@ -79,16 +75,14 @@ class EngagementMemory {
 
 class Engagement {
   constructor() {
-    this.tokenIds = [];
+    this.tokenIds = new Set();
   }
 
   /**
    * @param {string} tokenId
    */
   addToken(tokenId) {
-    if (!this.tokenIds.includes(tokenId)) {
-      this.tokenIds.push(tokenId);
-    }
+    this.tokenIds.add(tokenId);
   }
 
   /**
@@ -96,14 +90,14 @@ class Engagement {
    * @returns {boolean}
    */
   contains(tokenId) {
-    return this.tokenIds.includes(tokenId);
+    return this.tokenIds.has(tokenId);
   }
 
   /**
    * @param {string} tokenId
    */
   removeToken(tokenId) {
-    this.tokenIds = this.tokenIds.filter((id) => id !== tokenId);
+    this.tokenIds.delete(tokenId);
   }
 
   /**
@@ -111,14 +105,14 @@ class Engagement {
    * @returns {string[]}
    */
   combatants(tokenId) {
-    return this.tokenIds.filter((id) => id !== tokenId);
+    return [...this.tokenIds].filter((id) => id !== tokenId);
   }
 
   /**
    * @returns {number}
    */
   size() {
-    return this.tokenIds.length;
+    return this.tokenIds.size;
   }
 
   /**
@@ -128,8 +122,6 @@ class Engagement {
     return [...this.tokenIds];
   }
 }
-
-const engagementMemory = new EngagementMemory();
 
 /**
  * @param {Token} token
@@ -215,7 +207,7 @@ function rememberEngagement(test) {
   const attackers = resolveAttackerTokens(test);
   const targets = resolveTargetTokens(test);
   const participants = [...attackers, ...targets];
-  engagementMemory.add(
+  game.engagementMemory.add(
     participants,
     targets.map((t) => t.id)
   );
@@ -228,7 +220,7 @@ function rememberEngagement(test) {
  * @returns {Promise<void>}
  */
 async function clearIfDisengaged(token, newX, newY) {
-  const combatants = engagementMemory
+  const combatants = game.engagementMemory
     .combatants(token.id)
     .map((id) => canvas.tokens.get(id))
     .filter(Boolean);
@@ -236,7 +228,7 @@ async function clearIfDisengaged(token, newX, newY) {
   if (!combatants.length) return;
   if (combatants.some((combatant) => areAdjacent(token, combatant, newX, newY))) return;
 
-  const orphaned = engagementMemory.remove(token.id);
+  const orphaned = game.engagementMemory.remove(token.id);
   await token.actor?.removeCondition("engaged");
   for (const peerId of orphaned) {
     await canvas.tokens.get(peerId)?.actor?.removeCondition("engaged");
@@ -287,7 +279,7 @@ function removeActorFromEngagements(actor) {
   if (!actor) return;
   const tokens = actor.getActiveTokens?.(true, true) ?? [];
   for (const token of tokens) {
-    const orphaned = engagementMemory.remove(token.id);
+    const orphaned = game.engagementMemory.remove(token.id);
     for (const orphanId of orphaned) {
       canvas.tokens.get(orphanId)?.actor?.removeCondition("engaged");
     }
@@ -298,13 +290,11 @@ export function setupAutoEngaged() {
   SocketHandlers.addCondition = async function ({condition, actorId}) {
     const actor = game.actors.get(actorId);
     const owner = actor ? game.wfrp4e.utility.getActiveDocumentOwner(actor) : null;
-    if (owner?.id === game.user.id) {
-      await actor.addCondition(condition);
-    }
+    if (owner?.id === game.user.id) await actor.addCondition(condition);
   };
 
-  Hooks.on("canvasReady", () => engagementMemory.reset());
-  Hooks.on("deleteToken", (tokenDocument) => engagementMemory.remove(tokenDocument.id));
+  Hooks.on("canvasReady", () => game.engagementMemory.reset());
+  Hooks.on("deleteToken", (tokenDocument) => game.engagementMemory.remove(tokenDocument.id));
   Hooks.on("updateToken", async (tokenDocument, data) => {
     if (!game.user.isGM) return;
 

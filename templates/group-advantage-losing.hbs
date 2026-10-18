@@ -60,7 +60,7 @@
     <div class="description"><span>{{localize "MACROS-AND-MORE.UnstableMaySuffer"}}</span></div>
     <ul class="wfrp4e-advantage-list">
       {{#each unstable.items}}
-        <li><a class="unstable-actor" data-token="{{tokenId}}" data-damage="{{dmg}}">{{label}}</a></li>
+        <li><a class="unstable-actor" data-token="{{tokenId}}" data-damage="{{dmg}}">{{{label}}}</a></li>
       {{/each}}
     </ul>
   {{/if}}
